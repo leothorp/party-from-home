@@ -11,11 +11,11 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Build the Docker image
-      run: docker build . --file Dockerfile.client --tag docker.pkg.github.com/carlosdp/lockdown-party/client:${{ github.sha }}
+      run: docker build . --file Dockerfile.client --tag docker.pkg.github.com/carlosdp/lockdown-party/lockdown-client:${{ github.sha }}
     - name: Tag latest
-      run: docker tag docker.pkg.github.com/carlosdp/lockdown-party/client:${{ github.sha }} docker.pkg.github.com/carlosdp/lockdown-party/client:latest
+      run: docker tag docker.pkg.github.com/carlosdp/lockdown-party/lockdown-client:${{ github.sha }} docker.pkg.github.com/carlosdp/lockdown-party/lockdown-client:latest
     - name: Push Image
-      run: docker login docker.pkg.github.com -u ${{ secrets.GITHUB_USERNAME }} -p ${{ secrets.GITHUB_TOKEN }} && docker push docker.pkg.github.com/carlosdp/lockdown-party/client
+      run: docker login docker.pkg.github.com -u ${{ secrets.GITHUB_USERNAME }} -p ${{ secrets.GITHUB_TOKEN }} && docker push docker.pkg.github.com/carlosdp/lockdown-party/lockdown-client
     # - name: curl
     #   uses: wei/curl@master
     #   with:
