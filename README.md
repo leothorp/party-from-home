@@ -1,20 +1,26 @@
-# Twilio Video React App
+# Lockdown Party
 
 [![CircleCI](https://circleci.com/gh/twilio/twilio-video-app-react.svg?style=svg)](https://circleci.com/gh/twilio/twilio-video-app-react)
 
-This application demonstrates a multi-party video application built with [twilio-video.js](https://github.com/twilio/twilio-video.js) and [Create React App](https://github.com/facebook/create-react-app).
+Forked from [Twilio's Video Conference demo app](https://github.com/twilio/twilio-video-app-react)
 
-![App Preview](https://user-images.githubusercontent.com/12685223/76361972-c035b700-62e5-11ea-8f9d-0bb24bd73fd4.png)
 
-## Features
+## Contributing
 
-- [x] Video conferencing with real-time video and audio
-- [x] Enable/disable camera
-- [x] Mute/unmute mic
-- [x] Screen sharing
-- [x] [Dominant speaker](https://www.twilio.com/docs/video/detecting-dominant-speaker) indicator
-- [x] [Network quality](https://www.twilio.com/docs/video/using-network-quality-api) indicator
-- [x] [Bandwidth Profile API](https://www.twilio.com/docs/video/tutorials/using-bandwidth-profile-api)
+If you'd like to contribute, open a Pull Request. It is recommended you follow the Roadmap laid out below when developing features, since the project is in an early stage.
+If you have questions about the roadmap, contact @carlosdp.
+
+
+## Roadmap
+
+- [ ] Facebook Login
+- [ ] Authenticate using Facebook Event
+- [ ] Welcome video
+- [ ] Basic Moderation (kick, ban, mute)
+- [ ] Global text announcements
+- [ ] Dynamically configurable rooms
+- [ ] Room banners
+
 
 ## Requirements
 
@@ -51,6 +57,7 @@ This application requires an access token to connect to a Room. The included loc
 
 ```
 TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_API_KEY_SID=SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_API_KEY_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 ```
@@ -81,7 +88,7 @@ The response will be a token that can be used to connect to a room.
 
 Try it out with this sample `curl` command:
 
-`curl 'localhost:8081/token?identity=TestName&roomName=TestRoom'`
+`curl 'localhost:8081/api/token?identity=TestName&roomName=TestRoom'`
 
 ### Multiple Participants in a Room
 
@@ -144,7 +151,7 @@ In this hook, the `useEffect` hook is used to subscribe to the `dominantSpeakerC
 
 For more information on how React hooks can be used with the Twilio Video SDK, see this tutorial: https://www.twilio.com/blog/video-chat-react-hooks. To see all of the hooks used by this application, look in the `src/hooks` directory.
 
-## Configuration
+## Twilio Configuration
 
 The `connect` function from the SDK accepts a [configuration object](https://media.twiliocdn.com/sdk/js/video/releases/2.0.0/docs/global.html#ConnectOptions). The configuration object for this application can be found in [src/index.ts](https://github.com/twilio/twilio-video-app-react/blob/master/src/index.tsx#L20). In this object, we 1) enable dominant speaker detection, 2) enable the network quality API, and 3) supply various options to configure the [bandwidth profile](https://www.twilio.com/docs/video/tutorials/using-bandwidth-profile-api).
 
@@ -152,18 +159,20 @@ The `connect` function from the SDK accepts a [configuration object](https://med
 
 This application dynamically changes the priority of remote video tracks to provide an optimal collaboration experience. Any video track that will be displayed in the main video area will have `track.setPriority('high')` called on it (see the [VideoTrack](https://github.com/twilio/twilio-video-app-react/blob/master/src/components/VideoTrack/VideoTrack.tsx#L25) component) when the component is mounted. This higher priority enables the track to be rendered at a high resolution. `track.setPriority(null)` is called when the component is unmounted so that the track's priority is set to its publish priority (low).
 
-## Google Authentication using Firebase (optional)
-
-This application can be configured to authenticate users before they use the app. Once users have signed into the app with their Google credentials, their Firebase ID Token will be included in the Authorization header of the HTTP request that is used to obtain an access token. The Firebase ID Token can then be [verified](https://firebase.google.com/docs/auth/admin/verify-id-tokens) by the server that dispenses access tokens for connecting to a room. 
-
-See [.env.example](.env.example) for an explanation of the environment variables that must be set to enable Google authentication.
-
-## Related
-
-- [Twilio Video Android App](https://github.com/twilio/twilio-video-app-android)
-- [Twilio Video iOS App](https://github.com/twilio/twilio-video-app-ios)
-- [Twilio CLI RTC Plugin](https://github.com/twilio-labs/plugin-rtc)
-
 ## License
 
 See the [LICENSE](LICENSE) file for details.
+
+## Original Twilio Info
+
+This application demonstrates a multi-party video application built with [twilio-video.js](https://github.com/twilio/twilio-video.js) and [Create React App](https://github.com/facebook/create-react-app).
+
+### Features
+
+- [x] Video conferencing with real-time video and audio
+- [x] Enable/disable camera
+- [x] Mute/unmute mic
+- [x] Screen sharing
+- [x] [Dominant speaker](https://www.twilio.com/docs/video/detecting-dominant-speaker) indicator
+- [x] [Network quality](https://www.twilio.com/docs/video/using-network-quality-api) indicator
+- [x] [Bandwidth Profile API](https://www.twilio.com/docs/video/tutorials/using-bandwidth-profile-api)
