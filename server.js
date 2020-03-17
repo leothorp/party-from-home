@@ -34,6 +34,8 @@ app.get('/room/:room/participants', (req, res) => {
   });
 });
 
+app.get('/', (req, res) => res.send(''));
+
 app.get('*', (_, res) => res.sendFile(path.join(__dirname, 'build/index.html')));
 
 app.listen(8081, () => console.log('token server running on 8081'));

@@ -24,7 +24,7 @@ spec:
         - name: lockdown-registry
       containers:
         - name: web
-          image: docker.pkg.github.com/carlosdp/lockdown-party/server:latest
+          image: docker.pkg.github.com/carlosdp/lockdown-party/lockdown-server:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -108,7 +108,7 @@ spec:
         - name: lockdown-registry
       containers:
         - name: client
-          image: docker.pkg.github.com/carlosdp/lockdown-party/client:latest
+          image: docker.pkg.github.com/carlosdp/lockdown-party/lockdown-client:latest
           imagePullPolicy: Always
           ports:
             - containerPort: 80
@@ -153,21 +153,17 @@ metadata:
 spec:
   tls:
     - hosts:
-      - www.cdp.pub
+      - beta.nitsan.party
       secretName: letsencrypt-prod
   rules:
-  - host: www.cdp.pub
+  - host: beta.nitsan.party
     http:
       paths:
       - backend:
-          serviceName: lockdown
+          serviceName: lockdown-client
           servicePort: 80
         path: /
       - backend:
-          serviceName: lockdown-client
+          serviceName: lockdown
           servicePort: 80
-        path: /index.html
-      - backend:
-          serviceName: lockdown-client
-          servicePort: 80
-        path: /assets
+        path: /api.*
