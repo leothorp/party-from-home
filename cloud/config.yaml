@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: lockdown-service
+  namespace: lockdown
+data:
+  ssl_cert_dir: /etc/ssl/certs
+  environment: "production"
+  web_port: "80"
+  db_host: lockdown-postgres
+  db_port: "5432"
+  db_name: lockdown

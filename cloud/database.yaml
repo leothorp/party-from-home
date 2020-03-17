@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: chimerical-db
+  namespace: chimerical
+  labels:
+    app: chimerical-db
+spec:
+  podManagementPolicy: Parallel
+  replicas: 1
+  serviceName: chimerical-db
+  selector:
+    matchLabels:
+      app: chimerical-db
+  template:
+    metadata:
+      labels:
+        app: chimerical-db
+    spec:
+      dnsPolicy: ClusterFirst
+      containers:
+      - env:
+          - name: PGDATA
+            value: /var/lib/postgresql/data/pgdata
+        image: postgres:9.6
+        imagePullPolicy: Always
+        name: chimerical-db
+        ports:
+        - containerPort: 5432
+          name: db
+          protocol: TCP
+        volumeMounts:
+        - mountPath: /var/lib/postgresql/data
+          name: datadir
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 60
+  updateStrategy:
+    type: RollingUpdate
+  volumeClaimTemplates:
+  - metadata:
+      name: datadir
+    spec:
+      accessModes:
+      - ReadWriteOnce
+      dataSource: null
+      resources:
+        requests:
+          storage: 10Gi
+      volumeMode: Filesystem
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: chimerical-postgres
+  namespace: chimerical
+spec:
+  ports:
+    - port: 5432
+      protocol: TCP
+  selector:
+    app: chimerical-db
+  type: ClusterIP

@@ -1,0 +1,173 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: lockdown
+  namespace: lockdown
+  labels:
+    app: lockdown
+    keel.sh/policy: force
+    keel.sh/match-tag: "true"
+spec:
+  selector:
+    matchLabels:
+      app: lockdown
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+  template:
+    metadata:
+      labels:
+        app: lockdown
+    spec:
+      imagePullSecrets:
+        - name: lockdown-registry
+      containers:
+        - name: web
+          image: docker.pkg.github.com/carlosdp/lockdown-party/server:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          readinessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          livenessProbe:
+            httpGet:
+              path: /
+              port: 80
+            initialDelaySeconds: 30
+            periodSeconds: 5
+          resources:
+            requests:
+              cpu: 50m
+              memory: 100M
+            limits:
+              cpu: 100m
+              memory: 150M
+          env:
+            - name: SSL_CERT_DIR
+              valueFrom:
+                configMapKeyRef:
+                  name: lockdown-service
+                  key: ssl_cert_dir
+            - name: ENVIRONMENT
+              valueFrom:
+                configMapKeyRef:
+                  name: lockdown-service
+                  key: environment
+            - name: NODE_ENV
+              valueFrom:
+                configMapKeyRef:
+                  name: lockdown-service
+                  key: environment
+            - name: PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: lockdown-service
+                  key: web_port
+            - name: TWILIO_ACCOUNT_SID
+              valueFrom:
+                secretKeyRef:
+                  name: twilio
+                  key: account_sid
+            - name: TWILIO_AUTH_TOKEN
+              valueFrom:
+                secretKeyRef:
+                  name: twilio
+                  key: auth_token
+            - name: TWILIO_API_KEY_SID
+              valueFrom:
+                secretKeyRef:
+                  name: twilio
+                  key: api_key_sid
+            - name: TWILIO_API_KEY_SECRET
+              valueFrom:
+                secretKeyRef:
+                  name: twilio
+                  key: api_key_secret
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: lockdown-client
+  namespace: lockdown
+  labels:
+    app: lockdown-client
+    keel.sh/policy: force
+    keel.sh/match-tag: "true"
+spec:
+  template:
+    metadata:
+      labels:
+        app: lockdown-client
+    spec:
+      imagePullSecrets:
+        - name: lockdown-registry
+      containers:
+        - name: client
+          image: docker.pkg.github.com/carlosdp/lockdown-party/client:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 80
+          resources:
+            requests:
+              cpu: 3m
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lockdown
+  namespace: lockdown
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+  selector:
+    app: lockdown
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: lockdown-client
+  namespace: lockdown
+spec:
+  ports:
+    - port: 80
+      protocol: TCP
+  selector:
+    app: lockdown-client
+  type: ClusterIP
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: lockdown
+  namespace: lockdown
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    certmanager.k8s.io/cluster-issuer: letsencrypt-prod
+spec:
+  tls:
+    - hosts:
+      - www.cdp.pub
+      secretName: letsencrypt-prod
+  rules:
+  - host: www.cdp.pub
+    http:
+      paths:
+      - backend:
+          serviceName: lockdown
+          servicePort: 80
+        path: /
+      - backend:
+          serviceName: lockdown-client
+          servicePort: 80
+        path: /index.html
+      - backend:
+          serviceName: lockdown-client
+          servicePort: 80
+        path: /assets
