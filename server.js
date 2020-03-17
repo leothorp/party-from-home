@@ -16,7 +16,7 @@ const client = new twilio(twilioAccountSid, twilioAuthToken);
 app.use(express.static(path.join(__dirname, 'build')));
 app.use(express.json());
 
-app.get('/token', (req, res) => {
+app.get('/api/token', (req, res) => {
   const { identity, roomName } = req.query;
   const token = new AccessToken(twilioAccountSid, twilioApiKeySID, twilioApiKeySecret, {
     ttl: MAX_ALLOWED_SESSION_DURATION,
@@ -28,7 +28,7 @@ app.get('/token', (req, res) => {
   console.log(`issued token for ${identity} in room ${roomName}`);
 });
 
-app.get('/room/:room/participants', (req, res) => {
+app.get('/api/room/:room/participants', (req, res) => {
   client.video.v1.rooms.get(req.params.room).participants.list().then(participants => {
     res.json(participants);
   });
