@@ -93,6 +93,11 @@ spec:
                 configMapKeyRef:
                   name: lockdown-service
                   key: twilio_service_sid
+            - name: PASSCODE
+              valueFrom:
+                secretKeyRef:
+                  name: passcode
+                  key: passcode
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment
