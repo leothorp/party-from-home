@@ -6,7 +6,6 @@ import LocalVideoPreview from './components/LocalVideoPreview/LocalVideoPreview'
 import MenuBar from './components/MenuBar/MenuBar';
 import ReconnectingNotification from './components/ReconnectingNotification/ReconnectingNotification';
 import Room from './components/Room/Room';
-import RoomList from './components/RoomList/RoomList';
 import RoomGrid from './components/RoomGrid/RoomGrid';
 
 import useRoomState from './hooks/useRoomState/useRoomState';
@@ -28,7 +27,6 @@ export default function App() {
   return (
     <Container>
       <MenuBar />
-      <RoomList />
       <Main>
         {roomState === 'disconnected' ? <LocalVideoPreview /> : <Room />}
         <Controls />

@@ -10,6 +10,7 @@ const GridItem = styled('div')({
   width: '264px',
   marginRight: '24px',
   padding: '17px',
+  cursor: 'pointer',
 });
 
 const RoomTitle = styled('p')({
@@ -37,30 +38,26 @@ const RoomParticipant = styled('div')({
 });
 
 interface Props {
+  id: string;
   title: string;
+  participants: string[];
+  onClick?: (id: string) => void;
 }
 
 export default function RoomGridItem(props: Props) {
+  const onClick = () => {
+    if (props.onClick) {
+      props.onClick(props.id);
+    }
+  };
+
   return (
-    <GridItem>
+    <GridItem onClick={onClick}>
       <RoomTitle>{props.title}</RoomTitle>
       <RoomParticipantContainer>
-        <RoomParticipant></RoomParticipant>
-        <RoomParticipant></RoomParticipant>
-        <RoomParticipant></RoomParticipant>
-        <RoomParticipant></RoomParticipant>
-        <RoomParticipant></RoomParticipant>
-        <RoomParticipant></RoomParticipant>
-        <RoomParticipant></RoomParticipant>
-        <RoomParticipant></RoomParticipant>
-        <RoomParticipant></RoomParticipant>
-        <RoomParticipant></RoomParticipant>
-        <RoomParticipant></RoomParticipant>
-        <RoomParticipant></RoomParticipant>
-        <RoomParticipant></RoomParticipant>
-        <RoomParticipant></RoomParticipant>
-        <RoomParticipant></RoomParticipant>
-        <RoomParticipant></RoomParticipant>
+        {props.participants.map(p => (
+          <RoomParticipant></RoomParticipant>
+        ))}
       </RoomParticipantContainer>
     </GridItem>
   );
