@@ -1,4 +1,5 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
+import useMountEffect from '../../hooks/useMountEffect/useMountEffect';
 import { useAppState } from '../../state';
 import useRoomState from '../../hooks/useRoomState/useRoomState';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
@@ -8,8 +9,6 @@ import SyncClient from 'twilio-sync';
 interface Participants {
   [key: string]: string[];
 }
-
-const useMountEffect = (fun: any) => useEffect(fun, []);
 
 export default function RoomList() {
   const { getToken } = useAppState();
