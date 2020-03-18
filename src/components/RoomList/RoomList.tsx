@@ -2,19 +2,18 @@ import React, { useState, useEffect } from 'react';
 import { useAppState } from '../../state';
 import useRoomState from '../../hooks/useRoomState/useRoomState';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
+import { rooms } from '../../rooms';
+import SyncClient from 'twilio-sync';
 
-const rooms = [
-  { id: 'living', name: 'Living Room' },
-  { id: 'jackbox', name: 'Jackbox' },
-  { id: 'karaoke', name: 'Karaoke Room' },
-  { id: 'dance', name: 'Dance Floor' },
-];
+interface Participants {
+  [key: string]: string[];
+}
 
 export default function RoomList() {
   const { user, getToken } = useAppState();
   const { isConnecting, connect, room } = useVideoContext();
   const roomState = useRoomState();
-  const [participants, setParticipants] = useState(new Map<string, any>());
+  const [participants, setParticipants] = useState<Participants>({});
 
   const switchRoom = (name: string) => {
     return (e: any) => {
@@ -24,29 +23,36 @@ export default function RoomList() {
     };
   };
 
-  // todo(carlos): we don't actually want to update DOM every response, unless there is a change
-  const getParticipants = (room: string) => {
-    fetch(`/api/room/${room}/participants`).then(res => {
-      res.json().then(p => {
-        participants.set(
-          room,
-          p.map((p: any) => p.identity)
-        );
-        setParticipants(new Map<string, any>(participants));
-      });
-    });
-  };
-
   useEffect(() => {
-    rooms.forEach(room => {
-      setInterval(() => getParticipants(room.id), 1000 + Math.random() * 500);
+    fetch(`/api/sync_token?identity=CARLOS`).then(res => {
+      res.text().then(token => {
+        const syncClient = new SyncClient(token);
+
+        syncClient.map(`users`).then((map: any) =>
+          map.getItems().then((paginator: any) => {
+            const participants: Participants = {};
+
+            paginator.items.forEach((item: any) => {
+              if (item.value.room !== undefined) {
+                if (participants[item.value.room]) {
+                  participants[item.value.room].push(item.value.identity);
+                } else {
+                  participants[item.value.room] = [item.value.identity];
+                }
+              }
+            });
+
+            setParticipants(participants);
+          })
+        );
+      });
     });
   }, []);
 
   return (
     <ul>
       {rooms.map(room => {
-        const users = participants.get(room.id)?.map((p: string) => <li key={p}>{p}</li>);
+        const users = participants[room.id]?.map((p: string) => <li key={p}>{p}</li>);
 
         return (
           <li key={room.id}>
