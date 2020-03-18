@@ -1,0 +1,131 @@
+import React, { ChangeEvent, useState, FormEvent } from 'react';
+import { useAppState } from '../../state';
+
+import Button from '@material-ui/core/Button';
+import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
+import Grid from '@material-ui/core/Grid';
+import TextField from '@material-ui/core/TextField';
+import Typography from '@material-ui/core/Typography';
+
+import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
+import { makeStyles, styled } from '@material-ui/core/styles';
+import { useHistory } from 'react-router-dom';
+
+const useStyles = makeStyles({
+  container: {
+    height: '100vh',
+    background: '#000000',
+  },
+  button: {
+    margin: '0.8em 20px 0.7em',
+    textTransform: 'none',
+  },
+  errorMessage: {
+    color: 'red',
+    display: 'flex',
+    alignItems: 'center',
+    margin: '1em 0 0.2em',
+    '& svg': {
+      marginRight: '0.4em',
+    },
+  },
+  nameField: {
+    border: '1px solid #828282',
+  },
+});
+
+const theme = createMuiTheme({
+  palette: {
+    type: 'dark',
+    secondary: {
+      main: '#F2C94C',
+    },
+  },
+});
+
+const HeroContainer = styled('div')({
+  marginTop: '100px',
+});
+
+const Header = styled('h1')({
+  color: 'white',
+  fontSize: '72px',
+  fontWeight: 600,
+  lineHeight: '86px',
+  alignItems: 'center',
+  letterSpacing: '0.02em',
+  maxWidth: '477px',
+});
+
+export default function LoginPage() {
+  const classes = useStyles();
+  const { setUser, user } = useAppState();
+  const [name, setName] = useState('');
+  const [error, setError] = useState<Error | null>(null);
+  const history = useHistory();
+
+  const setUserInfo = () => {
+    if (!name) {
+      setError({ name: 'missing_name', message: 'You must set a name!' });
+    } else {
+      if (setUser) {
+        setUser(name).then(() => {
+          history.replace({ pathname: '/' });
+        });
+      }
+    }
+  };
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setError(null);
+    setUserInfo();
+  };
+
+  const currentName = name === '' && user?.displayName ? user.displayName : name;
+
+  return (
+    <ThemeProvider theme={theme}>
+      <Grid container justify="center" alignItems="flex-start" className={classes.container}>
+        <HeroContainer>
+          <Header>
+            <span role="img" aria-label="confetti">
+              🎉
+            </span>
+            <br />
+            Welcome to the party!
+          </Header>
+          <form onSubmit={handleSubmit}>
+            <Grid container alignItems="center" direction="row">
+              <TextField
+                id="input-name"
+                label="Name"
+                onChange={(e: ChangeEvent<HTMLInputElement>) => setName(e.target.value)}
+                value={currentName}
+                variant="outlined"
+                color="secondary"
+              />
+              <div>
+                {error && (
+                  <Typography variant="caption" className={classes.errorMessage}>
+                    <ErrorOutlineIcon />
+                    {error.message}
+                  </Typography>
+                )}
+              </div>
+              <Button
+                variant="contained"
+                color="secondary"
+                className={classes.button}
+                type="submit"
+                disabled={!name.length}
+              >
+                Set Name
+              </Button>
+            </Grid>
+          </form>
+        </HeroContainer>
+      </Grid>
+    </ThemeProvider>
+  );
+}

@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 
-export function getPasscode() {
+export function getStoredUser() {
   const match = window.location.search.match(/passcode=(.*)&?/);
-  const passcode = match ? match[1] : window.sessionStorage.getItem('passcode');
+  const storedUser = JSON.parse(window.sessionStorage.getItem('user') || '{}');
+  const passcode = match ? { passcode: match[1] } : storedUser;
   return passcode;
 }
 
@@ -44,7 +45,12 @@ export function getErrorMessage(message: string) {
 export default function usePasscodeAuth() {
   const history = useHistory();
 
-  const [user, setUser] = useState<{ displayName: undefined; photoURL: undefined; passcode: string } | null>(null);
+  const [user, setUser] = useState<{
+    uid: string;
+    displayName: undefined;
+    photoURL: undefined;
+    passcode: string;
+  } | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
 
   const getToken = useCallback(
@@ -57,14 +63,14 @@ export default function usePasscodeAuth() {
   );
 
   useEffect(() => {
-    const passcode = getPasscode();
+    const storedUser = getStoredUser();
 
-    if (passcode) {
-      verifyPasscode(passcode)
+    if (storedUser.passcode) {
+      verifyPasscode(storedUser.passcode)
         .then(verification => {
           if (verification?.isValid) {
-            setUser({ passcode } as any);
-            window.sessionStorage.setItem('passcode', passcode);
+            setUser(storedUser);
+            window.sessionStorage.setItem('user', JSON.stringify(storedUser));
             history.replace(window.location.pathname);
           }
         })
@@ -78,7 +84,7 @@ export default function usePasscodeAuth() {
     return verifyPasscode(passcode).then(verification => {
       if (verification?.isValid) {
         setUser({ passcode } as any);
-        window.sessionStorage.setItem('passcode', passcode);
+        window.sessionStorage.setItem('user', JSON.stringify({ passcode }));
       } else {
         throw new Error(getErrorMessage(verification?.error));
       }
@@ -87,9 +93,18 @@ export default function usePasscodeAuth() {
 
   const signOut = useCallback(() => {
     setUser(null);
-    window.sessionStorage.removeItem('passcode');
+    window.sessionStorage.removeItem('user');
     return Promise.resolve();
   }, []);
 
-  return { user, isAuthReady, getToken, signIn, signOut };
+  const setUserNameAvatar = (displayName: string, photoURL?: string) => {
+    console.log('setting');
+    const uid = user?.uid ? user.uid : new Date().getTime().toString();
+    const newUser = { ...user, uid, displayName, photoURL };
+    setUser(newUser as any);
+    window.sessionStorage.setItem('user', JSON.stringify(newUser));
+    return Promise.resolve();
+  };
+
+  return { user, setUser: setUserNameAvatar, isAuthReady, getToken, signIn, signOut };
 }

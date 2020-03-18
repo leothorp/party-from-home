@@ -4,12 +4,9 @@ import { useAppState } from '../../state';
 import Button from '@material-ui/core/Button';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import Grid from '@material-ui/core/Grid';
-import Paper from '@material-ui/core/Paper';
 import { ReactComponent as GoogleLogo } from './google-logo.svg';
-import { ReactComponent as TwilioLogo } from './twilio-logo.svg';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
-import videoLogo from './video-logo.png';
 
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { makeStyles, styled } from '@material-ui/core/styles';
@@ -115,7 +112,9 @@ export default function LoginPage() {
       <Grid container justify="center" alignItems="flex-start" className={classes.container}>
         <HeroContainer>
           <Header>
-            🎉
+            <span role="img" aria-label="confetti">
+              🎉
+            </span>
             <br />
             Welcome to the party!
           </Header>

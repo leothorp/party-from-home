@@ -14,6 +14,7 @@ import PrivateRoute from './components/PrivateRoute/PrivateRoute';
 import theme from './theme';
 import './types';
 import { VideoProvider } from './components/VideoProvider';
+import UserSetup from './components/UserSetup/UserSetup';
 
 // See: https://media.twiliocdn.com/sdk/js/video/releases/2.0.0/docs/global.html#ConnectOptions
 // for available connection options.
@@ -59,6 +60,9 @@ ReactDOM.render(
           </PrivateRoute>
           <Route path="/login">
             <LoginPage />
+          </Route>
+          <Route path="/user_setup">
+            <UserSetup />
           </Route>
           <Redirect to="/" />
         </Switch>

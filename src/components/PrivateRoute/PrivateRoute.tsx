@@ -4,8 +4,9 @@ import { useAppState } from '../../state';
 
 export default function PrivateRoute({ children, ...rest }: RouteProps) {
   const { isAuthReady, user } = useAppState();
-    
-  const renderChildren = user || !process.env.REACT_APP_SET_AUTH;
+
+  const renderChildren = (user && user.displayName) || !process.env.REACT_APP_SET_AUTH;
+  const notLoggedIn = !user;
 
   if (!renderChildren && !isAuthReady) {
     return null;
@@ -17,10 +18,17 @@ export default function PrivateRoute({ children, ...rest }: RouteProps) {
       render={({ location }) =>
         renderChildren ? (
           children
-        ) : (
+        ) : notLoggedIn ? (
           <Redirect
             to={{
               pathname: '/login',
+              state: { from: location },
+            }}
+          />
+        ) : (
+          <Redirect
+            to={{
+              pathname: '/user_setup',
               state: { from: location },
             }}
           />

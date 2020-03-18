@@ -79,7 +79,7 @@ const Header = (props: HeaderProps) => {
 };
 
 export default function RoomGrid() {
-  const { getToken } = useAppState();
+  const { getToken, user } = useAppState();
   const { connect, room } = useVideoContext();
   const roomState = useRoomState();
   const [participants, setParticipants] = useState<Participants>({});
@@ -87,13 +87,13 @@ export default function RoomGrid() {
 
   const onSelectRoom = (id: string) => {
     if (roomState !== 'disconnected') room.disconnect();
-    getToken('CARLOS', id).then(token => connect(token));
+    getToken(user?.uid || '', id).then(token => connect(token));
   };
 
   useMountEffect(() => {
-    setInterval(heartbeat('CARLOS'), HEARTBEAT_INTERVAL);
+    setInterval(heartbeat(user?.uid || ''), HEARTBEAT_INTERVAL);
 
-    fetch(`/api/sync_token?identity=CARLOS`).then(res => {
+    fetch(`/api/sync_token?identity=${user?.uid}`).then(res => {
       res.text().then(token => {
         const syncClient = new SyncClient(token);
 
