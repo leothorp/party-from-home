@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import useMountEffect from '../../hooks/useMountEffect/useMountEffect';
 import { styled } from '@material-ui/core/styles';
+import { ExpandMore, ExpandLess } from '@material-ui/icons';
 import { useAppState } from '../../state';
 import useRoomState from '../../hooks/useRoomState/useRoomState';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
@@ -8,16 +9,31 @@ import SyncClient from 'twilio-sync';
 import RoomGridItem from './RoomGridItem';
 import { rooms } from '../../rooms';
 
-const Container = styled('div')({
+interface ContainerProps {
+  open: boolean;
+}
+
+const Container = styled('div')((props: ContainerProps) => ({
   display: 'flex',
   flexShrink: 0,
   flexDirection: 'column',
   backgroundColor: '#1F1F1F',
-  height: '374px',
+  height: props.open ? '374px' : '70px',
   paddingLeft: '32px',
+}));
+
+const HeaderContainer = styled('div')({
+  display: 'flex',
+  justifyContent: 'space-between',
+  alignItems: 'center',
+  width: '100%',
+  marginTop: 0,
+  cursor: 'pointer',
+  padding: '21px',
 });
 
 const ContainerTitle = styled('p')({
+  margin: 0,
   color: '#E0E0E0',
   fontSize: '24px',
   fontWeight: 600,
@@ -46,11 +62,26 @@ const heartbeat = (identity: string) => {
   };
 };
 
+interface HeaderProps {
+  onClick: () => void;
+  open: boolean;
+}
+
+const Header = (props: HeaderProps) => {
+  return (
+    <HeaderContainer onClick={props.onClick}>
+      <ContainerTitle>Party Rooms</ContainerTitle>
+      {props.open ? <ExpandMore fontSize="large" /> : <ExpandLess fontSize="large" />}
+    </HeaderContainer>
+  );
+};
+
 export default function RoomGrid() {
   const { getToken } = useAppState();
   const { connect, room } = useVideoContext();
   const roomState = useRoomState();
   const [participants, setParticipants] = useState<Participants>({});
+  const [open, setOpen] = useState(false);
 
   const onSelectRoom = (id: string) => {
     if (roomState !== 'disconnected') room.disconnect();
@@ -139,8 +170,8 @@ export default function RoomGrid() {
   });
 
   return (
-    <Container>
-      <ContainerTitle>Party Rooms</ContainerTitle>
+    <Container open={open}>
+      <Header onClick={() => setOpen(!open)} open={open} />
       <ItemContainer>
         {rooms.map(room => (
           <RoomGridItem

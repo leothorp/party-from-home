@@ -10,3 +10,4 @@ data:
   db_host: lockdown-postgres
   db_port: "5432"
   db_name: lockdown
+  twilio_service_sid: IS1edde4fb28f02deb3fa08b5812ebaa45
