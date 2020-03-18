@@ -36,6 +36,16 @@ interface Participants {
   [key: string]: string[];
 }
 
+// todo(carlos): probably should be somewhere else, higher level,
+// after we implement the auth flow
+const heartbeat = (identity: string) => {
+  return () => {
+    fetch(`/api/heartbeat?identity=${identity}`).then(() => {
+      console.log('Sent heartbeat');
+    });
+  };
+};
+
 export default function RoomGrid() {
   const { getToken } = useAppState();
   const { connect, room } = useVideoContext();
@@ -48,6 +58,8 @@ export default function RoomGrid() {
   };
 
   useMountEffect(() => {
+    setInterval(heartbeat('CARLOS'), 10000);
+
     fetch(`/api/sync_token?identity=CARLOS`).then(res => {
       res.text().then(token => {
         const syncClient = new SyncClient(token);

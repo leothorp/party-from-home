@@ -82,10 +82,12 @@ app.get('/api/sync_token', (req, res) => {
   console.log(`issued sync token for ${identity}`);
 });
 
-app.get('/api/room/:room/participants', (req, res) => {
-  client.video.v1.rooms.get(req.params.room).participants.list().then(participants => {
-    res.json(participants);
-  });
+app.get('/api/heartbeat', (req, res) => {
+  service.syncMaps('users').syncMapItems(req.query.identity).update({ itemTtl: ITEM_TTL }).then(() => {
+    console.log(`Updated TTL for ${req.query.identity}`);
+  }).catch(e => console.log(e));
+
+  res.send('');
 });
 
 app.post('/api/hooks/room_status', (req, res) => {
