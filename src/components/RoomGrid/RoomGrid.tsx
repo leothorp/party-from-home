@@ -52,6 +52,8 @@ interface Participants {
   [key: string]: string[];
 }
 
+const HEARTBEAT_INTERVAL = 100000;
+
 // todo(carlos): probably should be somewhere else, higher level,
 // after we implement the auth flow
 const heartbeat = (identity: string) => {
@@ -89,7 +91,7 @@ export default function RoomGrid() {
   };
 
   useMountEffect(() => {
-    setInterval(heartbeat('CARLOS'), 10000);
+    setInterval(heartbeat('CARLOS'), HEARTBEAT_INTERVAL);
 
     fetch(`/api/sync_token?identity=CARLOS`).then(res => {
       res.text().then(token => {

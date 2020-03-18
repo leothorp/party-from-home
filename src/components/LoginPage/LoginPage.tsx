@@ -12,13 +12,13 @@ import Typography from '@material-ui/core/Typography';
 import videoLogo from './video-logo.png';
 
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
-import { makeStyles } from '@material-ui/core/styles';
+import { makeStyles, styled } from '@material-ui/core/styles';
 import { useLocation, useHistory } from 'react-router-dom';
 
 const useStyles = makeStyles({
   container: {
     height: '100vh',
-    background: '#0D122B',
+    background: '#000000',
   },
   twilioLogo: {
     width: '55%',
@@ -38,9 +38,7 @@ const useStyles = makeStyles({
     color: 'black',
   },
   button: {
-    color: 'black',
-    background: 'white',
-    margin: '0.8em 0 0.7em',
+    margin: '0.8em 20px 0.7em',
     textTransform: 'none',
   },
   errorMessage: {
@@ -52,12 +50,32 @@ const useStyles = makeStyles({
       marginRight: '0.4em',
     },
   },
+  passcodeField: {
+    border: '1px solid #828282',
+  },
 });
 
 const theme = createMuiTheme({
   palette: {
-    type: 'light',
+    type: 'dark',
+    secondary: {
+      main: '#F2C94C',
+    },
   },
+});
+
+const HeroContainer = styled('div')({
+  marginTop: '100px',
+});
+
+const Header = styled('h1')({
+  color: 'white',
+  fontSize: '72px',
+  fontWeight: 600,
+  lineHeight: '86px',
+  alignItems: 'center',
+  letterSpacing: '0.02em',
+  maxWidth: '477px',
 });
 
 export default function LoginPage() {
@@ -95,10 +113,12 @@ export default function LoginPage() {
   return (
     <ThemeProvider theme={theme}>
       <Grid container justify="center" alignItems="flex-start" className={classes.container}>
-        <Paper className={classes.paper} elevation={6}>
-          <TwilioLogo className={classes.twilioLogo} />
-          <img className={classes.videoLogo} src={videoLogo} alt="Video Logo"></img>
-
+        <HeroContainer>
+          <Header>
+            🎉
+            <br />
+            Welcome to the party!
+          </Header>
           {process.env.REACT_APP_SET_AUTH === 'firebase' && (
             <Button variant="contained" className={classes.button} onClick={login} startIcon={<GoogleLogo />}>
               Sign in with Google
@@ -107,12 +127,14 @@ export default function LoginPage() {
 
           {process.env.REACT_APP_SET_AUTH === 'passcode' && (
             <form onSubmit={handleSubmit}>
-              <Grid container alignItems="center" direction="column">
+              <Grid container alignItems="center" direction="row">
                 <TextField
                   id="input-passcode"
                   label="Passcode"
                   onChange={(e: ChangeEvent<HTMLInputElement>) => setPasscode(e.target.value)}
                   type="password"
+                  variant="outlined"
+                  color="secondary"
                 />
                 <div>
                   {authError && (
@@ -122,13 +144,19 @@ export default function LoginPage() {
                     </Typography>
                   )}
                 </div>
-                <Button variant="contained" className={classes.button} type="submit" disabled={!passcode.length}>
-                  Submit
+                <Button
+                  variant="contained"
+                  color="secondary"
+                  className={classes.button}
+                  type="submit"
+                  disabled={!passcode.length}
+                >
+                  Let's Party!
                 </Button>
               </Grid>
             </form>
           )}
-        </Paper>
+        </HeroContainer>
       </Grid>
     </ThemeProvider>
   );

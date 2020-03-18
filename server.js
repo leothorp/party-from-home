@@ -10,6 +10,7 @@ const bodyParser = require('body-parser');
 
 const MAX_ALLOWED_SESSION_DURATION = 14400;
 const ITEM_TTL = 120;
+const PASSCODE = process.env.PASSCODE;
 const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
 const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioApiKeySID = process.env.TWILIO_API_KEY_SID;
@@ -48,6 +49,7 @@ const setUserRoom = (identity, room) => {
 app.use(express.static(path.join(__dirname, 'build')));
 app.use(express.json());
 app.use(bodyParser.urlencoded());
+app.use(bodyParser.json());
 
 app.get('/api/token', (req, res) => {
   const { identity, roomName } = req.query;
@@ -59,6 +61,24 @@ app.get('/api/token', (req, res) => {
   token.addGrant(videoGrant);
   res.send(token.toJwt());
   console.log(`issued token for ${identity} in room ${roomName}`);
+});
+
+app.post('/api/token', (req, res) => {
+  const { identity, roomName, passcode } = req.body;
+
+  if (passcode === PASSCODE) {
+    const token = new AccessToken(twilioAccountSid, twilioApiKeySID, twilioApiKeySecret, {
+      ttl: MAX_ALLOWED_SESSION_DURATION,
+    });
+    token.identity = identity;
+    const videoGrant = new VideoGrant({ room: roomName });
+    token.addGrant(videoGrant);
+    res.send({ token: token.toJwt() });
+    console.log(`issued token for ${identity} in room ${roomName}`);
+  } else {
+    res.statusCode = 401;
+    res.send({ error: { message: 'Incorrect Passcode' } });
+  }
 });
 
 app.get('/api/sync_token', (req, res) => {

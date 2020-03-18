@@ -8,12 +8,12 @@ export function getPasscode() {
 }
 
 export function fetchToken(name: string, room: string, passcode: string) {
-  return fetch(`/token`, {
+  return fetch(`/api/token`, {
     method: 'POST',
     headers: {
       'content-type': 'application/json',
     },
-    body: JSON.stringify({ user_identity: name, room_name: room, passcode }),
+    body: JSON.stringify({ identity: name, roomName: room, passcode }),
   });
 }
 
