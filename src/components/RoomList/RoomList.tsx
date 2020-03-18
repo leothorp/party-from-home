@@ -9,9 +9,11 @@ interface Participants {
   [key: string]: string[];
 }
 
+const useMountEffect = (fun: any) => useEffect(fun, []);
+
 export default function RoomList() {
-  const { user, getToken } = useAppState();
-  const { isConnecting, connect, room } = useVideoContext();
+  const { getToken } = useAppState();
+  const { connect, room } = useVideoContext();
   const roomState = useRoomState();
   const [participants, setParticipants] = useState<Participants>({});
 
@@ -23,31 +25,84 @@ export default function RoomList() {
     };
   };
 
-  useEffect(() => {
+  useMountEffect(() => {
     fetch(`/api/sync_token?identity=CARLOS`).then(res => {
       res.text().then(token => {
         const syncClient = new SyncClient(token);
 
-        syncClient.map(`users`).then((map: any) =>
+        syncClient.map(`users`).then((map: any) => {
           map.getItems().then((paginator: any) => {
-            const participants: Participants = {};
+            const roomParticipants: Participants = {};
 
             paginator.items.forEach((item: any) => {
               if (item.value.room !== undefined) {
-                if (participants[item.value.room]) {
-                  participants[item.value.room].push(item.value.identity);
+                if (roomParticipants[item.value.room]) {
+                  roomParticipants[item.value.room].push(item.value.identity);
                 } else {
-                  participants[item.value.room] = [item.value.identity];
+                  roomParticipants[item.value.room] = [item.value.identity];
                 }
               }
             });
 
-            setParticipants(participants);
-          })
-        );
+            setParticipants(roomParticipants);
+          });
+
+          map.on('itemAdded', (args: any) => {
+            const value = args.item.value;
+            const roomParticipants = { ...participants };
+
+            if (value.room !== undefined) {
+              if (roomParticipants[value.room]) {
+                roomParticipants[value.room].push(value.identity);
+              } else {
+                roomParticipants[value.room] = [value.identity];
+              }
+
+              setParticipants(roomParticipants);
+            }
+          });
+
+          map.on('itemRemoved', (args: any) => {
+            const value = args.item.value;
+            const roomParticipants = { ...participants };
+
+            if (value.room !== undefined) {
+              if (roomParticipants[value.room]) {
+                const idx = roomParticipants[value.room].indexOf(value.identity);
+                if (idx >= 0) {
+                  roomParticipants[value.room].splice(idx, 1);
+                  setParticipants(roomParticipants);
+                }
+              }
+            }
+          });
+
+          map.on('itemUpdated', (args: any) => {
+            const value = args.item.value;
+            const roomParticipants = { ...participants };
+
+            for (const roomName in roomParticipants) {
+              const roomUsers = roomParticipants[roomName];
+              const idx = roomUsers.indexOf(value.identity);
+              if (idx >= 0) {
+                roomUsers.splice(idx, 1);
+              }
+            }
+
+            if (value.room !== undefined) {
+              if (roomParticipants[value.room]) {
+                roomParticipants[value.room].push(value.identity);
+              } else {
+                roomParticipants[value.room] = [value.identity];
+              }
+            }
+
+            setParticipants(roomParticipants);
+          });
+        });
       });
     });
-  }, []);
+  });
 
   return (
     <ul>
