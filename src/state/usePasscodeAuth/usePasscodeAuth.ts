@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { User } from '../../state';
 
 export function getStoredUser() {
   const match = window.location.search.match(/passcode=(.*)&?/);
@@ -61,17 +62,12 @@ export function getErrorMessage(message: string) {
 export default function usePasscodeAuth() {
   const history = useHistory();
 
-  const [user, setUser] = useState<{
-    uid: string;
-    displayName: undefined;
-    photoURL: undefined;
-    passcode: string;
-  } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
 
   const getToken = useCallback(
     (name: string, room: string) => {
-      return fetchToken(name, room, user!.passcode)
+      return fetchToken(name, room, user?.passcode || '')
         .then(res => res.json())
         .then(res => res.token as string);
     },

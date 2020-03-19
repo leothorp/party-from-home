@@ -12,6 +12,7 @@ const ENV = process.env.ENVIRONMENT;
 const MAX_ALLOWED_SESSION_DURATION = process.env.MAX_SESSION_DURATION || (ENV === 'production' ? 18000 : 60);
 const ITEM_TTL = 120;
 const PASSCODE = process.env.PASSCODE;
+const ADMIN_PASSCODE = process.env.PASSCODE;
 const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
 const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioApiKeySID = process.env.TWILIO_API_KEY_SID;
@@ -205,6 +206,42 @@ app.post('/api/register', (req, res) => {
     }
   } else {
     res.sendStatus(401);
+  }
+});
+
+app.post('/api/set_admin', (req, res) => {
+  const { identity, adminToken, newAdminIdentity, adminPasscode, admin } = req.body;
+
+  if (adminPasscode === ADMIN_PASSCODE) {
+    setAdmin(newAdminIdentity, admin).then(token => {
+      if (identity === newAdminIdentity) {
+        res.send({ success: true, token });
+      } else {
+        res.send({ success: true });
+      }
+    }).catch(e => {
+      console.log(e);
+      res.send({ error: { message: e } });
+    });
+  } else {
+    getAdminToken(identity).then(token => {
+      if (token === adminToken) {
+        setAdmin(newAdminIdentity, admin).then(newToken => {
+          if (identity === newAdminIdentity) {
+            res.send({ success: true, newToken });
+          } else {
+            res.send({ success: true });
+          }
+        }).catch(e => {
+          console.log(e);
+          res.send({ error: { message: e } });
+        });
+      } else {
+        res.send({ error: { message: 'wrong token' } });
+      }
+    }).catch(e => {
+      res.send({ error: { message: 'not an admin' } });
+    });
   }
 });
 

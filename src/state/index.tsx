@@ -1,14 +1,20 @@
 import React, { createContext, useContext, useState } from 'react';
 import { TwilioError } from 'twilio-video';
-import useFirebaseAuth from './useFirebaseAuth/useFirebaseAuth';
 import usePasscodeAuth from './usePasscodeAuth/usePasscodeAuth';
-import { User } from 'firebase';
+
+export interface User {
+  uid: string;
+  displayName: string;
+  photoURL: string;
+  passcode?: string;
+  token?: string;
+}
 
 export interface StateContextType {
   error: TwilioError | null;
   setError(error: TwilioError | null): void;
   getToken(name: string, room: string, passcode?: string): Promise<string>;
-  user?: User | null | { uid: string; displayName: undefined; photoURL: undefined; passcode?: string };
+  user?: User | null;
   setUser?(displayName: string, photoURL?: string): Promise<void>;
   signIn?(passcode?: string): Promise<void>;
   signOut?(): Promise<void>;
@@ -33,12 +39,7 @@ export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
     setError,
   } as StateContextType;
 
-  if (process.env.REACT_APP_SET_AUTH === 'firebase') {
-    contextValue = {
-      ...contextValue,
-      ...useFirebaseAuth(), // eslint-disable-line react-hooks/rules-of-hooks
-    };
-  } else if (process.env.REACT_APP_SET_AUTH === 'passcode') {
+  if (process.env.REACT_APP_SET_AUTH === 'passcode') {
     contextValue = {
       ...contextValue,
       ...usePasscodeAuth(), // eslint-disable-line react-hooks/rules-of-hooks
