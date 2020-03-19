@@ -98,6 +98,11 @@ spec:
                 secretKeyRef:
                   name: passcode
                   key: passcode
+            - name: BASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: lockdown-service
+                  key: base_url
 ---
 apiVersion: extensions/v1beta1
 kind: Deployment

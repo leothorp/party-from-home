@@ -45,39 +45,41 @@ service.syncMaps.create({ uniqueName: 'admins' }).then(() => {
     console.error(e);
 });
 
-if (ENV !== 'production') {
-  const updateRoomHooks = (hookUrl) => {
-    client.video.rooms.list({status: 'in-progress', limit: 50}).then(rooms => {
-      rooms.forEach(room => {
-        client.video.rooms(room.sid).update({
-          status: 'completed',
-        }).then(r => {
-          console.log(`Deleted old video room ${r.uniqueName}`);
-        }).catch(e => console.log(e));
-      });
-
-      service.syncMaps('rooms').syncMapItems.list({limit: 50}).then(items => {
-        items.forEach(item => {
-          client.video.rooms.create({
-            type: 'group',
-            uniqueName: item.data.id,
-            statusCallback: `${hookUrl}/api/hooks/room_status`,
-          }).then(() => {
-            console.log(`Created video room ${item.data.name}`);
-          }).catch(e => {
-            console.log(e);
-          });
-        });
+const updateRoomHooks = (hookUrl) => {
+  client.video.rooms.list({status: 'in-progress', limit: 50}).then(rooms => {
+    rooms.forEach(room => {
+      client.video.rooms(room.sid).update({
+        status: 'completed',
+      }).then(r => {
+        console.log(`Deleted old video room ${r.uniqueName}`);
       }).catch(e => console.log(e));
-    }).catch(e => console.log(e));
-  };
+    });
 
+    service.syncMaps('rooms').syncMapItems.list({limit: 50}).then(items => {
+      items.forEach(item => {
+        client.video.rooms.create({
+          type: 'group',
+          uniqueName: item.data.id,
+          statusCallback: `${hookUrl}/api/hooks/room_status`,
+        }).then(() => {
+          console.log(`Created video room ${item.data.name}`);
+        }).catch(e => {
+          console.log(e);
+        });
+      });
+    }).catch(e => console.log(e));
+  }).catch(e => console.log(e));
+};
+
+if (ENV !== 'production') {
   ngrok = require('ngrok');
   ngrok.connect(PORT).then(u => {
     url = u;
     console.log(`Ngrok started at ${u}`);
     updateRoomHooks();
   });
+} else {
+  updateRoomHooks(url);
 }
 
 const setUserRoom = (identity, room, displayName, photoURL) => {
