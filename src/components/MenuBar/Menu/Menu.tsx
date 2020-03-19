@@ -32,7 +32,7 @@ export default function Menu() {
       <IconButton color="inherit" onClick={() => setAdminOpen(state => !state)}>
         <Settings />
       </IconButton>
-      <AdminPanel open={adminOpen} onClose={() => setAdminOpen(false)} />
+      {user?.token ? <AdminPanel open={adminOpen} onClose={() => setAdminOpen(false)} /> : null}
       <IconButton color="inherit" onClick={() => setMenuOpen(state => !state)}>
         {user ? <UserAvatar user={user} /> : <MoreIcon />}
       </IconButton>
