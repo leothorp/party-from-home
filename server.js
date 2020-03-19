@@ -76,7 +76,7 @@ if (ENV !== 'production') {
   ngrok.connect(PORT).then(u => {
     url = u;
     console.log(`Ngrok started at ${u}`);
-    updateRoomHooks();
+    updateRoomHooks(u);
   });
 } else {
   updateRoomHooks(url);

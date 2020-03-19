@@ -42,9 +42,10 @@ const useStyles = makeStyles({
 interface MainParticipantInfoProps {
   participant: LocalParticipant | RemoteParticipant;
   children: React.ReactNode;
+  displayName?: string;
 }
 
-export default function MainParticipantInfo({ participant, children }: MainParticipantInfoProps) {
+export default function MainParticipantInfo({ participant, children, displayName }: MainParticipantInfoProps) {
   const classes = useStyles();
 
   const publications = usePublications(participant);
@@ -62,7 +63,7 @@ export default function MainParticipantInfo({ participant, children }: MainParti
     >
       <div className={classes.infoContainer}>
         <h4 className={classes.identity}>
-          {participant.identity}
+          {displayName || participant.identity}
           {!isVideoEnabled && <VideocamOff />}
         </h4>
       </div>
