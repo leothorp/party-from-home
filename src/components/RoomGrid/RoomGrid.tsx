@@ -1,13 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import useMountEffect from '../../hooks/useMountEffect/useMountEffect';
+import useMap from '../../hooks/useSync/useMap';
+import useMapItems from '../../hooks/useSync/useMapItems';
 import { styled } from '@material-ui/core/styles';
 import { ExpandMore, ExpandLess } from '@material-ui/icons';
 import { useAppState } from '../../state';
 import useRoomState from '../../hooks/useRoomState/useRoomState';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
-import SyncClient from 'twilio-sync';
 import RoomGridItem from './RoomGridItem';
-import { rooms } from '../../rooms';
 
 interface ContainerProps {
   open: boolean;
@@ -90,21 +90,17 @@ export default function RoomGrid() {
   const roomState = useRoomState();
   const [participants, setParticipants] = useState({} as Participants);
   const [open, setOpen] = useState(false);
-  const [map, setMap] = useState<any | undefined>(undefined);
-  console.log('upper:');
-  console.log(participants);
+  const rooms = useMapItems('rooms');
 
   const onSelectRoom = (id: string) => {
     if (roomState !== 'disconnected') room.disconnect();
     getToken(user?.uid || '', id).then(token => connect(token));
   };
 
-  const updateParticipants = useCallback(
-    (action: string, item: any) => {
-      const value = item.value;
+  const onUserAdded = useCallback(
+    (args: any) => {
+      const value = args.item.value;
       const roomParticipants = { ...participants };
-      console.log('callback:');
-      console.log(participants);
 
       if (value.room !== undefined) {
         const par = {
@@ -113,35 +109,10 @@ export default function RoomGrid() {
           photoURL: value.photoURL,
         };
 
-        switch (action) {
-          case 'add':
-            if (roomParticipants[value.room] !== undefined) {
-              roomParticipants[value.room].push(par);
-            } else {
-              roomParticipants[value.room] = [par];
-            }
-
-            break;
-          case 'remove':
-            if (roomParticipants[value.room] !== undefined) {
-              const roomUsers = roomParticipants[value.room];
-              roomParticipants[value.room] = roomUsers.filter(u => u.uid !== value.identity);
-            }
-
-            break;
-          case 'update':
-            for (const roomName in roomParticipants) {
-              const roomUsers = roomParticipants[roomName];
-              roomParticipants[roomName] = roomUsers.filter(u => u.uid !== value.identity);
-            }
-
-            if (roomParticipants.hasOwnProperty(value.room)) {
-              roomParticipants[value.room].push(par);
-            } else {
-              roomParticipants[value.room] = [par];
-            }
-
-            break;
+        if (roomParticipants[value.room] !== undefined) {
+          roomParticipants[value.room].push(par);
+        } else {
+          roomParticipants[value.room] = [par];
         }
 
         setParticipants(roomParticipants);
@@ -150,18 +121,61 @@ export default function RoomGrid() {
     [participants]
   );
 
+  const onUserRemoved = useCallback(
+    (item: any) => {
+      const value = item.value;
+      const roomParticipants = { ...participants };
+
+      if (value.room !== undefined) {
+        if (roomParticipants[value.room] !== undefined) {
+          const roomUsers = roomParticipants[value.room];
+          roomParticipants[value.room] = roomUsers.filter(u => u.uid !== value.identity);
+        }
+
+        setParticipants(roomParticipants);
+      }
+    },
+    [participants]
+  );
+
+  const onUserUpdated = useCallback(
+    (args: any) => {
+      const value = args.item.value;
+      const roomParticipants = { ...participants };
+
+      if (value.room !== undefined) {
+        const par = {
+          uid: value.identity,
+          displayName: value.displayName,
+          photoURL: value.photoURL,
+        };
+
+        for (const roomName in roomParticipants) {
+          const roomUsers = roomParticipants[roomName];
+          roomParticipants[roomName] = roomUsers.filter(u => u.uid !== value.identity);
+        }
+
+        if (roomParticipants.hasOwnProperty(value.room)) {
+          roomParticipants[value.room].push(par);
+        } else {
+          roomParticipants[value.room] = [par];
+        }
+
+        setParticipants(roomParticipants);
+      }
+    },
+    [participants]
+  );
+
+  const { map } = useMap('users', {
+    onAdded: onUserAdded,
+    onRemoved: onUserRemoved,
+    onUpdated: onUserUpdated,
+  });
+
+  // todo(carlos): move this to app state
   useMountEffect(() => {
     setInterval(heartbeat(user?.uid || ''), HEARTBEAT_INTERVAL);
-
-    fetch(`/api/sync_token?identity=${user?.uid}`).then(res => {
-      res.text().then(token => {
-        const syncClient = new SyncClient(token);
-
-        syncClient.map(`users`).then((m: any) => {
-          setMap(m);
-        });
-      });
-    });
   });
 
   useEffect(() => {
@@ -182,44 +196,22 @@ export default function RoomGrid() {
     });
   }, [map]);
 
-  useEffect(() => {
-    if (map !== undefined) {
-      const addListener = (args: any) => {
-        updateParticipants('add', args.item);
-      };
+  const displayRooms: any[] = [];
 
-      map.on('itemAdded', addListener);
-
-      const removeListener = (args: any) => {
-        updateParticipants('remove', args.item);
-      };
-
-      map.on('itemRemoved', removeListener);
-
-      const updateListener = (args: any) => {
-        updateParticipants('update', args.item);
-      };
-
-      map.on('itemUpdated', updateListener);
-
-      return () => {
-        map.removeListener('itemAdded', addListener);
-        map.removeListener('itemRemoved', removeListener);
-        map.removeListener('itemUpdated', updateListener);
-      };
-    }
-  }, [updateParticipants, map]);
+  for (const id in rooms) {
+    displayRooms.push(rooms[id]);
+  }
 
   return (
     <Container open={open}>
       <Header onClick={() => setOpen(!open)} open={open} />
       <ItemContainer>
-        {rooms.map(room => (
+        {displayRooms.map((rm: any) => (
           <RoomGridItem
-            key={room.id}
-            id={room.id}
-            title={room.name}
-            participants={participants[room.id] || []}
+            key={rm.id}
+            id={rm.id}
+            title={rm.name}
+            participants={participants[rm.id] || []}
             onClick={onSelectRoom}
           />
         ))}

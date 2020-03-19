@@ -42,36 +42,10 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function MenuBar() {
   const classes = useStyles();
-  const { URLRoomName } = useParams();
-  const { user, getToken } = useAppState();
-  const { isConnecting, connect } = useVideoContext();
+  const { user } = useAppState();
   const roomState = useRoomState();
 
-  const [name, setName] = useState<string>(user?.displayName || '');
-  const [roomName, setRoomName] = useState<string>('');
-
-  useEffect(() => {
-    if (URLRoomName) {
-      setRoomName(URLRoomName);
-    }
-  }, [URLRoomName]);
-
-  const handleNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setName(event.target.value);
-  };
-
-  const handleRoomNameChange = (event: ChangeEvent<HTMLInputElement>) => {
-    setRoomName(event.target.value);
-  };
-
-  const handleSubmit = (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    // If this app is deployed as a twilio function, don't change the URL beacuse routing isn't supported.
-    if (!window.location.origin.includes('twil.io')) {
-      window.history.replaceState(null, '', window.encodeURI(`/room/${roomName}`));
-    }
-    getToken(name, roomName).then(token => connect(token));
-  };
+  const roomName = 'Room Name Here';
 
   return (
     <AppBar className={classes.container} position="static">

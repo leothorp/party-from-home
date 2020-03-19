@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
+import { User } from '../../state';
 
 export function getStoredUser() {
   const match = window.location.search.match(/passcode=(.*)&?/);
@@ -31,20 +32,24 @@ export function verifyPasscode(passcode: string) {
   });
 }
 
-const registerUser = (newUser?: any) => {
-  if (newUser && newUser.uid) {
-    fetch('/api/register', {
-      method: 'POST',
-      headers: {
-        'content-type': 'application/json',
-      },
-      body: JSON.stringify(newUser),
-    })
-      .then(() => {
-        console.log('registered user with server');
+const registerUser = (newUser?: any): Promise<string | null> => {
+  return new Promise((resolve, reject) => {
+    if (newUser && newUser.uid) {
+      fetch('/api/register', {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify(newUser),
       })
-      .catch(e => console.error(e));
-  }
+        .then(res => {
+          console.log('registered user with server');
+          return res.json();
+        })
+        .then(data => resolve(data.token))
+        .catch(reject);
+    }
+  });
 };
 
 export function getErrorMessage(message: string) {
@@ -61,17 +66,12 @@ export function getErrorMessage(message: string) {
 export default function usePasscodeAuth() {
   const history = useHistory();
 
-  const [user, setUser] = useState<{
-    uid: string;
-    displayName: undefined;
-    photoURL: undefined;
-    passcode: string;
-  } | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
 
   const getToken = useCallback(
     (name: string, room: string) => {
-      return fetchToken(name, room, user!.passcode)
+      return fetchToken(name, room, user?.passcode || '')
         .then(res => res.json())
         .then(res => res.token as string);
     },
@@ -87,8 +87,17 @@ export default function usePasscodeAuth() {
           if (verification?.isValid) {
             setUser(storedUser);
             window.sessionStorage.setItem('user', JSON.stringify(storedUser));
-            registerUser(storedUser);
             history.replace(window.location.pathname);
+            registerUser(storedUser)
+              .then(token => {
+                if (token) {
+                  storedUser.token = token;
+                }
+
+                setUser(storedUser);
+                window.sessionStorage.setItem('user', JSON.stringify(storedUser));
+              })
+              .catch(e => console.error(e));
           }
         })
         .then(() => setIsAuthReady(true));
