@@ -31,6 +31,22 @@ export function verifyPasscode(passcode: string) {
   });
 }
 
+const registerUser = (newUser?: any) => {
+  if (newUser && newUser.uid) {
+    fetch('/api/register', {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+      },
+      body: JSON.stringify(newUser),
+    })
+      .then(() => {
+        console.log('registered user with server');
+      })
+      .catch(e => console.error(e));
+  }
+};
+
 export function getErrorMessage(message: string) {
   switch (message) {
     case 'passcode incorrect':
@@ -71,6 +87,7 @@ export default function usePasscodeAuth() {
           if (verification?.isValid) {
             setUser(storedUser);
             window.sessionStorage.setItem('user', JSON.stringify(storedUser));
+            registerUser(storedUser);
             history.replace(window.location.pathname);
           }
         })
@@ -103,6 +120,7 @@ export default function usePasscodeAuth() {
     const newUser = { ...user, uid, displayName, photoURL };
     setUser(newUser as any);
     window.sessionStorage.setItem('user', JSON.stringify(newUser));
+    registerUser(newUser);
     return Promise.resolve();
   };
 

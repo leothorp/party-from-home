@@ -48,8 +48,14 @@ const ItemContainer = styled('div')({
   flex: 1,
 });
 
+export interface Participant {
+  uid: string;
+  displayName: string | undefined;
+  photoURL: string | undefined;
+}
+
 interface Participants {
-  [key: string]: string[];
+  [key: string]: Participant[];
 }
 
 const HEARTBEAT_INTERVAL = 100000;
@@ -119,10 +125,16 @@ export default function RoomGrid() {
             const roomParticipants = { ...participants };
 
             if (value.room !== undefined) {
+              const par = {
+                uid: value.identity,
+                displayName: value.displayName,
+                photoURL: value.photoURL,
+              };
+
               if (roomParticipants[value.room]) {
-                roomParticipants[value.room].push(value.identity);
+                roomParticipants[value.room].push(par);
               } else {
-                roomParticipants[value.room] = [value.identity];
+                roomParticipants[value.room] = [par];
               }
 
               setParticipants(roomParticipants);
@@ -157,10 +169,16 @@ export default function RoomGrid() {
             }
 
             if (value.room !== undefined) {
+              const par = {
+                uid: value.identity,
+                displayName: value.displayName,
+                photoURL: value.photoURL,
+              };
+
               if (roomParticipants[value.room]) {
-                roomParticipants[value.room].push(value.identity);
+                roomParticipants[value.room].push(par);
               } else {
-                roomParticipants[value.room] = [value.identity];
+                roomParticipants[value.room] = [par];
               }
             }
 

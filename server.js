@@ -26,25 +26,46 @@ service.syncMaps.create({ uniqueName: 'rooms' }).then(list => {
   console.log(`Created user list`);
 }).catch(e => console.error(e));
 
-const setUserRoom = (identity, room) => {
+const setUserRoom = (identity, room, displayName, photoURL) => {
   const user = {
-    identity: identity,
-    room: room,
+    identity,
+    room,
   };
 
-  service.syncMaps('users').syncMapItems(identity).update({ data: user, itemTtl: ITEM_TTL })
-    .then(item => {
-      console.log(`Created user ${user.identity}`);
-    })
-    .catch(e => {
-      console.log(e);
-      service.syncMaps('users').syncMapItems.create({key: identity, data: user, itemTtl: ITEM_TTL })
-        .then(item => {
-          console.log(`Updated user ${user.identity}`);
-        });
-    });
+  service.syncMaps('users').syncMapItems(identity).fetch().then(item => {
+    item.update({ data: {...item.data, ...user}, itemTtl: ITEM_TTL })
+      .then(() => {
+        console.log(`Updated user ${user.identity}`);
+      });
+  }).catch(e => {
+    console.log(e);
+    service.syncMaps('users').syncMapItems.create({key: identity, data: user, itemTtl: ITEM_TTL })
+      .then(item => {
+        console.log(`Created user ${user.identity}`);
+      });
+  });
 };
 
+const addUser = (identity, displayName, photoURL) => {
+  const user = {
+    identity,
+    displayName,
+    photoURL,
+  };
+
+  service.syncMaps('users').syncMapItems(identity).fetch().then(item => {
+    item.update({ data: {...item.data, ...user}, itemTtl: ITEM_TTL })
+      .then(() => {
+        console.log(`Updated user ${user.identity}`);
+      });
+  }).catch(e => {
+    console.log(e);
+    service.syncMaps('users').syncMapItems.create({key: identity, data: user, itemTtl: ITEM_TTL })
+      .then(item => {
+        console.log(`Created user ${user.identity}`);
+      });
+  });
+};
 
 app.use(express.static(path.join(__dirname, 'build')));
 app.use(express.json());
@@ -100,6 +121,17 @@ app.get('/api/sync_token', (req, res) => {
   });
   
   console.log(`issued sync token for ${identity}`);
+});
+
+app.post('/api/register', (req, res) => {
+  const { uid, displayName, photoURL, passcode } = req.body;
+
+  if (passcode === PASSCODE) {
+    addUser(uid, displayName, photoURL);
+    res.send('{}');
+  } else {
+    res.sendStatus(401);
+  }
 });
 
 app.get('/api/heartbeat', (req, res) => {

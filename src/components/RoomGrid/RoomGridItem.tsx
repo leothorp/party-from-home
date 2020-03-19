@@ -1,6 +1,7 @@
 import React from 'react';
 import { styled } from '@material-ui/core/styles';
 import { Tooltip } from '@material-ui/core';
+import { Participant } from './RoomGrid';
 
 const GridItem = styled('div')({
   display: 'flex',
@@ -41,7 +42,7 @@ const RoomParticipant = styled('div')({
 interface Props {
   id: string;
   title: string;
-  participants: string[];
+  participants: Participant[];
   onClick?: (id: string) => void;
 }
 
@@ -57,7 +58,7 @@ export default function RoomGridItem(props: Props) {
       <RoomTitle>{props.title}</RoomTitle>
       <RoomParticipantContainer>
         {props.participants.map(p => (
-          <Tooltip title={p}>
+          <Tooltip key={p.uid} title={p.displayName}>
             <RoomParticipant></RoomParticipant>
           </Tooltip>
         ))}
