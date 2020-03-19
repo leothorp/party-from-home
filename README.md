@@ -60,6 +60,9 @@ TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_API_KEY_SID=SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_API_KEY_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+TWILIO_SERVICE_SID=ISxxxxxxxxxxxxxxxxxxxxxxxxxx # Sync Service SID
+REACT_APP_SET_AUTH=passcode
+PASSCODE=pass # Set passcode here
 ```
 
 Now the local token server (see [server.js](server.js)) can dispense Access Tokens to connect to a Room.
