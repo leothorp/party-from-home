@@ -7,6 +7,7 @@ const SyncGrant = AccessToken.SyncGrant;
 const twilio = require('twilio');
 require('dotenv').config();
 const bodyParser = require('body-parser');
+const inflection = require('inflection');
 
 const ENV = process.env.ENVIRONMENT;
 const MAX_ALLOWED_SESSION_DURATION = process.env.MAX_SESSION_DURATION || (ENV === 'production' ? 18000 : 60);
@@ -76,22 +77,29 @@ const setAdmin = (identity, shouldBeAdmin) => {
   const token = ((new Date()).getTime() * Math.random()).toString();
   return new Promise((resolve, reject) => {
     if (shouldBeAdmin) {
-      service.syncMaps('admins').syncMapItems.create({key: identity, data: { token }}).then(() => {
-        console.log(`Added admin for ${identity}`);
-        service.syncMaps('users').syncMapItems(identity).fetch().then(item => {
-          const data = {
-            ...item.data,
-            admin: true,
-          };
+      service.syncMaps('admins').syncMapItems(identity).fetch().then(item => {
+        resolve(item.data.token);
+      }).catch(() => {
+        service.syncMaps('admins').syncMapItems.create({key: identity, data: { token }}).then(() => {
+          console.log(`Added admin for ${identity}`);
+          service.syncMaps('users').syncMapItems(identity).fetch().then(item => {
+            const data = {
+              ...item.data,
+              admin: true,
+            };
 
-          item.update({data: data}).then(() => {
-            console.log(`Added admin flag for ${identity}`);
-            resolve(token);
+            item.update({data: data}).then(() => {
+              console.log(`Added admin flag for ${identity}`);
+              resolve(token);
+            }).catch(e => {
+              console.log(e);
+              reject(e);
+            });
+          }).catch(e => {
+            console.log(e)
+            reject(e);
           });
-        }).catch(e => {
-          console.log(e)
-          reject(e);
-        });
+        }).catch(reject);
       });
     } else {
       service.syncMaps('admins').syncMapItems(identity).remove().then(() => {
@@ -105,6 +113,9 @@ const setAdmin = (identity, shouldBeAdmin) => {
           item.update({data: data}).then(() => {
             console.log(`Removed admin flag for ${identity}`);
             resolve();
+          }).catch(e => {
+            console.log(e);
+            reject(e);
           });
         }).catch(e => {
           console.log(e)
@@ -243,6 +254,49 @@ app.post('/api/set_admin', (req, res) => {
       res.send({ error: { message: 'not an admin' } });
     });
   }
+});
+
+app.post('/api/create_room', (req, res) => {
+  const { identity, token, name } = req.body;
+
+  getAdminToken(identity).then(userToken => {
+    if (token === userToken) {
+      const roomId = inflection.underscore(name.replace(' ', ''));
+      service.syncMaps('rooms').syncMapItems.create({key: roomId, data: { id: roomId, name }}).then(() => {
+        console.log(`Created room ${name}`);
+        res.sendStatus(200);
+      }).catch(e => {
+        console.log(e);
+        res.sendStatus(500);
+      });
+    } else {
+      res.sendStatus(401);
+    }
+  }).catch(e => {
+    console.log(e);
+    res.sendStatus(401)
+  });
+});
+
+app.post('/api/delete_room', (req, res) => {
+  const { identity, token, roomId } = req.body;
+
+  getAdminToken(identity).then(userToken => {
+    if (token === userToken) {
+      service.syncMaps('rooms').syncMapItems(roomId).remove().then(() => {
+        console.log(`Removed room ${roomId}`);
+        res.sendStatus(200);
+      }).catch(e => {
+        console.log(e);
+        res.sendStatus(500);
+      });
+    } else {
+      res.sendStatus(401);
+    }
+  }).catch(e => {
+    console.log(e);
+    res.sendStatus(401)
+  });
 });
 
 app.get('/api/heartbeat', (req, res) => {

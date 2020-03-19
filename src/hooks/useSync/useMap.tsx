@@ -21,6 +21,15 @@ export default function useMap(name: string, options?: Options) {
     });
   }, [getSyncToken]);
 
+  // useEffect(() => {
+  //   client?.on('tokenAboutToExpire', () => {
+  //     getSyncToken().then(token => {
+  //       client.updateToken(token);
+  //       setClient(client);
+  //     });
+  //   });
+  // }, [client, getSyncToken]);
+
   useEffect(() => {
     client?.map(name).then((m: any) => {
       setMap(m);

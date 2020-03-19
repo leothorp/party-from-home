@@ -1,13 +1,13 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import useMountEffect from '../../hooks/useMountEffect/useMountEffect';
 import useMap from '../../hooks/useSync/useMap';
+import useMapItems from '../../hooks/useSync/useMapItems';
 import { styled } from '@material-ui/core/styles';
 import { ExpandMore, ExpandLess } from '@material-ui/icons';
 import { useAppState } from '../../state';
 import useRoomState from '../../hooks/useRoomState/useRoomState';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import RoomGridItem from './RoomGridItem';
-import { rooms } from '../../rooms';
 
 interface ContainerProps {
   open: boolean;
@@ -90,6 +90,7 @@ export default function RoomGrid() {
   const roomState = useRoomState();
   const [participants, setParticipants] = useState({} as Participants);
   const [open, setOpen] = useState(false);
+  const rooms = useMapItems('rooms');
 
   const onSelectRoom = (id: string) => {
     if (roomState !== 'disconnected') room.disconnect();
@@ -121,8 +122,8 @@ export default function RoomGrid() {
   );
 
   const onUserRemoved = useCallback(
-    (args: any) => {
-      const value = args.item.value;
+    (item: any) => {
+      const value = item.value;
       const roomParticipants = { ...participants };
 
       if (value.room !== undefined) {
@@ -195,11 +196,17 @@ export default function RoomGrid() {
     });
   }, [map]);
 
+  const displayRooms = [];
+
+  for (const id in rooms) {
+    displayRooms.push(rooms[id]);
+  }
+
   return (
     <Container open={open}>
       <Header onClick={() => setOpen(!open)} open={open} />
       <ItemContainer>
-        {rooms.map(rm => (
+        {displayRooms.map((rm: any) => (
           <RoomGridItem
             key={rm.id}
             id={rm.id}

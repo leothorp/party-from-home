@@ -1,6 +1,6 @@
 import React, { useCallback } from 'react';
-import { Modal, styled, Theme } from '@material-ui/core';
-import useApi from '../../hooks/useApi/useApi';
+import { Modal, styled } from '@material-ui/core';
+import RoomList from './RoomList';
 
 const Container = styled('div')(({ theme }) => ({
   position: 'fixed',
@@ -11,6 +11,8 @@ const Container = styled('div')(({ theme }) => ({
   height: '500px',
   marginTop: '-250px',
   marginLeft: '-200px',
+  display: 'flex',
+  flexDirection: 'column',
 }));
 
 interface Props {
@@ -29,6 +31,7 @@ export default function AdminPanel(props: Props) {
     <Modal open={props.open} onClose={onClose}>
       <Container>
         <h1>Admin Controls</h1>
+        <RoomList />
       </Container>
     </Modal>
   );
