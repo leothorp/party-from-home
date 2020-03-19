@@ -76,38 +76,10 @@ export default function MenuBar() {
   return (
     <AppBar className={classes.container} position="static">
       <Toolbar>
-        {roomState === 'disconnected' ? (
-          <form className={classes.form} onSubmit={handleSubmit}>
-            {!user?.displayName ? (
-              <TextField
-                id="menu-name"
-                label="Name"
-                className={classes.textField}
-                value={name}
-                onChange={handleNameChange}
-                margin="dense"
-              />
-            ) : (
-              <Typography className={classes.displayName} variant="body1">
-                {user.displayName}
-              </Typography>
-            )}
-            <TextField
-              id="menu-room"
-              label="Room"
-              className={classes.textField}
-              value={roomName}
-              onChange={handleRoomNameChange}
-              margin="dense"
-            />
-            <Button type="submit" color="primary" variant="contained" disabled={isConnecting || !name || !roomName}>
-              Join Room
-            </Button>
-            {isConnecting && <CircularProgress className={classes.loadingSpinner} />}
-          </form>
-        ) : (
-          <h3>{roomName}</h3>
-        )}
+        <Typography className={classes.displayName} variant="body1">
+          {user?.displayName}
+        </Typography>
+        {roomState !== 'disconnected' ? <h3>{roomName}</h3> : null}
         <ToggleFullscreenButton />
         <Menu />
       </Toolbar>
