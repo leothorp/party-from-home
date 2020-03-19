@@ -14,6 +14,7 @@ const MAX_ALLOWED_SESSION_DURATION = process.env.MAX_SESSION_DURATION || (ENV ==
 const ITEM_TTL = 120;
 const PASSCODE = process.env.PASSCODE;
 const ADMIN_PASSCODE = process.env.PASSCODE;
+const PORT = process.env.PORT || 8081;
 const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
 const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioApiKeySID = process.env.TWILIO_API_KEY_SID;
@@ -21,16 +22,63 @@ const twilioApiKeySecret = process.env.TWILIO_API_KEY_SECRET;
 const twilioServiceSID = process.env.TWILIO_SERVICE_SID;
 const client = new twilio(twilioAccountSid, twilioAuthToken);
 const service = client.sync.services.get(twilioServiceSID);
+var url = process.env.BASE_URL;
 
-service.syncMaps.create({ uniqueName: 'users' }).then(list => {
+var ngrok;
+
+service.syncMaps.create({ uniqueName: 'users' }).then(() => {
   console.log(`Created user list`);
-}).catch(e => console.error(e));
-service.syncMaps.create({ uniqueName: 'rooms' }).then(list => {
+}).catch(e => {
+  if (e.code !== 54301)
+    console.error(e);
+});
+service.syncMaps.create({ uniqueName: 'rooms' }).then(() => {
   console.log(`Created user list`);
-}).catch(e => console.error(e));
-service.syncMaps.create({ uniqueName: 'admins' }).then(list => {
+}).catch(e => {
+  if (e.code !== 54301)
+    console.error(e);
+});
+service.syncMaps.create({ uniqueName: 'admins' }).then(() => {
   console.log(`Created admin list`);
-}).catch(e => console.error(e));
+}).catch(e => {
+  if (e.code !== 54301)
+    console.error(e);
+});
+
+if (ENV !== 'production') {
+  const updateRoomHooks = (hookUrl) => {
+    client.video.rooms.list({status: 'in-progress', limit: 50}).then(rooms => {
+      rooms.forEach(room => {
+        client.video.rooms(room.sid).update({
+          status: 'completed',
+        }).then(r => {
+          console.log(`Deleted old video room ${r.uniqueName}`);
+        }).catch(e => console.log(e));
+      });
+
+      service.syncMaps('rooms').syncMapItems.list({limit: 50}).then(items => {
+        items.forEach(item => {
+          client.video.rooms.create({
+            type: 'group',
+            uniqueName: item.data.id,
+            statusCallback: `${hookUrl}/api/hooks/room_status`,
+          }).then(() => {
+            console.log(`Created video room ${item.data.name}`);
+          }).catch(e => {
+            console.log(e);
+          });
+        });
+      }).catch(e => console.log(e));
+    }).catch(e => console.log(e));
+  };
+
+  ngrok = require('ngrok');
+  ngrok.connect(PORT).then(u => {
+    url = u;
+    console.log(`Ngrok started at ${u}`);
+    updateRoomHooks();
+  });
+}
 
 const setUserRoom = (identity, room, displayName, photoURL) => {
   const user = {
@@ -263,8 +311,17 @@ app.post('/api/create_room', (req, res) => {
     if (token === userToken) {
       const roomId = inflection.underscore(name.replace(' ', ''));
       service.syncMaps('rooms').syncMapItems.create({key: roomId, data: { id: roomId, name }}).then(() => {
-        console.log(`Created room ${name}`);
-        res.sendStatus(200);
+        client.video.rooms.create({
+          type: 'group',
+          uniqueName: roomId,
+          statusCallback: `${url}/api/hooks/room_status`,
+        }).then(() => {
+          console.log(`Created room ${name}`);
+          res.sendStatus(200);
+        }).catch(e => {
+          console.log(e);
+          res.sendStatus(500);
+        });
       }).catch(e => {
         console.log(e);
         res.sendStatus(500);
@@ -284,8 +341,13 @@ app.post('/api/delete_room', (req, res) => {
   getAdminToken(identity).then(userToken => {
     if (token === userToken) {
       service.syncMaps('rooms').syncMapItems(roomId).remove().then(() => {
-        console.log(`Removed room ${roomId}`);
-        res.sendStatus(200);
+        client.video.rooms(roomId).update({status: 'completed'}).then(() => {
+          console.log(`Removed room ${roomId}`);
+          res.sendStatus(200);
+        }).catch(e => {
+          console.log(e);
+          res.sendStatus(500);
+        });
       }).catch(e => {
         console.log(e);
         res.sendStatus(500);
@@ -340,4 +402,4 @@ app.get('/', (req, res) => res.send(''));
 
 app.get('*', (_, res) => res.sendFile(path.join(__dirname, 'build/index.html')));
 
-app.listen(process.env.PORT || 8081, () => console.log('token server running on 8081'));
+app.listen(PORT, () => console.log('token server running on 8081'));

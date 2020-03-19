@@ -94,8 +94,6 @@ export default function usePasscodeAuth() {
                   storedUser.token = token;
                 }
 
-                console.log('token: ' + token);
-
                 setUser(storedUser);
                 window.sessionStorage.setItem('user', JSON.stringify(storedUser));
               })

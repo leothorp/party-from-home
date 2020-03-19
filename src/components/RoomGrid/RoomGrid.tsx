@@ -196,7 +196,7 @@ export default function RoomGrid() {
     });
   }, [map]);
 
-  const displayRooms = [];
+  const displayRooms: any[] = [];
 
   for (const id in rooms) {
     displayRooms.push(rooms[id]);

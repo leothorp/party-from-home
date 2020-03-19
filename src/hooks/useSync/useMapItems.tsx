@@ -10,21 +10,29 @@ export default function useMapItems(name: string) {
 
   const onAdded = useCallback(
     (args: any) => {
-      items[args.item.key] = args.item.value;
+      setItems({
+        ...items,
+        [args.item.key]: args.item.value,
+      });
     },
     [items]
   );
 
   const onRemoved = useCallback(
     (item: any) => {
-      items[item.key] = null;
+      const newItems = { ...items };
+      delete newItems[item.key];
+      setItems(newItems);
     },
     [items]
   );
 
   const onUpdated = useCallback(
     (args: any) => {
-      items[args.item.key] = args.item.value;
+      setItems({
+        ...items,
+        [args.item.key]: args.item.value,
+      });
     },
     [items]
   );
@@ -37,7 +45,12 @@ export default function useMapItems(name: string) {
 
   useEffect(() => {
     map?.getItems().then((paginator: any) => {
-      setItems(paginator.items);
+      const newItems = {} as Items;
+      paginator.items.forEach((item: any) => {
+        newItems[item.key] = item.value;
+      });
+
+      setItems(newItems);
     });
   }, [map]);
 
