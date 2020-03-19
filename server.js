@@ -8,7 +8,8 @@ const twilio = require('twilio');
 require('dotenv').config();
 const bodyParser = require('body-parser');
 
-const MAX_ALLOWED_SESSION_DURATION = 14400;
+const ENV = process.env.ENVIRONMENT;
+const MAX_ALLOWED_SESSION_DURATION = process.env.MAX_SESSION_DURATION || (ENV === 'production' ? 18000 : 60);
 const ITEM_TTL = 120;
 const PASSCODE = process.env.PASSCODE;
 const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -24,6 +25,9 @@ service.syncMaps.create({ uniqueName: 'users' }).then(list => {
 }).catch(e => console.error(e));
 service.syncMaps.create({ uniqueName: 'rooms' }).then(list => {
   console.log(`Created user list`);
+}).catch(e => console.error(e));
+service.syncMaps.create({ uniqueName: 'admins' }).then(list => {
+  console.log(`Created admin list`);
 }).catch(e => console.error(e));
 
 const setUserRoom = (identity, room, displayName, photoURL) => {
@@ -64,6 +68,62 @@ const addUser = (identity, displayName, photoURL) => {
       .then(item => {
         console.log(`Created user ${user.identity}`);
       });
+  });
+};
+
+const setAdmin = (identity, shouldBeAdmin) => {
+  const token = ((new Date()).getTime() * Math.random()).toString();
+  return new Promise((resolve, reject) => {
+    if (shouldBeAdmin) {
+      service.syncMaps('admins').syncMapItems.create({key: identity, data: { token }}).then(() => {
+        console.log(`Added admin for ${identity}`);
+        service.syncMaps('users').syncMapItems(identity).fetch().then(item => {
+          const data = {
+            ...item.data,
+            admin: true,
+          };
+
+          item.update({data: data}).then(() => {
+            console.log(`Added admin flag for ${identity}`);
+            resolve(token);
+          });
+        }).catch(e => {
+          console.log(e)
+          reject(e);
+        });
+      });
+    } else {
+      service.syncMaps('admins').syncMapItems(identity).remove().then(() => {
+        console.log(`Removed admin for ${identity}`);
+        service.syncMaps('users').syncMapItems(identity).fetch().then(item => {
+          const data = {
+            ...item.data,
+            admin: false,
+          };
+
+          item.update({data: data}).then(() => {
+            console.log(`Removed admin flag for ${identity}`);
+            resolve();
+          });
+        }).catch(e => {
+          console.log(e)
+          reject(e);
+        });
+      }).catch(e => {
+        console.log(e)
+        reject(e);
+      });
+    }
+  });
+};
+
+const getAdminToken = (identity) => {
+  return new Promise((resolve, reject) => {
+    service.syncMaps('admins').syncMapItems(identity).fetch().then(item => {
+      resolve(item.data.token);
+    }).catch(e => {
+      reject(e);
+    });
   });
 };
 
@@ -128,7 +188,21 @@ app.post('/api/register', (req, res) => {
 
   if (passcode === PASSCODE) {
     addUser(uid, displayName, photoURL);
-    res.send('{}');
+
+    if (ENV !== 'production') {
+      setAdmin(uid, true).then(token => {
+        res.send({ token });
+      }).catch(e => {
+        console.log(e);
+        res.send({});
+      });
+    } else {
+      getAdminToken(uid).then(token => {
+        res.send({ token });
+      }).catch(() => {
+        res.send({});
+      });
+    }
   } else {
     res.sendStatus(401);
   }
