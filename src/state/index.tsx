@@ -14,6 +14,7 @@ export interface StateContextType {
   error: TwilioError | null;
   setError(error: TwilioError | null): void;
   getToken(name: string, room: string, passcode?: string): Promise<string>;
+  getSyncToken(): Promise<string>;
   user?: User | null;
   setUser?(displayName: string, photoURL?: string): Promise<void>;
   signIn?(passcode?: string): Promise<void>;
@@ -63,7 +64,25 @@ export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
       return Promise.reject(err);
     });
 
-  return <StateContext.Provider value={{ ...contextValue, getToken }}>{props.children}</StateContext.Provider>;
+  const getSyncToken: StateContextType['getSyncToken'] = () => {
+    const identity = contextValue.user?.uid;
+    const passcode = contextValue.user?.passcode;
+
+    return new Promise((resolve, reject) => {
+      fetch(`/api/sync_token?identity=${identity}`)
+        .then(res => {
+          res
+            .text()
+            .then(token => resolve(token))
+            .catch(reject);
+        })
+        .catch(reject);
+    });
+  };
+
+  return (
+    <StateContext.Provider value={{ ...contextValue, getToken, getSyncToken }}>{props.children}</StateContext.Provider>
+  );
 }
 
 export function useAppState() {
