@@ -72,9 +72,16 @@ interface ParticipantInfoProps {
   children: React.ReactNode;
   onClick: () => void;
   isSelected: boolean;
+  displayName?: string;
 }
 
-export default function ParticipantInfo({ participant, onClick, isSelected, children }: ParticipantInfoProps) {
+export default function ParticipantInfo({
+  participant,
+  onClick,
+  isSelected,
+  children,
+  displayName,
+}: ParticipantInfoProps) {
   const publications = usePublications(participant);
 
   const audioPublication = publications.find(p => p.kind === 'audio');
@@ -102,7 +109,7 @@ export default function ParticipantInfo({ participant, onClick, isSelected, chil
         <div className={classes.infoRow}>
           <h4 className={classes.identity}>
             <ParticipantConnectionIndicator participant={participant} />
-            {participant.identity}
+            {displayName || participant.identity}
           </h4>
           <NetworkQualityLevel qualityLevel={networkQualityLevel} />
         </div>
