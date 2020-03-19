@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import useMountEffect from '../../hooks/useMountEffect/useMountEffect';
 import { styled } from '@material-ui/core/styles';
 import { ExpandMore, ExpandLess } from '@material-ui/icons';
@@ -88,13 +88,67 @@ export default function RoomGrid() {
   const { getToken, user } = useAppState();
   const { connect, room } = useVideoContext();
   const roomState = useRoomState();
-  const [participants, setParticipants] = useState<Participants>({});
+  const [participants, setParticipants] = useState({} as Participants);
   const [open, setOpen] = useState(false);
+  const [map, setMap] = useState<any | undefined>(undefined);
+  console.log('upper:');
+  console.log(participants);
 
   const onSelectRoom = (id: string) => {
     if (roomState !== 'disconnected') room.disconnect();
     getToken(user?.uid || '', id).then(token => connect(token));
   };
+
+  const updateParticipants = useCallback(
+    (action: string, item: any) => {
+      const value = item.value;
+      const roomParticipants = { ...participants };
+      console.log('callback:');
+      console.log(participants);
+
+      if (value.room !== undefined) {
+        const par = {
+          uid: value.identity,
+          displayName: value.displayName,
+          photoURL: value.photoURL,
+        };
+
+        switch (action) {
+          case 'add':
+            if (roomParticipants[value.room] !== undefined) {
+              roomParticipants[value.room].push(par);
+            } else {
+              roomParticipants[value.room] = [par];
+            }
+
+            break;
+          case 'remove':
+            if (roomParticipants[value.room] !== undefined) {
+              const roomUsers = roomParticipants[value.room];
+              roomParticipants[value.room] = roomUsers.filter(u => u.uid !== value.identity);
+            }
+
+            break;
+          case 'update':
+            for (const roomName in roomParticipants) {
+              const roomUsers = roomParticipants[roomName];
+              roomParticipants[roomName] = roomUsers.filter(u => u.uid !== value.identity);
+            }
+
+            if (roomParticipants.hasOwnProperty(value.room)) {
+              roomParticipants[value.room].push(par);
+            } else {
+              roomParticipants[value.room] = [par];
+            }
+
+            break;
+        }
+
+        setParticipants(roomParticipants);
+      }
+    },
+    [participants]
+  );
 
   useMountEffect(() => {
     setInterval(heartbeat(user?.uid || ''), HEARTBEAT_INTERVAL);
@@ -103,91 +157,58 @@ export default function RoomGrid() {
       res.text().then(token => {
         const syncClient = new SyncClient(token);
 
-        syncClient.map(`users`).then((map: any) => {
-          map.getItems().then((paginator: any) => {
-            const roomParticipants: Participants = {};
-
-            paginator.items.forEach((item: any) => {
-              if (item.value.room !== undefined) {
-                if (roomParticipants[item.value.room]) {
-                  roomParticipants[item.value.room].push(item.value.identity);
-                } else {
-                  roomParticipants[item.value.room] = [item.value.identity];
-                }
-              }
-            });
-
-            setParticipants(roomParticipants);
-          });
-
-          map.on('itemAdded', (args: any) => {
-            const value = args.item.value;
-            const roomParticipants = { ...participants };
-
-            if (value.room !== undefined) {
-              const par = {
-                uid: value.identity,
-                displayName: value.displayName,
-                photoURL: value.photoURL,
-              };
-
-              if (roomParticipants[value.room]) {
-                roomParticipants[value.room].push(par);
-              } else {
-                roomParticipants[value.room] = [par];
-              }
-
-              setParticipants(roomParticipants);
-            }
-          });
-
-          map.on('itemRemoved', (args: any) => {
-            const value = args.item.value;
-            const roomParticipants = { ...participants };
-
-            if (value.room !== undefined) {
-              if (roomParticipants[value.room]) {
-                const idx = roomParticipants[value.room].indexOf(value.identity);
-                if (idx >= 0) {
-                  roomParticipants[value.room].splice(idx, 1);
-                  setParticipants(roomParticipants);
-                }
-              }
-            }
-          });
-
-          map.on('itemUpdated', (args: any) => {
-            const value = args.item.value;
-            const roomParticipants = { ...participants };
-
-            for (const roomName in roomParticipants) {
-              const roomUsers = roomParticipants[roomName];
-              const idx = roomUsers.indexOf(value.identity);
-              if (idx >= 0) {
-                roomUsers.splice(idx, 1);
-              }
-            }
-
-            if (value.room !== undefined) {
-              const par = {
-                uid: value.identity,
-                displayName: value.displayName,
-                photoURL: value.photoURL,
-              };
-
-              if (roomParticipants[value.room]) {
-                roomParticipants[value.room].push(par);
-              } else {
-                roomParticipants[value.room] = [par];
-              }
-            }
-
-            setParticipants(roomParticipants);
-          });
+        syncClient.map(`users`).then((m: any) => {
+          setMap(m);
         });
       });
     });
   });
+
+  useEffect(() => {
+    map?.getItems().then((paginator: any) => {
+      const roomParticipants: Participants = {};
+
+      paginator.items.forEach((item: any) => {
+        if (item.value.room !== undefined) {
+          if (roomParticipants[item.value.room] !== undefined) {
+            roomParticipants[item.value.room].push(item.value.identity);
+          } else {
+            roomParticipants[item.value.room] = [item.value.identity];
+          }
+        }
+      });
+
+      setParticipants(roomParticipants);
+    });
+  }, [map]);
+
+  useEffect(() => {
+    if (map !== undefined) {
+      const addListener = (args: any) => {
+        updateParticipants('add', args.item);
+      };
+
+      map.on('itemAdded', addListener);
+
+      const removeListener = (args: any) => {
+        updateParticipants('remove', args.item);
+      };
+
+      map.on('itemRemoved', removeListener);
+
+      const updateListener = (args: any) => {
+        updateParticipants('update', args.item);
+      };
+
+      map.on('itemUpdated', updateListener);
+
+      return () => {
+        map.removeListener('itemAdded', addListener);
+        map.removeListener('itemRemoved', removeListener);
+        map.removeListener('itemUpdated', updateListener);
+      };
+    }
+  }, [updateParticipants, map]);
 
   return (
     <Container open={open}>
