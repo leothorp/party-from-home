@@ -382,7 +382,15 @@ app.post('/api/hooks/room_status', (req, res) => {
 
       break;
     case 'room-ended':
-      // service.syncMaps.get(`room-${room}`).remove().then(() => console.log(`Deleted ${room} room list`)).catch(e => console.error(e));
+      client.video.rooms.create({
+        type: 'group',
+        uniqueName: room,
+        statusCallback: `${url}/api/hooks/room_status`,
+      }).then(() => {
+        console.log(`Re-created room ${room}`);
+      }).catch(e => {
+        console.log(e);
+      });
 
       break;
     case 'participant-connected':
