@@ -3,9 +3,8 @@ FROM node:10.16.3-stretch as builder
 WORKDIR /root/package
 COPY package.json package-lock.json ./
 RUN npm install
-ENV REACT_APP_SET_AUTH=passcode
 COPY . /root/package/
-RUN npm run build
+RUN REACT_APP_SET_AUTH=passcode npm run build
 
 FROM nginx
 COPY --from=builder /root/package/build/ /usr/share/nginx/html/
