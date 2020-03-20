@@ -15,6 +15,7 @@ const ITEM_TTL = 120;
 const PASSCODE = process.env.PASSCODE;
 const ADMIN_PASSCODE = process.env.PASSCODE;
 const PORT = process.env.PORT || 8081;
+const ROOM_TYPE = ENV === 'production' ? 'group' : 'group-small';
 const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
 const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
 const twilioApiKeySID = process.env.TWILIO_API_KEY_SID;
@@ -58,7 +59,7 @@ const updateRoomHooks = (hookUrl) => {
     service.syncMaps('rooms').syncMapItems.list({limit: 50}).then(items => {
       items.forEach(item => {
         client.video.rooms.create({
-          type: 'group',
+          type: ROOM_TYPE,
           uniqueName: item.data.id,
           statusCallback: `${hookUrl}/api/hooks/room_status`,
         }).then(() => {
@@ -314,7 +315,7 @@ app.post('/api/create_room', (req, res) => {
       const roomId = inflection.underscore(name.replace(' ', ''));
       service.syncMaps('rooms').syncMapItems.create({key: roomId, data: { id: roomId, name }}).then(() => {
         client.video.rooms.create({
-          type: 'group',
+          type: ROOM_TYPE,
           uniqueName: roomId,
           statusCallback: `${url}/api/hooks/room_status`,
         }).then(() => {
@@ -383,7 +384,7 @@ app.post('/api/hooks/room_status', (req, res) => {
       break;
     case 'room-ended':
       client.video.rooms.create({
-        type: 'group',
+        type: ROOM_TYPE,
         uniqueName: room,
         statusCallback: `${url}/api/hooks/room_status`,
       }).then(() => {
