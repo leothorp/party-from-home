@@ -46,7 +46,7 @@ export default function useMap(name: string, options?: Options) {
         map.on('itemRemoved', options.onRemoved);
       }
 
-      if (options.onAdded) {
+      if (options.onUpdated) {
         map.on('itemUpdated', options.onUpdated);
       }
     }
@@ -61,7 +61,7 @@ export default function useMap(name: string, options?: Options) {
           map.removeListener('itemRemoved', options.onRemoved);
         }
 
-        if (options.onAdded) {
+        if (options.onUpdated) {
           map.removeListener('itemUpdated', options.onUpdated);
         }
       }
