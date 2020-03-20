@@ -7,7 +7,7 @@ interface Options {
   onRemoved?: (item: any) => void;
 }
 
-export default function useMap(name: string, options?: Options) {
+export default function useDocument(name: string, options?: Options) {
   const { getSyncToken } = useAppState();
   const [client, setClient] = useState<any | null>(null);
   const [document, setDocument] = useState<any | null>(null);

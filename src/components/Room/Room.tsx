@@ -6,6 +6,7 @@ import { styled } from '@material-ui/core/styles';
 import MainParticipant from '../MainParticipant/MainParticipant';
 import WidgetSelector from './WidgetSelector';
 import { Button } from '@material-ui/core';
+import RoomWidget from '../RoomWidget/RoomWidget';
 
 const Container = styled('div')({
   position: 'relative',
@@ -55,14 +56,14 @@ export default function Room() {
     <Container>
       <ParticipantStrip />
       <MainParticipantContainer>
-        <RoomControlsContainer className='room-controls'>
+        <RoomControlsContainer className="room-controls">
           {room?.widgetId ? (
             <Button onClick={removeWidget}>Remove Widget</Button>
           ) : (
             <WidgetSelector room={room} onWidgetSelected={onWidgetSelected} />
           )}
         </RoomControlsContainer>
-        <MainParticipant />
+        {room?.widgetId ? <RoomWidget widgetId={room.widgetId} documentId={room.widgetStateId} /> : <MainParticipant />}
       </MainParticipantContainer>
     </Container>
   );

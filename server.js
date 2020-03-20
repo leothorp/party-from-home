@@ -397,7 +397,7 @@ app.post('/api/create_widget_state', (req, res) => {
 
   if (passcode === PASSCODE) {
     service.syncMaps('rooms').syncMapItems(roomId).fetch().then(roomItem => {
-      service.documents.create().then(doc => {
+      service.documents.create({data: {}}).then(doc => {
         roomItem.update({ data: { ...roomItem.data, widgetId, widgetStateId: doc.sid } }).then(() => {
           console.log(`Set widget ID for ${roomItem.data.id} to ${doc.sid}`);
 

@@ -3,7 +3,6 @@ import useApi from '../../hooks/useApi/useApi';
 import { Button } from '@material-ui/core';
 import { styled } from '@material-ui/core';
 
-
 const Container = styled('div')(({ theme }) => ({
   backgroundColor: '#000',
   padding: '10px',
@@ -21,9 +20,9 @@ export default function WidgetSelector(props: Props) {
     if (props.room && !props.room.widgetId) {
       callApi('create_widget_state', {
         roomId: props.room.id,
-        widgetId: 'test-widget',
+        widgetId: 'test',
       }).then(data => {
-        props.onWidgetSelected('test-widget', data.widgetStateId);
+        props.onWidgetSelected('test', data.widgetStateId);
       });
     }
   }, [callApi, props]);
