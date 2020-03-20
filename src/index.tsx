@@ -21,18 +21,19 @@ import UserSetup from './components/UserSetup/UserSetup';
 const connectionOptions: ConnectOptions = {
   bandwidthProfile: {
     video: {
+      dominantSpeakerPriority: 'high',
       mode: 'collaboration',
       renderDimensions: {
         high: { height: 1080, width: 1920 },
         standard: { height: 90, width: 160 },
-        low: { height: 90, width: 160 },
+        low: { height: 56.25, width: 100 },
       },
     },
   },
   dominantSpeaker: true,
   maxAudioBitrate: 12000,
   networkQuality: { local: 1, remote: 1 },
-  preferredVideoCodecs: [{ codec: 'VP8', simulcast: true }],
+  preferredVideoCodecs: ['H264'],
 };
 
 const VideoApp = () => {
