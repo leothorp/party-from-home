@@ -32,11 +32,12 @@ const RoomParticipantContainer = styled('div')({
 });
 
 const RoomParticipant = styled('div')({
-  backgroundColor: '#EB5757',
   width: '48px',
   height: '48px',
+  borderRadius: '48px',
   marginRight: '4px',
   marginBottom: '4px',
+  overflow: 'hidden',
 });
 
 interface Props {
@@ -59,7 +60,13 @@ export default function RoomGridItem(props: Props) {
       <RoomParticipantContainer>
         {props.participants.map(p => (
           <Tooltip key={p.uid} title={p.displayName}>
-            <RoomParticipant></RoomParticipant>
+            <RoomParticipant>
+              {
+                p.photoURL ? (
+                  <img src={p.photoURL} />
+                ) : null
+              }
+            </RoomParticipant>
           </Tooltip>
         ))}
       </RoomParticipantContainer>
