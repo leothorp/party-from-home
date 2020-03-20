@@ -80,7 +80,7 @@ if (ENV !== 'production') {
     updateRoomHooks(u);
   });
 } else {
-  updateRoomHooks(url);
+  updateRoomHooks(`${url}/api/hooks/room_status`);
 }
 
 const setUserRoom = (identity, room, displayName, photoURL) => {
