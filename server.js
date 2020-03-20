@@ -190,6 +190,26 @@ const getAdminToken = (identity) => {
   });
 };
 
+const grantPermissionsForDocument = (docId, users, permissions) => {
+  return new Promise((resolve, reject) => {
+    users.forEach(identity => {
+      service.documents(docId).documentPermissions(identity).update(permissions).then(() => {}).catch(e => {
+        reject(e);
+      });
+    });
+  });
+};
+
+const getRoomUsers = (roomId) => {
+  return new Promise((resolve, reject) => {
+    service.syncMaps('users').syncMapItems.list({ limit: 500 }).then(users => {
+      resolve(users.filter(i => i.data.room === roomId).map(i => i.data));
+    }).catch(e => {
+      reject(e);
+    });
+  });
+};
+
 app.use(express.static(path.join(__dirname, 'build')));
 app.use(express.json());
 app.use(bodyParser.urlencoded());
@@ -364,6 +384,75 @@ app.post('/api/delete_room', (req, res) => {
   });
 });
 
+app.post('/api/create_widget_state', (req, res) => {
+  // get room
+  // create sync document
+  // set room widget id
+  // add all room users to acl read/write
+  // return widget id
+  const { roomId, widgetId, passcode } = req.body;
+
+  if (passcode === PASSCODE) {
+    service.syncMaps('rooms').syncMapItems(roomId).fetch().then(roomItem => {
+      service.documents.create().then(doc => {
+        roomItem.update({ data: { ...roomItem.data, widgetId, widgetStateId: doc.sid } }).then(() => {
+          console.log(`Set widget ID for ${roomItem.data.id} to ${doc.sid}`);
+
+          getRoomUsers(roomId).then(roomUsers => {
+            grantPermissionsForDocument(doc.sid, roomUsers.map(u => u.uid), { read: true, write: true, manage: false }).then(() => {
+              console.log(`Granted permissions for ${doc.sid} to users in ${roomId}`);
+
+              res.send({ widgetStateId: doc.sid });
+            }).catch(e => {
+              console.log(e);
+              res.sendStatus(500);
+            });
+          }).catch(e => {
+            console.log(e);
+            res.sendStatus(500);
+          });
+        }).catch(e => {
+          console.log(e);
+          res.sendStatus(500);
+        });
+      }).catch(e => {
+        console.log(e);
+        res.sendStatus(500);
+      });
+    }).catch(e => {
+      console.log(e);
+      res.sendStatus(400);
+    });
+  } else {
+    res.sendStatus(401);
+  }
+});
+
+app.post('/api/delete_widget_state', (req, res) => {
+  // get room
+  // if room has widget, remove widget id
+  // delete state document
+  const { passcode, roomId } = req.body;
+
+  if (passcode === PASSCODE) {
+    service.syncMaps('rooms').syncMapItems(roomId).fetch().then(item => {
+      item.update({ data: { ...item.data, widgetId: null, widgetStateId: null } }).then(() => {
+        console.log(`Removed widget for room ${roomId}`);
+
+        res.send({});
+      }).catch(e => {
+        console.log(e);
+        res.sendStatus(500);
+      });
+    }).catch(e => {
+      console.log(e);
+      res.sendStatus(400);
+    });
+  } else {
+    res.sendStatus(401);
+  }
+});
+
 app.get('/api/heartbeat', (req, res) => {
   service.syncMaps('users').syncMapItems(req.query.identity).update({ itemTtl: ITEM_TTL }).then(() => {
     console.log(`Updated TTL for ${req.query.identity}`);
@@ -396,6 +485,17 @@ app.post('/api/hooks/room_status', (req, res) => {
       break;
     case 'participant-connected':
       setUserRoom(identity, room);
+      service.syncMaps('rooms').syncMapItems(room).fetch().then(item => {
+        if (item.data.widgetStateId) {
+          grantPermissionsForDocument(item.data.widgetStateId, [identity], { read: true, write: true, manage: false }).then(() => {
+            console.log(`Granted widget permissions in ${room} to ${identity}`);
+          }).catch(e => {
+            console.log(e);
+          });
+        }
+      }).catch(e => {
+        console.log(`Error fetching room ${room}: ${e}`);
+      });
 
       break;
     case 'participant-disconnected':
