@@ -40,6 +40,12 @@ const RoomParticipant = styled('div')({
   overflow: 'hidden',
 });
 
+const AvatarPlaceholder = styled('div')({
+  width: '100%',
+  height: '100%',
+  backgroundColor: '#EB5757',
+});
+
 interface Props {
   id: string;
   title: string;
@@ -61,11 +67,7 @@ export default function RoomGridItem(props: Props) {
         {props.participants.map(p => (
           <Tooltip key={p.uid} title={p.displayName}>
             <RoomParticipant>
-              {
-                p.photoURL ? (
-                  <img src={p.photoURL} />
-                ) : null
-              }
+              {p.photoURL ? <img alt="avatar" src={p.photoURL} /> : <AvatarPlaceholder />}
             </RoomParticipant>
           </Tooltip>
         ))}

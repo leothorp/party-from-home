@@ -7,6 +7,7 @@ export default function useApi() {
     if (user) {
       params.identity = user.uid;
       params.token = user.token;
+      params.passcode = user.passcode;
     }
 
     return new Promise((resolve, reject) => {
@@ -16,7 +17,12 @@ export default function useApi() {
           'content-type': 'application/json',
         },
         body: JSON.stringify(params),
-      });
+      })
+        .then(res => {
+          return res.json();
+        })
+        .then(resolve)
+        .catch(reject);
     });
   };
 

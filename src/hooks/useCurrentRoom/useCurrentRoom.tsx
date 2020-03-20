@@ -7,7 +7,7 @@ export default function useCurrentRoom() {
   const users = useMapItems('users');
   const rooms = useMapItems('rooms');
   const { user } = useAppState();
-  const [currentRoom, setCurrentRoom] = useState(null);
+  const [currentRoom, setCurrentRoom] = useState<any | null>(null);
 
   useEffect(() => {
     if (user && users && rooms) {
