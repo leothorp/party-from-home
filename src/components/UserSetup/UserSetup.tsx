@@ -1,4 +1,4 @@
-import React, { ChangeEvent, useState, FormEvent } from 'react';
+import React, { ChangeEvent, useState, FormEvent, useCallback } from 'react';
 import { useAppState } from '../../state';
 
 import Button from '@material-ui/core/Button';
@@ -6,6 +6,7 @@ import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
 import Grid from '@material-ui/core/Grid';
 import TextField from '@material-ui/core/TextField';
 import Typography from '@material-ui/core/Typography';
+import FacebookLogin, { ReactFacebookLoginInfo } from 'react-facebook-login';
 
 import { createMuiTheme, ThemeProvider } from '@material-ui/core/styles';
 import { makeStyles, styled } from '@material-ui/core/styles';
@@ -57,6 +58,40 @@ const Header = styled('h1')({
   maxWidth: '477px',
 });
 
+const SeparatorContainer = styled('div')({
+  position: 'relative',
+  width: '100%',
+  marginTop: '27px',
+  marginBottom: '27px',
+});
+
+const SeparatorText = styled('div')({
+  position: 'relative',
+  color: '#828282',
+  backgroundColor: '#000',
+  width: '40px',
+  zIndex: 10,
+  marginLeft: '10px',
+  textAlign: 'center',
+  fontSize: '20px',
+  fontWeight: 'bold',
+  lineHeight: '24px',
+  letterSpacing: '0.05em',
+  display: 'flex',
+  alignItems: 'center',
+  paddingLeft: '5px',
+});
+
+const Separator = styled('div')({
+  position: 'absolute',
+  top: '50%',
+  width: '100%',
+  borderColor: '#333333',
+  borderWidth: '1px',
+  borderStyle: 'solid',
+  zIndex: 5,
+});
+
 export default function LoginPage() {
   const classes = useStyles();
   const { setUser, user } = useAppState();
@@ -81,6 +116,13 @@ export default function LoginPage() {
     setError(null);
     setUserInfo();
   };
+
+  const onFBLogin = useCallback((info: ReactFacebookLoginInfo) => {
+    if (setUser) {
+      setUser(info.name || '', info?.picture?.data?.url || '')
+        .then(() => history.replace({ pathname: '/' }));
+    }
+  }, [user]);
 
   const currentName = name === '' && user?.displayName ? user.displayName : name;
 
@@ -124,6 +166,16 @@ export default function LoginPage() {
               </Button>
             </Grid>
           </form>
+          <SeparatorContainer>
+            <SeparatorText>OR</SeparatorText>
+            <Separator></Separator>
+          </SeparatorContainer>
+          <FacebookLogin
+            appId={'2488611224802561'}
+            autoLoad={false}
+            fields="name,picture"
+            callback={onFBLogin}
+          />
         </HeroContainer>
       </Grid>
     </ThemeProvider>
