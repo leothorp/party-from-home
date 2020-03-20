@@ -18,9 +18,21 @@ const MainParticipantContainer = styled('div')(({ theme }) => ({
   right: 0,
   top: 0,
   bottom: 0,
-  '& > div': {
+  '& > div:not(.room-controls)': {
     height: '100%',
   },
+}));
+
+const RoomControlsContainer = styled('div')(({ theme }) => ({
+  position: 'absolute',
+  height: '100px',
+  left: '50%',
+  right: 0,
+  top: 0,
+  bottom: 0,
+  zIndex: 100,
+  marginLeft: '-300px',
+  width: '600px',
 }));
 
 export default function Room() {
@@ -41,13 +53,15 @@ export default function Room() {
 
   return (
     <Container>
-      {room?.widgetId ? (
-        <Button onClick={removeWidget}>Remove Widget</Button>
-      ) : (
-        <WidgetSelector room={room} onWidgetSelected={onWidgetSelected} />
-      )}
       <ParticipantStrip />
       <MainParticipantContainer>
+        <RoomControlsContainer className='room-controls'>
+          {room?.widgetId ? (
+            <Button onClick={removeWidget}>Remove Widget</Button>
+          ) : (
+            <WidgetSelector room={room} onWidgetSelected={onWidgetSelected} />
+          )}
+        </RoomControlsContainer>
         <MainParticipant />
       </MainParticipantContainer>
     </Container>

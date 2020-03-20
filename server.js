@@ -78,6 +78,9 @@ if (ENV !== 'production') {
     url = u;
     console.log(`Ngrok started at ${u}`);
     updateRoomHooks(u);
+  }).catch(e => {
+    console.log('Failed to start ngrok');
+    console.log(e);
   });
 } else {
   updateRoomHooks(`${url}/api/hooks/room_status`);
