@@ -1,4 +1,4 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import useCurrentRoom from '../../hooks/useCurrentRoom/useCurrentRoom';
 import useApi from '../../hooks/useApi/useApi';
 import ParticipantStrip from '../ParticipantStrip/ParticipantStrip';
@@ -7,6 +7,9 @@ import MainParticipant from '../MainParticipant/MainParticipant';
 import WidgetSelector from './WidgetSelector';
 import { Button } from '@material-ui/core';
 import RoomWidget from '../RoomWidget/RoomWidget';
+import { Responsive, WidthProvider } from 'react-grid-layout';
+
+const GridLayout = WidthProvider(Responsive);
 
 const Container = styled('div')({
   position: 'relative',
@@ -14,11 +17,11 @@ const Container = styled('div')({
 });
 
 const MainParticipantContainer = styled('div')(({ theme }) => ({
-  position: 'absolute',
-  left: theme.sidebarWidth,
-  right: 0,
-  top: 0,
-  bottom: 0,
+  // position: 'absolute',
+  // left: theme.sidebarWidth,
+  // right: 0,
+  // top: 0,
+  // bottom: 0,
   '& > div:not(.room-controls)': {
     height: '100%',
   },
@@ -36,9 +39,70 @@ const RoomControlsContainer = styled('div')(({ theme }) => ({
   width: '600px',
 }));
 
+const Part = styled('div')({
+  // width: '100%',
+  // height: '100%',
+  backgroundColor: 'red',
+});
+
+const getRoomLayout = (numParticipants: number, primarySpeaker: number, cols: number) => {
+  const layout = [];
+  var x = 0;
+  var y = 0;
+  const px = primarySpeaker % cols;
+  const py = Math.floor(primarySpeaker / cols);
+  const w = 3;
+  const h = 2.8;
+
+  for (var i = 0; i < numParticipants; i++) {
+    if (i === primarySpeaker) {
+      layout.push({ i: i.toString(), x: x, y: y, w, h, static: true });
+    } else {
+      layout.push({ i: i.toString(), x: x, y: y, w: 1, h: 1, static: true });
+    }
+
+    if (y >= py && y < py + Math.ceil(h)) {
+      if (y === py && x === px) {
+        x += Math.ceil(w);
+      } else if (y !== py && x + 1 === px) {
+        x += Math.ceil(w) + 1;
+      } else {
+        x += 1;
+      }
+    } else {
+      x += 1;
+    }
+
+    if (x >= cols) {
+      y += 1;
+
+      if (px === 0 && y >= py && y < py + Math.ceil(h)) {
+        x = Math.ceil(w);
+      } else {
+        x = 0;
+      }
+    }
+  }
+
+  console.log(layout);
+
+  return layout;
+};
+
 export default function Room() {
   const room = useCurrentRoom();
   const { callApi } = useApi();
+  const [dominant, setDominant] = useState(5);
+
+  const domTimer = useCallback(() => {
+    setInterval(() => {
+      setDominant(Math.floor(Math.random() * 49));
+    }, 3000);
+  }, [setDominant]);
+
+  useEffect(() => {
+    domTimer();
+  }, [domTimer]);
 
   const removeWidget = useCallback(() => {
     if (room) {
@@ -52,19 +116,96 @@ export default function Room() {
 
   const onWidgetSelected = useCallback(() => {}, []);
 
+  const columns = 12;
+
+  const participants = [
+    { color: '#000' },
+    { color: '#F00' },
+    { color: '#0F0' },
+    { color: '#00F' },
+    { color: '#000' },
+    { color: '#F00' },
+    { color: '#0F0' },
+    { color: '#00F' },
+    { color: '#000' },
+    { color: '#F00' },
+    { color: '#0F0' },
+    { color: '#00F' },
+    { color: '#000' },
+    { color: '#F00' },
+    { color: '#0F0' },
+    { color: '#00F' },
+    { color: '#000' },
+    { color: '#F00' },
+    { color: '#0F0' },
+    { color: '#00F' },
+    { color: '#00F' },
+    { color: '#000' },
+    { color: '#F00' },
+    { color: '#0F0' },
+    { color: '#00F' },
+    { color: '#000' },
+    { color: '#F00' },
+    { color: '#0F0' },
+    { color: '#00F' },
+    { color: '#000' },
+    { color: '#F00' },
+    { color: '#0F0' },
+    { color: '#00F' },
+    { color: '#000' },
+    { color: '#F00' },
+    { color: '#0F0' },
+    { color: '#00F' },
+    { color: '#000' },
+    { color: '#F00' },
+    { color: '#0F0' },
+    { color: '#00F' },
+    { color: '#00F' },
+    { color: '#000' },
+    { color: '#F00' },
+    { color: '#0F0' },
+    { color: '#00F' },
+    { color: '#000' },
+    { color: '#F00' },
+    { color: '#0F0' },
+    { color: '#00F' },
+    { color: '#000' },
+    { color: '#F00' },
+  ];
+
+  const layout = getRoomLayout(participants.length, dominant, columns);
+
   return (
     <Container>
-      <ParticipantStrip />
-      <MainParticipantContainer>
-        <RoomControlsContainer className="room-controls">
+      <GridLayout
+        layouts={{ lg: layout }}
+        breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
+        cols={{ lg: columns, md: columns, sm: columns, xs: columns, xxs: columns }}
+        rowHeight={170}
+        margin={[4, 4]}
+        useCSSTransforms={true}
+      >
+        {/* <MainParticipantContainer key="main">
           {room?.widgetId ? (
-            <Button onClick={removeWidget}>Remove Widget</Button>
+            <RoomWidget widgetId={room.widgetId} documentId={room.widgetStateId} />
           ) : (
-            <WidgetSelector room={room} onWidgetSelected={onWidgetSelected} />
+            <MainParticipant />
           )}
-        </RoomControlsContainer>
-        {room?.widgetId ? <RoomWidget widgetId={room.widgetId} documentId={room.widgetStateId} /> : <MainParticipant />}
-      </MainParticipantContainer>
+        </MainParticipantContainer> */}
+        {participants.map((p, i) => (
+          <Part key={i} style={{ backgroundColor: p.color }} />
+        ))}
+      </GridLayout>
     </Container>
   );
 }
+
+// <ParticipantStrip />
+
+// <RoomControlsContainer className="room-controls">
+//   {room?.widgetId ? (
+//     <Button onClick={removeWidget}>Remove Widget</Button>
+//   ) : (
+//     <WidgetSelector room={room} onWidgetSelected={onWidgetSelected} />
+//   )}
+// </RoomControlsContainer>
