@@ -17,6 +17,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
       backgroundColor: theme.palette.background.default,
+      boxShadow: 'none',
     },
     form: {
       display: 'flex',

@@ -22,9 +22,10 @@ const Container = styled('div')((props: ContainerProps) => ({
   flexShrink: 0,
   flexDirection: 'column',
   height: props.open ? '374px' : '70px',
+  transition: 'height 0.2s ease-out',
 }));
 
-const HeaderContainer = styled('div')({
+const HeaderContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
@@ -33,19 +34,19 @@ const HeaderContainer = styled('div')({
   marginLeft: '16px',
   cursor: 'pointer',
   padding: '21px',
-  backgroundColor: '#1F1F1F',
+  backgroundColor: theme.alternateBackgroundColor,
   borderRadius: '15px 15px 0 0',
-});
+}));
 
-const BodyContainer = styled('div')({
-  backgroundColor: '#1F1F1F',
+const BodyContainer = styled('div')(({ theme }) => ({
+  backgroundColor: theme.alternateBackgroundColor,
   display: 'flex',
   flexShrink: 0,
   flexDirection: 'column',
   paddingTop: '32px',
   paddingLeft: '32px',
   height: '100%',
-});
+}));
 
 const ContainerTitle = styled('p')({
   margin: 0,

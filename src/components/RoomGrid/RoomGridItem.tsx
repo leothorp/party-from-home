@@ -3,17 +3,17 @@ import { styled } from '@material-ui/core/styles';
 import { Tooltip } from '@material-ui/core';
 import { Participant } from './RoomGrid';
 
-const GridItem = styled('div')({
+const GridItem = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   flexShrink: 0,
-  backgroundColor: '#333333',
+  backgroundColor: theme.palette.background.paper,
   height: '235px',
   width: '264px',
   marginRight: '24px',
   padding: '17px',
   cursor: 'pointer',
-});
+}));
 
 const RoomTitle = styled('p')({
   color: '#F2F2F2',
