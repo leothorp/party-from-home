@@ -1,19 +1,17 @@
-import React, { ChangeEvent, FormEvent, useState, useEffect } from 'react';
+import React from 'react';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 
 import AppBar from '@material-ui/core/AppBar';
-import Button from '@material-ui/core/Button';
 import CircularProgress from '@material-ui/core/CircularProgress';
-import TextField from '@material-ui/core/TextField';
 import ToggleFullscreenButton from '../ToggleFullScreenButton/ToggleFullScreenButton';
+import RoomInfoButtonAndPopOver from './RoomInfoButtonAndPopOver/RoomInfoButtonAndPopOver';
 import Toolbar from '@material-ui/core/Toolbar';
 import Menu from './Menu/Menu';
 
 import { useAppState } from '../../state';
-import { useParams } from 'react-router-dom';
 import useRoomState from '../../hooks/useRoomState/useRoomState';
-import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import { Typography } from '@material-ui/core';
+import useCurrentRoom from '../../hooks/useCurrentRoom/useCurrentRoom';
 
 const useStyles = makeStyles((theme: Theme) =>
   createStyles({
@@ -44,8 +42,14 @@ export default function MenuBar() {
   const classes = useStyles();
   const { user } = useAppState();
   const roomState = useRoomState();
+  const usersCurrentRoom = useCurrentRoom();
 
-  const roomName = 'Room Name Here';
+  const roomName =
+    usersCurrentRoom?.name == null ? (
+      <CircularProgress color="secondary" size={18} />
+    ) : (
+      <span>{usersCurrentRoom?.name}</span>
+    );
 
   return (
     <AppBar className={classes.container} position="static">
@@ -54,6 +58,7 @@ export default function MenuBar() {
           {user?.displayName}
         </Typography>
         {roomState !== 'disconnected' ? <h3>{roomName}</h3> : null}
+        {usersCurrentRoom && <RoomInfoButtonAndPopOver />}
         <ToggleFullscreenButton />
         <Menu />
       </Toolbar>
