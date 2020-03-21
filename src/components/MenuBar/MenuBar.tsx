@@ -7,6 +7,7 @@ import ToggleFullscreenButton from '../ToggleFullScreenButton/ToggleFullScreenBu
 import RoomInfoButtonAndPopOver from './RoomInfoButtonAndPopOver/RoomInfoButtonAndPopOver';
 import Toolbar from '@material-ui/core/Toolbar';
 import Menu from './Menu/Menu';
+import RoomControls from './RoomControls';
 
 import { useAppState } from '../../state';
 import useRoomState from '../../hooks/useRoomState/useRoomState';
@@ -68,6 +69,7 @@ export default function MenuBar() {
         </Typography>
         {roomState !== 'disconnected' ? <h3>{roomName}</h3> : null}
         {usersCurrentRoom && <RoomInfoButtonAndPopOver />}
+        <RoomControls />
         <ToggleFullscreenButton />
         <Menu />
       </Toolbar>
