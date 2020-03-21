@@ -23,6 +23,7 @@ const ListItem = styled('li')({});
 export default function RoomList() {
   const [rooms, setRooms] = useState<any[]>([]);
   const [name, setName] = useState('');
+  const [description, setDescription] = useState('');
   const { callApi } = useApi();
 
   const roomAdded = useCallback(
@@ -74,11 +75,12 @@ export default function RoomList() {
 
   const onAdd = useCallback(() => {
     callApi('create_room', {
-      name,
+      name, description
     });
 
     setName('');
-  }, [callApi, name]);
+    setDescription('');
+  }, [callApi, name, description]);
 
   const onRemove = useCallback(
     (id: string) => {
@@ -103,6 +105,7 @@ export default function RoomList() {
       </List>
       <CommandContainer>
         <TextField label="Room Name" value={name} onChange={e => setName(e.target.value)} />
+        <TextField label="Description" multiline value={description} onChange={e => setDescription(e.target.value)} />
         <Button onClick={onAdd}>Create Room</Button>
       </CommandContainer>
     </Container>

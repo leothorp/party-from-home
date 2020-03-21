@@ -331,12 +331,12 @@ app.post('/api/set_admin', (req, res) => {
 });
 
 app.post('/api/create_room', (req, res) => {
-  const { identity, token, name } = req.body;
+  const { identity, token, name, description } = req.body;
 
   getAdminToken(identity).then(userToken => {
     if (token === userToken) {
       const roomId = inflection.underscore(name.replace(' ', ''));
-      service.syncMaps('rooms').syncMapItems.create({key: roomId, data: { id: roomId, name }}).then(() => {
+      service.syncMaps('rooms').syncMapItems.create({key: roomId, data: { id: roomId, name, description }}).then(() => {
         client.video.rooms.create({
           type: ROOM_TYPE,
           uniqueName: roomId,
