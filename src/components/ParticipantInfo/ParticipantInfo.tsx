@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme: Theme) =>
       position: 'relative',
       display: 'flex',
       alignItems: 'center',
-      height: `${(theme.sidebarWidth * 9) / 16}px`,
+      height: `100%`,
       overflow: 'hidden',
       cursor: 'pointer',
       '& video': {
@@ -73,6 +73,7 @@ interface ParticipantInfoProps {
   onClick: () => void;
   isSelected: boolean;
   displayName?: string;
+  maxWidth?: number;
 }
 
 export default function ParticipantInfo({
@@ -81,6 +82,7 @@ export default function ParticipantInfo({
   isSelected,
   children,
   displayName,
+  maxWidth,
 }: ParticipantInfoProps) {
   const publications = usePublications(participant);
 
@@ -104,6 +106,7 @@ export default function ParticipantInfo({
       })}
       onClick={onClick}
       data-cy-participant={participant.identity}
+      style={{ width: maxWidth || 'inherit' }}
     >
       <div className={clsx(classes.infoContainer, { [classes.hideVideo]: !isVideoEnabled })}>
         <div className={classes.infoRow}>
