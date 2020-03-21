@@ -7,6 +7,7 @@ import ToggleFullscreenButton from '../ToggleFullScreenButton/ToggleFullScreenBu
 import RoomInfoButtonAndPopOver from './RoomInfoButtonAndPopOver/RoomInfoButtonAndPopOver';
 import Toolbar from '@material-ui/core/Toolbar';
 import Menu from './Menu/Menu';
+import RoomControls from './RoomControls';
 
 import { useAppState } from '../../state';
 import useRoomState from '../../hooks/useRoomState/useRoomState';
@@ -17,6 +18,7 @@ const useStyles = makeStyles((theme: Theme) =>
   createStyles({
     container: {
       backgroundColor: theme.palette.background.default,
+      boxShadow: 'none',
     },
     form: {
       display: 'flex',
@@ -35,6 +37,14 @@ const useStyles = makeStyles((theme: Theme) =>
       minWidth: '200px',
       fontWeight: 600,
     },
+    roomName: {
+      fontSize: '32px',
+      fontWeight: 600,
+      lineHeight: '38px',
+      display: 'flex',
+      alignItems: 'center',
+      color: '#E0E0E0',
+    },
   })
 );
 
@@ -48,7 +58,7 @@ export default function MenuBar() {
     usersCurrentRoom?.name == null ? (
       <CircularProgress color="secondary" size={18} />
     ) : (
-      <span>{usersCurrentRoom?.name}</span>
+      <span className={classes.roomName}>{usersCurrentRoom?.name}</span>
     );
 
   return (
@@ -59,6 +69,7 @@ export default function MenuBar() {
         </Typography>
         {roomState !== 'disconnected' ? <h3>{roomName}</h3> : null}
         {usersCurrentRoom && <RoomInfoButtonAndPopOver />}
+        <RoomControls />
         <ToggleFullscreenButton />
         <Menu />
       </Toolbar>

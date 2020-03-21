@@ -27,10 +27,7 @@ export default function App() {
   return (
     <Container>
       <MenuBar />
-      <Main>
-        {roomState === 'disconnected' ? <LocalVideoPreview /> : <Room />}
-        <Controls />
-      </Main>
+      <Main>{roomState === 'disconnected' ? <LocalVideoPreview /> : <Room />}</Main>
       <ReconnectingNotification />
       <RoomGrid />
     </Container>

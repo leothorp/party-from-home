@@ -6,7 +6,7 @@ const Container = styled('div')(({ theme }) => ({
   position: 'fixed',
   top: '50%',
   left: '50%',
-  backgroundColor: theme.palette.background.default,
+  backgroundColor: theme.alternateBackgroundColor,
   width: '400px',
   height: '500px',
   marginTop: '-250px',

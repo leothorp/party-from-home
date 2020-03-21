@@ -14,23 +14,39 @@ interface ContainerProps {
 }
 
 const Container = styled('div')((props: ContainerProps) => ({
+  position: 'fixed',
+  bottom: '0',
+  left: '0',
+  width: '100%',
   display: 'flex',
   flexShrink: 0,
   flexDirection: 'column',
-  backgroundColor: '#1F1F1F',
   height: props.open ? '374px' : '70px',
-  paddingLeft: '32px',
+  transition: 'height 0.2s ease-out',
 }));
 
-const HeaderContainer = styled('div')({
+const HeaderContainer = styled('div')(({ theme }) => ({
   display: 'flex',
   justifyContent: 'space-between',
   alignItems: 'center',
-  width: '100%',
+  width: '248px',
   marginTop: 0,
+  marginLeft: '16px',
   cursor: 'pointer',
   padding: '21px',
-});
+  backgroundColor: theme.alternateBackgroundColor,
+  borderRadius: '15px 15px 0 0',
+}));
+
+const BodyContainer = styled('div')(({ theme }) => ({
+  backgroundColor: theme.alternateBackgroundColor,
+  display: 'flex',
+  flexShrink: 0,
+  flexDirection: 'column',
+  paddingTop: '32px',
+  paddingLeft: '32px',
+  height: '100%',
+}));
 
 const ContainerTitle = styled('p')({
   margin: 0,
@@ -205,17 +221,19 @@ export default function RoomGrid() {
   return (
     <Container open={open}>
       <Header onClick={() => setOpen(!open)} open={open} />
-      <ItemContainer>
-        {displayRooms.map((rm: any) => (
-          <RoomGridItem
-            key={rm.id}
-            id={rm.id}
-            title={rm.name}
-            participants={participants[rm.id] || []}
-            onClick={onSelectRoom}
-          />
-        ))}
-      </ItemContainer>
+      <BodyContainer>
+        <ItemContainer>
+          {displayRooms.map((rm: any) => (
+            <RoomGridItem
+              key={rm.id}
+              id={rm.id}
+              title={rm.name}
+              participants={participants[rm.id] || []}
+              onClick={onSelectRoom}
+            />
+          ))}
+        </ItemContainer>
+      </BodyContainer>
     </Container>
   );
 }
