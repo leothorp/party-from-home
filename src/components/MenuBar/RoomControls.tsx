@@ -7,6 +7,7 @@ import useLocalVideoToggle from '../../hooks/useLocalVideoToggle/useLocalVideoTo
 import useScreenShareToggle from '../../hooks/useScreenShareToggle/useScreenShareToggle';
 import useScreenShareParticipant from '../../hooks/useScreenShareParticipant/useScreenShareParticipant';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
+import WidgetButton from './WidgetButton';
 
 const useStyles = makeStyles(theme =>
   createStyles({
@@ -40,6 +41,7 @@ export default function RoomControls() {
     <Container>
       {roomState !== 'disconnected' && (
         <>
+          <WidgetButton />
           <IconButton onClick={toggleAudioEnabled} disabled={isReconnecting}>
             {isAudioEnabled ? <Mic /> : <MicOff />}
           </IconButton>
