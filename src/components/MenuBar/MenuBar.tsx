@@ -36,6 +36,14 @@ const useStyles = makeStyles((theme: Theme) =>
       minWidth: '200px',
       fontWeight: 600,
     },
+    roomName: {
+      fontSize: '32px',
+      fontWeight: 600,
+      lineHeight: '38px',
+      display: 'flex',
+      alignItems: 'center',
+      color: '#E0E0E0',
+    },
   })
 );
 
@@ -49,7 +57,7 @@ export default function MenuBar() {
     usersCurrentRoom?.name == null ? (
       <CircularProgress color="secondary" size={18} />
     ) : (
-      <span>{usersCurrentRoom?.name}</span>
+      <span className={classes.roomName}>{usersCurrentRoom?.name}</span>
     );
 
   return (
