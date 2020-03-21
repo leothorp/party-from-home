@@ -45,16 +45,44 @@ const Part = styled('div')({
   backgroundColor: 'red',
 });
 
-const getRoomLayout = (numParticipants: number, primarySpeaker: number, cols: number) => {
+const getRoomLayout = (participants: any[], primarySpeaker: number, cols: number) => {
   const layout = [];
   var x = 0;
   var y = 0;
-  const px = primarySpeaker % cols;
-  const py = Math.floor(primarySpeaker / cols);
+  var px = primarySpeaker % cols;
+  var py = Math.floor(primarySpeaker / cols);
   const w = 3;
   const h = 2.8;
 
-  for (var i = 0; i < numParticipants; i++) {
+  // Edge correction assumes w < cols and h < height
+  if (px >= cols - Math.ceil(w)) {
+    console.log(`Speaker ${primarySpeaker} too far right`);
+    const newPrimarySpeaker = primarySpeaker + (cols - (px + Math.ceil(w)));
+    // dominant is too far to right
+    const otherParticipant = participants[newPrimarySpeaker];
+    participants[newPrimarySpeaker] = participants[primarySpeaker];
+    participants[primarySpeaker] = otherParticipant;
+
+    primarySpeaker = newPrimarySpeaker;
+    px = newPrimarySpeaker % cols;
+    console.log(`New index: ${primarySpeaker}, new X: ${px}`);
+  }
+
+  if (py >= Math.floor(participants.length / cols) - Math.ceil(h)) {
+    console.log(`Speaker ${primarySpeaker} too far down`);
+    // dominant is too far down
+    const newY = py + (Math.floor(participants.length / cols) - (py + Math.ceil(h)) + 1);
+    const newPrimarySpeaker = newY * cols + px;
+    const otherParticipant = participants[newPrimarySpeaker];
+    participants[newPrimarySpeaker] = participants[primarySpeaker];
+    participants[primarySpeaker] = otherParticipant;
+
+    primarySpeaker = newPrimarySpeaker;
+    py = newY;
+    console.log(`New index: ${primarySpeaker}, new Y: ${py}`);
+  }
+
+  for (var i = 0; i < participants.length; i++) {
     if (i === primarySpeaker) {
       layout.push({ i: i.toString(), x: x, y: y, w, h, static: true });
     } else {
@@ -86,13 +114,13 @@ const getRoomLayout = (numParticipants: number, primarySpeaker: number, cols: nu
 
   console.log(layout);
 
-  return layout;
+  return [layout, participants];
 };
 
 export default function Room() {
   const room = useCurrentRoom();
   const { callApi } = useApi();
-  const [dominant, setDominant] = useState(5);
+  const [dominant, setDominant] = useState(0);
 
   const domTimer = useCallback(() => {
     setInterval(() => {
@@ -173,7 +201,7 @@ export default function Room() {
     { color: '#F00' },
   ];
 
-  const layout = getRoomLayout(participants.length, dominant, columns);
+  const [layout, layoutParticipants] = getRoomLayout(participants, dominant, columns);
 
   return (
     <Container>
@@ -192,7 +220,7 @@ export default function Room() {
             <MainParticipant />
           )}
         </MainParticipantContainer> */}
-        {participants.map((p, i) => (
+        {layoutParticipants.map((p, i) => (
           <Part key={i} style={{ backgroundColor: p.color }} />
         ))}
       </GridLayout>
