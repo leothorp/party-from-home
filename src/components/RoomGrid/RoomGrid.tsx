@@ -111,7 +111,7 @@ export default function RoomGrid() {
   const onSelectRoom = useCallback(
     (id: string) => {
       if (roomState !== 'disconnected') room.disconnect();
-      getToken(user?.uid || '', id).then(token => connect(token));
+      if (id !== null) getToken(user?.uid || '', id).then(token => connect(token));
       setOpen(false);
     },
     [roomState, room, getToken, user, connect]
@@ -221,6 +221,12 @@ export default function RoomGrid() {
   for (const id in rooms) {
     displayRooms.push(rooms[id]);
   }
+
+  displayRooms.push({
+    id: null,
+    name: 'Bathroom',
+    description: 'This is the bathroom, take a break from the party.',
+  });
 
   return (
     <Container open={open}>
