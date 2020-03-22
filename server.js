@@ -45,6 +45,12 @@ service.syncMaps.create({ uniqueName: 'admins' }).then(() => {
   if (e.code !== 54301)
     console.error(e);
 });
+service.syncLists.create({ uniqueName: 'broadcasts' }).then(() => {
+  console.log(`Created broadcast list`);
+}).catch(e => {
+  if (e.code !== 54301)
+    console.error(e);
+});
 
 const updateRoomHooks = (hookUrl) => {
   client.video.rooms.list({status: 'in-progress', limit: 50}).then(rooms => {
@@ -209,6 +215,22 @@ const grantPermissionsForDocument = (docId, users, permissions) => {
   });
 };
 
+const grantPermissionsForList = (listId, users, permissions) => {
+  return new Promise((resolve, reject) => {
+    var responses = 0;
+
+    users.forEach(identity => {
+      service.syncLists(listId).syncListPermissions(identity).update(permissions).then(() => {
+        responses += 1;
+        if (responses >= users.length)
+          resolve();
+      }).catch(e => {
+        reject(e);
+      });
+    });
+  });
+};
+
 const getRoomUsers = (roomId) => {
   return new Promise((resolve, reject) => {
     service.syncMaps('users').syncMapItems.list({ limit: 500 }).then(users => {
@@ -290,15 +312,23 @@ app.post('/api/register', (req, res) => {
 
     if (ENV !== 'production') {
       setAdmin(uid, true).then(token => {
+        grantPermissionsForList('broadcasts', [uid], { read: true, write: true, manage: false })
+          .catch(e => console.log(e));
         res.send({ token });
       }).catch(e => {
         console.log(e);
+        grantPermissionsForList('broadcasts', [uid], { read: true, write: false, manage: false })
+          .catch(er => console.log(er));
         res.send({});
       });
     } else {
       getAdminToken(uid).then(token => {
+        grantPermissionsForList('broadcasts', [uid], { read: true, write: true, manage: false })
+          .catch(e => console.log(e));
         res.send({ token });
       }).catch(() => {
+        grantPermissionsForList('broadcasts', [uid], { read: true, write: false, manage: false })
+          .catch(e => console.log(e));
         res.send({});
       });
     }
