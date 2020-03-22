@@ -65,7 +65,9 @@ export default function RoomGridItem(props: Props) {
 
   return (
     <GridItem onClick={onClick}>
-      <RoomTitle>{props.title}</RoomTitle>
+      <RoomTitle>
+        {props.title} {props.participants.length > 0 && ` (${props.participants.length})`}
+      </RoomTitle>
       <RoomParticipantContainer>
         {props.participants.map(p => (
           <Tooltip key={p.uid} title={p.displayName}>
