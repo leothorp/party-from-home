@@ -13,7 +13,7 @@ const ENV = process.env.ENVIRONMENT;
 const MAX_ALLOWED_SESSION_DURATION = process.env.MAX_SESSION_DURATION || (ENV === 'production' ? 18000 : 60);
 const ITEM_TTL = 120;
 const PASSCODE = process.env.PASSCODE;
-const ADMIN_PASSCODE = process.env.PASSCODE;
+const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE;
 const PORT = process.env.PORT || 8081;
 const ROOM_TYPE = ENV === 'production' ? 'group' : 'group-small';
 const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
