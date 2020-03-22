@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { styled } from '@material-ui/core/styles';
-import Snackbar from '@material-ui/core/Snackbar';
 
 import LocalVideoPreview from './components/LocalVideoPreview/LocalVideoPreview';
 import MenuBar from './components/MenuBar/MenuBar';
@@ -9,8 +8,8 @@ import Room from './components/Room/Room';
 import RoomGrid from './components/RoomGrid/RoomGrid';
 import AdminEscalation from './components/AdminPanel/AdminEscalation';
 import BroadcastedMessageAlert from './components/shared/BroadcastedMessageAlert/BroadcastedMessageAlert';
+import UserEntryBanner from './components/UserEntryBanner/UserEntryBanner';
 
-import useMap from './hooks/useSync/useMap';
 import useRoomState from './hooks/useRoomState/useRoomState';
 
 const Container = styled('div')({
@@ -25,11 +24,8 @@ const Main = styled('main')({
 });
 
 export default function App() {
-  const { classes } = this.props;
   const roomState = useRoomState();
   const [escalateOpen, setEscalateOpen] = useState(false);
-  const [snackbarToggle, setSnackbarToggle] = useState(false);
-  const [snackbarMessage, setSnackbarMessage] = useState('');
 
   const openEscalate = useCallback(
     (e: any) => {
@@ -48,20 +44,6 @@ export default function App() {
     };
   }, [openEscalate]);
 
-  const handleSnackbarClose = (event?: React.SyntheticEvent, reason?: string) => {
-    setSnackbarToggle(false);
-  };
-
-  const userAdded = useCallback((args: any) => {
-    const user = args.item.value;
-    setSnackbarToggle(true);
-    setSnackbarMessage(user.displayName + ' joined the party!');
-  }, []);
-
-  useMap('users', {
-    onAdded: userAdded,
-  });
-
   return (
     <Container>
       <AdminEscalation open={escalateOpen} onClose={() => setEscalateOpen(false)} />
@@ -70,7 +52,7 @@ export default function App() {
       <ReconnectingNotification />
       <RoomGrid />
       <BroadcastedMessageAlert />
-      <Snackbar ContentProps={{ classes: { root: classes.root }}} anchorOrigin={{vertical: 'top', horizontal: 'center'}} open={snackbarToggle} message={snackbarMessage} autoHideDuration={5000} onClose={handleSnackbarClose} />
+      <UserEntryBanner />
     </Container>
   );
 }
