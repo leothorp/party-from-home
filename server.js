@@ -10,7 +10,7 @@ const bodyParser = require('body-parser');
 const inflection = require('inflection');
 
 const ENV = process.env.ENVIRONMENT;
-const MAX_ALLOWED_SESSION_DURATION = process.env.MAX_SESSION_DURATION || (ENV === 'production' ? 18000 : 60);
+const MAX_ALLOWED_SESSION_DURATION = process.env.MAX_SESSION_DURATION || (ENV === 'production' ? 18000 : 600);
 const ITEM_TTL = 120;
 const PASSCODE = process.env.PASSCODE;
 const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE;
@@ -575,17 +575,21 @@ app.post('/api/hooks/room_status', (req, res) => {
 app.post('/api/service_status', (req, res) => {
   const identity = req.body.Identity;
 
-  switch (req.body.EventType) {
-    case 'endpoint_disconnected':
-      service.syncMaps('users').syncMapItems(identity).remove().then(() => {
-        console.log(`Removed disconnected user ${identity} from users list`);
-      }).catch(e => {
-        console.log(e);
-        res.sendStatus(500);
-      });
-      break;
-    default:
-      res.sendStatus(200);
+  if (identity) {
+    switch (req.body.EventType) {
+      case 'endpoint_disconnected':
+        service.syncMaps('users').syncMapItems(identity).remove().then(() => {
+          console.log(`Removed disconnected user ${identity} from users list`);
+        }).catch(e => {
+          console.log(e);
+          res.sendStatus(500);
+        });
+        break;
+      default:
+        res.sendStatus(200);
+    }
+  } else {
+    res.sendStatus(200);
   }
 });
 
