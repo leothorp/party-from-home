@@ -8,6 +8,7 @@ const twilio = require('twilio');
 require('dotenv').config();
 const bodyParser = require('body-parser');
 const inflection = require('inflection');
+const textToSpeech = require('@google-cloud/text-to-speech');
 
 const ENV = process.env.ENVIRONMENT;
 const MAX_ALLOWED_SESSION_DURATION = process.env.MAX_SESSION_DURATION || (ENV === 'production' ? 18000 : 600);
@@ -635,6 +636,28 @@ app.post('/api/service_status', (req, res) => {
     res.sendStatus(200);
   }
 });
+
+app.post('/api/get_tts', (req, res) => {
+  const { text } = req.body;
+
+  console.log('get_tts', text);
+  const client = new textToSpeech.TextToSpeechClient();
+
+  const request = {
+    input: {text: text},
+    voice: {languageCode: 'en-US', ssmlGender: 'NEUTRAL'},
+    audioConfig: {audioEncoding: 'MP3'},
+  };
+
+  client.synthesizeSpeech(request).then((response) => {
+    const audioContent = response[0].audioContent;
+    res.send({ audio: audioContent.toString('base64') });
+  }).catch(e => {
+    console.log('Could not get TTS:', e);
+    res.sendStatus(500);
+  });
+});
+
 
 app.get('/', (req, res) => res.send(''));
 

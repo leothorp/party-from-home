@@ -15,6 +15,7 @@ import theme from './theme';
 import './types';
 import { VideoProvider } from './components/VideoProvider';
 import UserSetup from './components/UserSetup/UserSetup';
+import WelcomeVideo from './components/WelcomeVideo/WelcomeVideo';
 
 // See: https://media.twiliocdn.com/sdk/js/video/releases/2.0.0/docs/global.html#ConnectOptions
 // for available connection options.
@@ -65,6 +66,9 @@ ReactDOM.render(
           <Route path="/user_setup">
             <UserSetup />
           </Route>
+	  <Route path="/welcome_video">
+	    <WelcomeVideo />
+	  </Route>
           <Redirect to="/" />
         </Switch>
       </AppStateProvider>

@@ -105,7 +105,7 @@ export default function LoginPage() {
     } else {
       if (setUser) {
         setUser(name).then(() => {
-          history.replace({ pathname: '/' });
+          history.replace({ pathname: '/welcome_video' });
         });
       }
     }
@@ -120,7 +120,7 @@ export default function LoginPage() {
   const onFBLogin = useCallback((info: ReactFacebookLoginInfo) => {
     if (setUser) {
       setUser(info.name || '', info?.picture?.data?.url || '')
-        .then(() => history.replace({ pathname: '/' }));
+        .then(() => history.replace({ pathname: '/welcome_video' }));
     }
   }, [user]);
 
