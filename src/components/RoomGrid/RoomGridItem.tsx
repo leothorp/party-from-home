@@ -29,6 +29,9 @@ const RoomParticipantContainer = styled('div')({
   flexDirection: 'row',
   flexWrap: 'wrap',
   overflow: 'scroll',
+  '&::--webkit-scrollbar': {
+    display: 'none',
+  },
 });
 
 const RoomParticipant = styled('div')({
