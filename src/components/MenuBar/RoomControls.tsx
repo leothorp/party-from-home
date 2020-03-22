@@ -7,6 +7,8 @@ import useLocalVideoToggle from '../../hooks/useLocalVideoToggle/useLocalVideoTo
 import useScreenShareToggle from '../../hooks/useScreenShareToggle/useScreenShareToggle';
 import useScreenShareParticipant from '../../hooks/useScreenShareParticipant/useScreenShareParticipant';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
+import { useAppState } from '../../state';
+import useCurrentRoom from '../../hooks/useCurrentRoom/useCurrentRoom';
 import WidgetButton from './WidgetButton';
 
 const useStyles = makeStyles(theme =>
@@ -34,12 +36,20 @@ export default function RoomControls() {
   const [isScreenShared, toggleScreenShare] = useScreenShareToggle();
   const screenShareParticipant = useScreenShareParticipant();
   const { room } = useVideoContext();
+  const { user } = useAppState();
+  const currentRoom = useCurrentRoom();
   const disableScreenShareButton = screenShareParticipant && screenShareParticipant !== room.localParticipant;
   const tooltipMessage = isScreenShared ? 'Stop Sharing Screen' : 'Share Screen';
 
+  const allowedToShareScreen = !currentRoom?.adminScreenshare || user?.token !== undefined;
+  const allowedToStartGame =
+    !currentRoom?.disableWidgets &&
+    (!currentRoom?.adminStartGames || (!currentRoom?.disableWidgets && user?.token !== undefined));
+  console.log(currentRoom);
+
   return (
     <Container>
-      {roomState !== 'disconnected' && <WidgetButton disabled={isReconnecting} />}
+      {roomState !== 'disconnected' && <WidgetButton disabled={isReconnecting || !allowedToStartGame} />}
       <IconButton onClick={toggleAudioEnabled} disabled={isReconnecting}>
         {isAudioEnabled ? <Mic /> : <MicOff />}
       </IconButton>
@@ -57,7 +67,10 @@ export default function RoomControls() {
               <div>
                 {/* The div element is needed because a disabled button will not emit hover events and we want to display
                     a tooltip when screen sharing is disabled */}
-                <IconButton onClick={toggleScreenShare} disabled={isReconnecting || disableScreenShareButton}>
+                <IconButton
+                  onClick={toggleScreenShare}
+                  disabled={isReconnecting || disableScreenShareButton || !allowedToShareScreen}
+                >
                   {isScreenShared ? <StopScreenShare /> : <ScreenShare />}
                 </IconButton>
               </div>

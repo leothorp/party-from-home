@@ -107,7 +107,7 @@ export default function WidgetButton(props: Props) {
           <CasinoOutlined />
         </IconButton>
       ) : (
-        <IconButton onClick={openSelector}>
+        <IconButton onClick={openSelector} disabled={props.disabled}>
           <Casino />
         </IconButton>
       )}
