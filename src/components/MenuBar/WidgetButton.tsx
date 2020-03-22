@@ -97,7 +97,7 @@ export default function WidgetButton(props: Props) {
   var widgets = [];
 
   for (const id in registry) {
-    widgets.push(<WidgetInfo id={id} widget={registry[id]} onClick={select} />);
+    widgets.push(<WidgetInfo key={id} id={id} widget={registry[id]} onClick={select} />);
   }
 
   return (
