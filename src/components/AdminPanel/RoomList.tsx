@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { styled, TextField, Button, IconButton } from '@material-ui/core';
+import { styled, TextField, Button, IconButton, List, ListItem } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import useMap from '../../hooks/useSync/useMap';
 import useApi from '../../hooks/useApi/useApi';
@@ -8,6 +8,7 @@ const Container = styled('div')(({ theme }) => ({
   display: 'flex',
   flexDirection: 'column',
   backgroundColor: theme.palette.background.paper,
+  padding: '10px',
 }));
 
 const CommandContainer = styled('div')({
@@ -16,13 +17,15 @@ const CommandContainer = styled('div')({
   justifyContent: 'space-around',
 });
 
-const List = styled('ul')({});
-
-const ListItem = styled('li')({});
+const SettingsContainer = styled('div')({
+  display: 'flex',
+  flexDirection: 'column',
+});
 
 export default function RoomList() {
   const [rooms, setRooms] = useState<any[]>([]);
   const [name, setName] = useState('');
+  const [selectedRoom, setSelectedRoom] = useState<any | undefined>(undefined);
   const [description, setDescription] = useState('');
   const { callApi } = useApi();
 
@@ -87,30 +90,79 @@ export default function RoomList() {
     (id: string) => {
       callApi('delete_room', {
         roomId: id,
+      }).then(() => {
+        setSelectedRoom(undefined);
       });
     },
-    [callApi]
+    [callApi, setSelectedRoom]
   );
+
+  const changeSelectedRoom = useCallback(
+    (data: any) => {
+      setSelectedRoom({
+        ...selectedRoom,
+        ...data,
+      });
+    },
+    [selectedRoom, setSelectedRoom]
+  );
+
+  const onUpdate = useCallback(() => {
+    if (selectedRoom) {
+      callApi('update_room', {
+        roomId: selectedRoom.id,
+        ...selectedRoom,
+      })
+        .then(() => {
+          setSelectedRoom(undefined);
+        })
+        .catch(e => console.log(e));
+    }
+  }, [callApi, selectedRoom]);
 
   return (
     <>
       <h2>Room list</h2>
       <Container>
-        <List>
+        <List component="nav">
           {rooms.map(room => (
-            <ListItem key={room.id}>
+            <ListItem key={room.id} button onClick={() => setSelectedRoom(room)}>
               {room.name}
-              <IconButton onClick={() => onRemove(room.id)}>
-                <DeleteIcon />
-              </IconButton>
             </ListItem>
           ))}
         </List>
-        <CommandContainer>
-          <TextField label="Room Name" value={name} onChange={e => setName(e.target.value)} />
-          <TextField label="Description" multiline value={description} onChange={e => setDescription(e.target.value)} />
-          <Button onClick={onAdd}>Create Room</Button>
-        </CommandContainer>
+        {selectedRoom ? (
+          <>
+            <h3>
+              Editing Room
+              <IconButton onClick={() => onRemove(selectedRoom.id)}>
+                <DeleteIcon />
+              </IconButton>
+            </h3>
+            <SettingsContainer>
+              <TextField
+                label="Room Name"
+                value={selectedRoom.name}
+                onChange={e => changeSelectedRoom({ name: e.target.value })}
+              />
+              <TextField
+                label="Description"
+                multiline
+                value={selectedRoom.description}
+                onChange={e => changeSelectedRoom({ description: e.target.value })}
+              />
+              <Button onClick={onUpdate}>Save Changes</Button>
+            </SettingsContainer>
+          </>
+        ) : (
+          <>
+            <h3>Create Room</h3>
+            <CommandContainer>
+              <TextField label="Room Name" value={name} onChange={e => setName(e.target.value)} />
+              <Button onClick={onAdd}>Create Room</Button>
+            </CommandContainer>
+          </>
+        )}
       </Container>
     </>
   );

@@ -32,8 +32,8 @@ export default function UserEntryBanner() {
     setMessage('\uD83C\uDF89 ' + user.displayName + ' joined the party! \uD83C\uDF89');
   }, []);
 
-  const userRemoved = useCallback((args: any) => {
-    const user = args.item.value;
+  const userRemoved = useCallback((item: any) => {
+    const user = item.value;
     setOpen(true);
     setMessage('\uD83E\uDD7A ' + user.displayName + ' left the party \uD83E\uDD7A');
   }, []);
@@ -54,8 +54,13 @@ export default function UserEntryBanner() {
         autoHideDuration={5000}
         onClose={handleClose}
         className={classes.snackbarOverride}
-        message={<><MessageText>{message}</MessageText></>}
-	ClickAwayListenerProps={{ mouseEvent: false }} />
+        message={
+          <>
+            <MessageText>{message}</MessageText>
+          </>
+        }
+        ClickAwayListenerProps={{ mouseEvent: false }}
+      />
     </div>
   );
 }

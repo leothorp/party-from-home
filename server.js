@@ -419,6 +419,27 @@ app.post('/api/create_room', (req, res) => {
   });
 });
 
+app.post('/api/update_room', (req, res) => {
+  const { identity, roomId, token, name, description } = req.body;
+
+  getAdminToken(identity).then(userToken => {
+    if (token === userToken) {
+      service.syncMaps('rooms').syncMapItems(roomId).update({data: { id: roomId, name, description }}).then(() => {
+        console.log(`Updated room ${roomId}`);
+        res.send({});
+      }).catch(e => {
+        console.log(e);
+        res.sendStatus(500);
+      });
+    } else {
+      res.sendStatus(401);
+    }
+  }).catch(e => {
+    console.log(e);
+    res.sendStatus(401)
+  });
+});
+
 app.post('/api/delete_room', (req, res) => {
   const { identity, token, roomId } = req.body;
 
