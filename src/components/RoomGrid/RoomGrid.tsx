@@ -173,7 +173,8 @@ export default function RoomGrid() {
         roomParticipants[roomName] = roomUsers.filter(u => u.uid !== value.identity);
       }
 
-      roomParticipants['bathroom'] = roomParticipants['bathroom'].filter(u => u.uid !== value.identity);
+      if ('bathroom' in roomParticipants)
+        roomParticipants['bathroom'] = roomParticipants['bathroom'].filter(u => u.uid !== value.identity);
 
       if (roomParticipants.hasOwnProperty(value.room)) {
         roomParticipants[roomId].push(par);
