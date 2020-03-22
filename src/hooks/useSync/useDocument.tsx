@@ -1,6 +1,5 @@
 import { useState, useEffect } from 'react';
 import { useAppState } from '../../state';
-import SyncClient from 'twilio-sync';
 
 interface Options {
   onUpdated?: (item: any) => void;
@@ -8,32 +7,14 @@ interface Options {
 }
 
 export default function useDocument(name: string, options?: Options) {
-  const { getSyncToken } = useAppState();
-  const [client, setClient] = useState<any | null>(null);
+  const { syncClient } = useAppState();
   const [document, setDocument] = useState<any | null>(null);
 
   useEffect(() => {
-    getSyncToken().then(token => {
-      const syncClient = new SyncClient(token);
-
-      setClient(syncClient);
-    });
-  }, [getSyncToken]);
-
-  // useEffect(() => {
-  //   client?.on('tokenAboutToExpire', () => {
-  //     getSyncToken().then(token => {
-  //       client.updateToken(token);
-  //       setClient(client);
-  //     });
-  //   });
-  // }, [client, getSyncToken]);
-
-  useEffect(() => {
-    client?.document(name).then((d: any) => {
+    syncClient?.document(name).then((d: any) => {
       setDocument(d);
     });
-  }, [client, name]);
+  }, [syncClient, name]);
 
   useEffect(() => {
     if (options && document) {
