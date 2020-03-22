@@ -223,6 +223,8 @@ app.use(express.static(path.join(__dirname, 'build')));
 app.use(express.json());
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
+// disable cache for API
+app.disable('etag');
 
 app.get('/api/token', (req, res) => {
   const { identity, roomName } = req.query;
