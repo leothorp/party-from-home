@@ -45,7 +45,6 @@ export default function RoomControls() {
   const allowedToStartGame =
     !currentRoom?.disableWidgets &&
     (!currentRoom?.adminStartGames || (!currentRoom?.disableWidgets && user?.token !== undefined));
-  console.log(currentRoom);
 
   return (
     <Container>
