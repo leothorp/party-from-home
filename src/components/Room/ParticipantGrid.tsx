@@ -146,6 +146,8 @@ export default function ParticipantStrip(props: Props) {
     dominant
   );
 
+  const basePriority = participants.length > 10 ? 'low' : 'standard';
+
   return (
     <GridLayout
       layouts={{ lg: layout }}
@@ -172,6 +174,7 @@ export default function ParticipantStrip(props: Props) {
                 onClick={() => setSelectedParticipant(participant)}
                 displayName={users[participant.identity]?.displayName}
                 maxWidth={layout[i].w * (rowHeight / 0.5625)}
+                videoPriority={i === dominant ? 'high' : basePriority}
               />
             </div>
           );
