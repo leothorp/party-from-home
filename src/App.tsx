@@ -7,6 +7,7 @@ import ReconnectingNotification from './components/ReconnectingNotification/Reco
 import Room from './components/Room/Room';
 import RoomGrid from './components/RoomGrid/RoomGrid';
 import AdminEscalation from './components/AdminPanel/AdminEscalation';
+import BroadcastedMessageAlert from './components/shared/BroadcastedMessageAlert/BroadcastedMessageAlert';
 
 import useRoomState from './hooks/useRoomState/useRoomState';
 
@@ -49,6 +50,7 @@ export default function App() {
       <Main>{roomState === 'disconnected' ? <LocalVideoPreview /> : <Room />}</Main>
       <ReconnectingNotification />
       <RoomGrid />
+      <BroadcastedMessageAlert />
     </Container>
   );
 }
