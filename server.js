@@ -51,6 +51,12 @@ service.syncLists.create({ uniqueName: 'broadcasts' }).then(() => {
   if (e.code !== 54301)
     console.error(e);
 });
+service.syncStreams.create({ uniqueName: 'reactions' }).then(() => {
+  console.log(`Created reactions stream`);
+}).catch(e => {
+  if (e.code !== 54301)
+    console.error(e);
+});
 
 const updateRoomHooks = (hookUrl) => {
   client.video.rooms.list({status: 'in-progress', limit: 50}).then(rooms => {
@@ -406,6 +412,27 @@ app.post('/api/create_room', (req, res) => {
           console.log(e);
           res.sendStatus(500);
         });
+      }).catch(e => {
+        console.log(e);
+        res.sendStatus(500);
+      });
+    } else {
+      res.sendStatus(401);
+    }
+  }).catch(e => {
+    console.log(e);
+    res.sendStatus(401)
+  });
+});
+
+app.post('/api/update_room', (req, res) => {
+  const { identity, roomId, token, name, description } = req.body;
+
+  getAdminToken(identity).then(userToken => {
+    if (token === userToken) {
+      service.syncMaps('rooms').syncMapItems(roomId).update({data: { id: roomId, name, description }}).then(() => {
+        console.log(`Updated room ${roomId}`);
+        res.send({});
       }).catch(e => {
         console.log(e);
         res.sendStatus(500);
