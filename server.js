@@ -148,7 +148,7 @@ const setAdmin = (identity, shouldBeAdmin) => {
               admin: true,
             };
 
-            item.update({data: data}).then(() => {
+            item.update({data: data, itemTtl: ITEM_TTL}).then(() => {
               console.log(`Added admin flag for ${identity}`);
               resolve(token);
             }).catch(e => {
@@ -170,7 +170,7 @@ const setAdmin = (identity, shouldBeAdmin) => {
             admin: false,
           };
 
-          item.update({data: data}).then(() => {
+          item.update({data: data, itemTtl: ITEM_TTL}).then(() => {
             console.log(`Removed admin flag for ${identity}`);
             resolve();
           }).catch(e => {
@@ -545,7 +545,7 @@ app.post('/api/hooks/room_status', (req, res) => {
 
       break;
     case 'participant-disconnected':
-      setUserRoom(identity, null);
+      setUserRoom(identity, undefined);
 
       break;
     default:

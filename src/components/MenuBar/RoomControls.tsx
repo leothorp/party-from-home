@@ -39,15 +39,15 @@ export default function RoomControls() {
 
   return (
     <Container>
+      {roomState !== 'disconnected' && <WidgetButton disabled={isReconnecting} />}
+      <IconButton onClick={toggleAudioEnabled} disabled={isReconnecting}>
+        {isAudioEnabled ? <Mic /> : <MicOff />}
+      </IconButton>
+      <IconButton onClick={toggleVideoEnabled} disabled={isReconnecting}>
+        {isVideoEnabled ? <Videocam /> : <VideocamOff />}
+      </IconButton>
       {roomState !== 'disconnected' && (
         <>
-          <WidgetButton />
-          <IconButton onClick={toggleAudioEnabled} disabled={isReconnecting}>
-            {isAudioEnabled ? <Mic /> : <MicOff />}
-          </IconButton>
-          <IconButton onClick={toggleVideoEnabled} disabled={isReconnecting}>
-            {isVideoEnabled ? <Videocam /> : <VideocamOff />}
-          </IconButton>
           {navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia && (
             <Tooltip
               title={disableScreenShareButton ? 'Cannot share screen when another user is sharing' : tooltipMessage}

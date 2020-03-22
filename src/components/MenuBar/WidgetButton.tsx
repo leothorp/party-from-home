@@ -59,7 +59,11 @@ const WidgetInfo = (props: WidgetInfoProps) => {
   );
 };
 
-export default function WidgetButton() {
+export interface Props {
+  disabled?: boolean;
+}
+
+export default function WidgetButton(props: Props) {
   const { callApi } = useApi();
   const room = useCurrentRoom();
   const [open, setOpen] = useState(false);
@@ -99,7 +103,7 @@ export default function WidgetButton() {
   return (
     <div>
       {room?.widgetId ? (
-        <IconButton onClick={remove}>
+        <IconButton onClick={remove} disabled={props.disabled}>
           <CasinoOutlined />
         </IconButton>
       ) : (
