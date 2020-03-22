@@ -51,6 +51,12 @@ service.syncLists.create({ uniqueName: 'broadcasts' }).then(() => {
   if (e.code !== 54301)
     console.error(e);
 });
+service.syncStreams.create({ uniqueName: 'reactions' }).then(() => {
+  console.log(`Created reactions stream`);
+}).catch(e => {
+  if (e.code !== 54301)
+    console.error(e);
+});
 
 const updateRoomHooks = (hookUrl) => {
   client.video.rooms.list({status: 'in-progress', limit: 50}).then(rooms => {
