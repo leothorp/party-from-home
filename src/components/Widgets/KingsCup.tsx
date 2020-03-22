@@ -97,7 +97,6 @@ export default function KingsCup() {
     popped: false,
     beerImg: '/images/can.png',
   });
-  console.log(gameState);
 
   useEffect(() => {
     if (participants && participants.length > 0 && gameState && gameState.nextPlayer === null) {
