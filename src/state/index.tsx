@@ -1,6 +1,7 @@
-import React, { createContext, useContext, useState } from 'react';
+import React, { createContext, useContext, useState, useCallback, useEffect } from 'react';
 import { TwilioError } from 'twilio-video';
 import usePasscodeAuth from './usePasscodeAuth/usePasscodeAuth';
+import { SyncClient } from 'twilio-sync';
 
 export interface User {
   uid: string;
@@ -20,6 +21,7 @@ export interface StateContextType {
   signIn?(passcode?: string): Promise<void>;
   signOut?(): Promise<void>;
   isAuthReady?: boolean;
+  syncClient: SyncClient | undefined;
 }
 
 export const StateContext = createContext<StateContextType>(null!);
@@ -35,6 +37,7 @@ export const StateContext = createContext<StateContextType>(null!);
 */
 export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
   const [error, setError] = useState<TwilioError | null>(null);
+  const [client, setClient] = useState<SyncClient | undefined>(undefined);
   let contextValue = {
     error,
     setError,
@@ -64,24 +67,53 @@ export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
       return Promise.reject(err);
     });
 
-  const getSyncToken: StateContextType['getSyncToken'] = () => {
-    const identity = contextValue.user?.uid;
-    const passcode = contextValue.user?.passcode;
+  const getSyncToken: StateContextType['getSyncToken'] = useCallback(() => {
+    if (contextValue.user) {
+      const identity = contextValue.user?.uid;
+      const passcode = contextValue.user?.passcode;
 
-    return new Promise((resolve, reject) => {
-      fetch(`/api/sync_token?identity=${identity}`)
-        .then(res => {
-          res
-            .text()
-            .then(token => resolve(token))
-            .catch(reject);
-        })
-        .catch(reject);
+      return new Promise((resolve, reject) => {
+        fetch(`/api/sync_token?identity=${identity}&passcode=${passcode}`)
+          .then(res => {
+            res
+              .text()
+              .then(token => resolve(token))
+              .catch(reject);
+          })
+          .catch(reject);
+      });
+    } else {
+      return Promise.reject('not ready yet');
+    }
+  }, [contextValue.user]);
+
+  useEffect(() => {
+    getSyncToken().then(token => {
+      const syncClient = new SyncClient(token);
+
+      setClient(syncClient);
     });
-  };
+  }, [getSyncToken]);
+
+  const updateSyncToken = useCallback(() => {
+    getSyncToken().then(token => {
+      client?.updateToken(token);
+      setClient(client);
+    });
+  }, [client, getSyncToken]);
+
+  useEffect(() => {
+    client?.on('tokenAboutToExpire', updateSyncToken);
+
+    return () => {
+      client?.removeListener('tokenAboutToExpire', updateSyncToken);
+    };
+  }, [client, getSyncToken, updateSyncToken]);
 
   return (
-    <StateContext.Provider value={{ ...contextValue, getToken, getSyncToken }}>{props.children}</StateContext.Provider>
+    <StateContext.Provider value={{ ...contextValue, getToken, getSyncToken, syncClient: client }}>
+      {props.children}
+    </StateContext.Provider>
   );
 }
 

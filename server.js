@@ -249,24 +249,29 @@ app.post('/api/token', (req, res) => {
 });
 
 app.get('/api/sync_token', (req, res) => {
-  const { identity } = req.query;
-  const token = new AccessToken(twilioAccountSid, twilioApiKeySID, twilioApiKeySecret, {
-    ttl: MAX_ALLOWED_SESSION_DURATION,
-  });
-  token.identity = identity;
-  const syncGrant = new SyncGrant({ serviceSid: twilioServiceSID });
-  token.addGrant(syncGrant);
+  const { identity, passcode } = req.query;
 
-  service.syncMaps('users').syncMapPermissions(identity).update({ read: true, write: false, manage: false }).then(() => {
-    console.log(`Gave ${identity} permission for 'users'`);
-
-    service.syncMaps('rooms').syncMapPermissions(identity).update({ read: true, write: false, manage: false }).then(() => {
-      console.log(`Gave ${identity} permission for 'rooms'`);
-      res.send(token.toJwt());
+  if (passcode === PASSCODE) {
+    const token = new AccessToken(twilioAccountSid, twilioApiKeySID, twilioApiKeySecret, {
+      ttl: MAX_ALLOWED_SESSION_DURATION,
     });
-  });
-  
-  console.log(`issued sync token for ${identity}`);
+    token.identity = identity;
+    const syncGrant = new SyncGrant({ serviceSid: twilioServiceSID });
+    token.addGrant(syncGrant);
+
+    service.syncMaps('users').syncMapPermissions(identity).update({ read: true, write: false, manage: false }).then(() => {
+      console.log(`Gave ${identity} permission for 'users'`);
+
+      service.syncMaps('rooms').syncMapPermissions(identity).update({ read: true, write: false, manage: false }).then(() => {
+        console.log(`Gave ${identity} permission for 'rooms'`);
+        res.send(token.toJwt());
+      });
+    });
+    
+    console.log(`issued sync token for ${identity}`);
+  } else {
+    res.sendStatus(401);
+  }
 });
 
 app.post('/api/register', (req, res) => {
