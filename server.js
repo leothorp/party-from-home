@@ -10,7 +10,7 @@ const bodyParser = require('body-parser');
 const inflection = require('inflection');
 
 const ENV = process.env.ENVIRONMENT;
-const MAX_ALLOWED_SESSION_DURATION = process.env.MAX_SESSION_DURATION || (ENV === 'production' ? 18000 : 60);
+const MAX_ALLOWED_SESSION_DURATION = process.env.MAX_SESSION_DURATION || (ENV === 'production' ? 18000 : 600);
 const ITEM_TTL = 120;
 const PASSCODE = process.env.PASSCODE;
 const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE;
@@ -83,13 +83,28 @@ if (ENV !== 'production') {
   ngrok.connect(PORT).then(u => {
     url = u;
     console.log(`Ngrok started at ${u}`);
+
+    service.update({
+      webhookUrl: `${u}/api/service_status`,
+      reachabilityWebhooksEnabled: true,
+      reachabilityDebouncingEnabled: true,
+    }).then(() => {
+      console.log('Updated service webhooks');
+    }).catch(e => console.log(e));
+
     updateRoomHooks(u);
   }).catch(e => {
     console.log('Failed to start ngrok');
     console.log(e);
   });
 } else {
-  updateRoomHooks(`${url}/api/hooks/room_status`);
+  service.update({
+    webhookUrl: `${url}/api/service_status`,
+    reachabilityWebhooksEnabled: true,
+    reachabilityDebouncingEnabled: true,
+  }).then(() => {
+    console.log('Updated service webhooks');
+  }).catch(e => console.log(e));
 }
 
 const setUserRoom = (identity, room, displayName, photoURL) => {
@@ -518,15 +533,17 @@ app.post('/api/hooks/room_status', (req, res) => {
 
       break;
     case 'room-ended':
-      client.video.rooms.create({
-        type: ROOM_TYPE,
-        uniqueName: room,
-        statusCallback: `${url}/api/hooks/room_status`,
-      }).then(() => {
-        console.log(`Re-created room ${room}`);
-      }).catch(e => {
-        console.log(e);
-      });
+      if (ENV !== 'production') {
+        client.video.rooms.create({
+          type: ROOM_TYPE,
+          uniqueName: room,
+          statusCallback: `${url}/api/hooks/room_status`,
+        }).then(() => {
+          console.log(`Re-created room ${room}`);
+        }).catch(e => {
+          console.log(e);
+        });
+      }
 
       break;
     case 'participant-connected':
@@ -553,6 +570,27 @@ app.post('/api/hooks/room_status', (req, res) => {
   }
 
   res.send('');
+});
+
+app.post('/api/service_status', (req, res) => {
+  const identity = req.body.Identity;
+
+  if (identity) {
+    switch (req.body.EventType) {
+      case 'endpoint_disconnected':
+        service.syncMaps('users').syncMapItems(identity).remove().then(() => {
+          console.log(`Removed disconnected user ${identity} from users list`);
+        }).catch(e => {
+          console.log(e);
+          res.sendStatus(500);
+        });
+        break;
+      default:
+        res.sendStatus(200);
+    }
+  } else {
+    res.sendStatus(200);
+  }
 });
 
 app.get('/', (req, res) => res.send(''));

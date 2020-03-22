@@ -173,7 +173,9 @@ export default function RoomGrid() {
         roomParticipants[roomName] = roomUsers.filter(u => u.uid !== value.identity);
       }
 
-      roomParticipants['bathroom'] = roomParticipants['bathroom'].filter(u => u.uid !== value.identity);
+      if ('bathroom' in roomParticipants) {
+        roomParticipants['bathroom'] = roomParticipants['bathroom'].filter(u => u.uid !== value.identity);
+      }
 
       if (roomParticipants.hasOwnProperty(value.room)) {
         roomParticipants[roomId].push(par);
@@ -202,11 +204,16 @@ export default function RoomGrid() {
       const roomParticipants: Participants = {};
 
       paginator.items.forEach((item: any) => {
+        const par = {
+          uid: item.value.identity,
+          displayName: item.value.displayName,
+          photoURL: item.value.photoURL,
+        };
         const roomId = item.value.room || 'bathroom';
         if (roomParticipants[roomId] !== undefined) {
-          roomParticipants[roomId].push(item.value);
+          roomParticipants[roomId].push(par);
         } else {
-          roomParticipants[roomId] = [item.value];
+          roomParticipants[roomId] = [par];
         }
       });
 
