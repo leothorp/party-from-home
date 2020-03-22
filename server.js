@@ -195,8 +195,14 @@ const getAdminToken = (identity) => {
 
 const grantPermissionsForDocument = (docId, users, permissions) => {
   return new Promise((resolve, reject) => {
+    var responses = 0;
+
     users.forEach(identity => {
-      service.documents(docId).documentPermissions(identity).update(permissions).then(() => {}).catch(e => {
+      service.documents(docId).documentPermissions(identity).update(permissions).then(() => {
+        responses += 1;
+        if (responses >= users.length)
+          resolve();
+      }).catch(e => {
         reject(e);
       });
     });
@@ -403,12 +409,12 @@ app.post('/api/create_widget_state', (req, res) => {
   if (passcode === PASSCODE) {
     service.syncMaps('rooms').syncMapItems(roomId).fetch().then(roomItem => {
       service.documents.create({data: {}}).then(doc => {
-        roomItem.update({ data: { ...roomItem.data, widgetId, widgetStateId: doc.sid } }).then(() => {
-          console.log(`Set widget ID for ${roomItem.data.id} to ${doc.sid}`);
+        getRoomUsers(roomId).then(roomUsers => {
+          grantPermissionsForDocument(doc.sid, roomUsers.map(u => u.uid), { read: true, write: true, manage: false }).then(() => {
+          console.log(`Granted permissions for ${doc.sid} to users in ${roomId}`);
+          roomItem.update({ data: { ...roomItem.data, widgetId, widgetStateId: doc.sid } }).then(() => {
+            console.log(`Set widget ID for ${roomItem.data.id} to ${doc.sid}`);
 
-          getRoomUsers(roomId).then(roomUsers => {
-            grantPermissionsForDocument(doc.sid, roomUsers.map(u => u.uid), { read: true, write: true, manage: false }).then(() => {
-              console.log(`Granted permissions for ${doc.sid} to users in ${roomId}`);
 
               res.send({ widgetStateId: doc.sid });
             }).catch(e => {
