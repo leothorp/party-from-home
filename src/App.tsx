@@ -1,12 +1,12 @@
-import React from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { styled } from '@material-ui/core/styles';
 
-import Controls from './components/Controls/Controls';
 import LocalVideoPreview from './components/LocalVideoPreview/LocalVideoPreview';
 import MenuBar from './components/MenuBar/MenuBar';
 import ReconnectingNotification from './components/ReconnectingNotification/ReconnectingNotification';
 import Room from './components/Room/Room';
 import RoomGrid from './components/RoomGrid/RoomGrid';
+import AdminEscalation from './components/AdminPanel/AdminEscalation';
 
 import useRoomState from './hooks/useRoomState/useRoomState';
 
@@ -23,9 +23,28 @@ const Main = styled('main')({
 
 export default function App() {
   const roomState = useRoomState();
+  const [escalateOpen, setEscalateOpen] = useState(false);
+
+  const openEscalate = useCallback(
+    (e: any) => {
+      if (e.key === 'b' && (e.ctrlKey || e.metaKey)) {
+        setEscalateOpen(true);
+      }
+    },
+    [setEscalateOpen]
+  );
+
+  useEffect(() => {
+    document.addEventListener('keypress', openEscalate);
+
+    return () => {
+      document.removeEventListener('keypress', openEscalate);
+    };
+  }, [openEscalate]);
 
   return (
     <Container>
+      <AdminEscalation open={escalateOpen} onClose={() => setEscalateOpen(false)} />
       <MenuBar />
       <Main>{roomState === 'disconnected' ? <LocalVideoPreview /> : <Room />}</Main>
       <ReconnectingNotification />
