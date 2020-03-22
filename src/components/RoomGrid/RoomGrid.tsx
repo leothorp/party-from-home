@@ -108,10 +108,14 @@ export default function RoomGrid() {
   const [open, setOpen] = useState(false);
   const rooms = useMapItems('rooms');
 
-  const onSelectRoom = (id: string) => {
-    if (roomState !== 'disconnected') room.disconnect();
-    getToken(user?.uid || '', id).then(token => connect(token));
-  };
+  const onSelectRoom = useCallback(
+    (id: string) => {
+      if (roomState !== 'disconnected') room.disconnect();
+      getToken(user?.uid || '', id).then(token => connect(token));
+      setOpen(false);
+    },
+    [roomState, room, getToken, user, connect]
+  );
 
   const onUserAdded = useCallback(
     (args: any) => {

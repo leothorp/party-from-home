@@ -13,6 +13,8 @@ const Container = styled('div')(({ theme }) => ({
   marginLeft: '-200px',
   display: 'flex',
   flexDirection: 'column',
+  outline: 'none',
+  padding: '16px',
 }));
 
 interface Props {

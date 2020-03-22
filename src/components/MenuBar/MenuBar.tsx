@@ -50,7 +50,6 @@ const useStyles = makeStyles((theme: Theme) =>
 
 export default function MenuBar() {
   const classes = useStyles();
-  const { user } = useAppState();
   const roomState = useRoomState();
   const usersCurrentRoom = useCurrentRoom();
 
@@ -64,9 +63,6 @@ export default function MenuBar() {
   return (
     <AppBar className={classes.container} position="static">
       <Toolbar>
-        <Typography className={classes.displayName} variant="body1">
-          {user?.displayName}
-        </Typography>
         {roomState !== 'disconnected' ? <h3>{roomName}</h3> : null}
         {usersCurrentRoom && <RoomInfoButtonAndPopOver />}
         <RoomControls />

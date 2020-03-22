@@ -7,6 +7,7 @@ import RoomWidget from '../RoomWidget/RoomWidget';
 const Container = styled('div')({
   position: 'relative',
   height: '100%',
+  padding: '10px',
 });
 
 export default function Room() {
