@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useEffect } from 'react';
-import { styled, TextField, Button, IconButton, List, ListItem } from '@material-ui/core';
+import { styled, TextField, Button, IconButton, List, ListItem, Switch, FormControlLabel } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
 import useMap from '../../hooks/useSync/useMap';
 import useApi from '../../hooks/useApi/useApi';
@@ -150,6 +150,33 @@ export default function RoomList() {
                 multiline
                 value={selectedRoom.description}
                 onChange={e => changeSelectedRoom({ description: e.target.value })}
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={selectedRoom.adminScreenshare}
+                    onChange={e => changeSelectedRoom({ adminScreenshare: e.target.checked })}
+                  />
+                }
+                label="Only Admins can share screen"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={selectedRoom.disableWidgets}
+                    onChange={e => changeSelectedRoom({ disableWidgets: e.target.checked })}
+                  />
+                }
+                label="Disable Game Widgets"
+              />
+              <FormControlLabel
+                control={
+                  <Switch
+                    checked={selectedRoom.adminStartGames}
+                    onChange={e => changeSelectedRoom({ adminStartGames: e.target.checked })}
+                  />
+                }
+                label="Only Admins can start games"
               />
               <Button onClick={onUpdate}>Save Changes</Button>
             </SettingsContainer>

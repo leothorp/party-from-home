@@ -426,11 +426,27 @@ app.post('/api/create_room', (req, res) => {
 });
 
 app.post('/api/update_room', (req, res) => {
-  const { identity, roomId, token, name, description } = req.body;
+  const {
+    identity,
+    roomId,
+    token,
+    name,
+    description,
+    adminScreenshare,
+    disableWidgets,
+    adminStartGames,
+  } = req.body;
 
   getAdminToken(identity).then(userToken => {
     if (token === userToken) {
-      service.syncMaps('rooms').syncMapItems(roomId).update({data: { id: roomId, name, description }}).then(() => {
+      service.syncMaps('rooms').syncMapItems(roomId).update({data: {
+        id: roomId,
+        name,
+        description,
+        adminScreenshare,
+        disableWidgets,
+        adminStartGames,
+      }}).then(() => {
         console.log(`Updated room ${roomId}`);
         res.send({});
       }).catch(e => {
