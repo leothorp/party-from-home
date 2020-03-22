@@ -1,6 +1,7 @@
 import React, { useCallback } from 'react';
 import { Modal, styled } from '@material-ui/core';
 import RoomList from './RoomList';
+import BroadcastMessage from './BroadcastMessage';
 
 const Container = styled('div')(({ theme }) => ({
   position: 'fixed',
@@ -15,6 +16,7 @@ const Container = styled('div')(({ theme }) => ({
   flexDirection: 'column',
   outline: 'none',
   padding: '16px',
+  overflow: 'scroll',
 }));
 
 interface Props {
@@ -34,6 +36,7 @@ export default function AdminPanel(props: Props) {
       <Container>
         <h1>Admin Controls</h1>
         <RoomList />
+        <BroadcastMessage />
       </Container>
     </Modal>
   );

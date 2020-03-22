@@ -75,7 +75,8 @@ export default function RoomList() {
 
   const onAdd = useCallback(() => {
     callApi('create_room', {
-      name, description
+      name,
+      description,
     });
 
     setName('');
@@ -92,22 +93,25 @@ export default function RoomList() {
   );
 
   return (
-    <Container>
-      <List>
-        {rooms.map(room => (
-          <ListItem key={room.id}>
-            {room.name}
-            <IconButton onClick={() => onRemove(room.id)}>
-              <DeleteIcon />
-            </IconButton>
-          </ListItem>
-        ))}
-      </List>
-      <CommandContainer>
-        <TextField label="Room Name" value={name} onChange={e => setName(e.target.value)} />
-        <TextField label="Description" multiline value={description} onChange={e => setDescription(e.target.value)} />
-        <Button onClick={onAdd}>Create Room</Button>
-      </CommandContainer>
-    </Container>
+    <>
+      <h2>Room list</h2>
+      <Container>
+        <List>
+          {rooms.map(room => (
+            <ListItem key={room.id}>
+              {room.name}
+              <IconButton onClick={() => onRemove(room.id)}>
+                <DeleteIcon />
+              </IconButton>
+            </ListItem>
+          ))}
+        </List>
+        <CommandContainer>
+          <TextField label="Room Name" value={name} onChange={e => setName(e.target.value)} />
+          <TextField label="Description" multiline value={description} onChange={e => setDescription(e.target.value)} />
+          <Button onClick={onAdd}>Create Room</Button>
+        </CommandContainer>
+      </Container>
+    </>
   );
 }
