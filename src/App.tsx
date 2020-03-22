@@ -8,6 +8,7 @@ import Room from './components/Room/Room';
 import RoomGrid from './components/RoomGrid/RoomGrid';
 import AdminEscalation from './components/AdminPanel/AdminEscalation';
 import BroadcastedMessageAlert from './components/shared/BroadcastedMessageAlert/BroadcastedMessageAlert';
+import UserEntryBanner from './components/UserEntryBanner/UserEntryBanner';
 
 import useRoomState from './hooks/useRoomState/useRoomState';
 
@@ -51,6 +52,7 @@ export default function App() {
       <ReconnectingNotification />
       <RoomGrid />
       <BroadcastedMessageAlert />
+      <UserEntryBanner />
     </Container>
   );
 }
