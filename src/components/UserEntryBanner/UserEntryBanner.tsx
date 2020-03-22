@@ -32,8 +32,15 @@ export default function UserEntryBanner() {
     setMessage('\uD83C\uDF89 ' + user.displayName + ' joined the party! \uD83C\uDF89');
   }, []);
 
+  const userRemoved = useCallback((args: any) => {
+    const user = args.item.value;
+    setOpen(true);
+    setMessage('\uD83E\uDD7A ' + user.displayName + ' left the party \uD83E\uDD7A');
+  }, []);
+
   useMap('users', {
     onAdded: userAdded,
+    onRemoved: userRemoved,
   });
 
   return (
