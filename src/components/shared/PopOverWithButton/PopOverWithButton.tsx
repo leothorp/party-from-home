@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
 import InfoIcon from '@material-ui/icons/Info';
-import { CardActionArea, styled } from '@material-ui/core';
+import { styled, IconButton } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
   popOverOverride: {
@@ -88,9 +88,9 @@ export default function PopOverWithButton({
   let buttonComponent;
   if (buttonType === BUTTON_TYPE_INFO) {
     buttonComponent = (
-      <CardActionArea onClick={handleOpen}>
+      <IconButton onClick={handleOpen}>
         <InfoIcon />
-      </CardActionArea>
+      </IconButton>
     );
   } else {
     buttonComponent = (
