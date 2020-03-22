@@ -203,12 +203,10 @@ export default function RoomGrid() {
       const roomParticipants: Participants = {};
 
       paginator.items.forEach((item: any) => {
-        if (item.value.room !== undefined) {
-          if (roomParticipants[item.value.room] !== undefined) {
-            roomParticipants[item.value.room].push(item.value.identity);
-          } else {
-            roomParticipants[item.value.room] = [item.value.identity];
-          }
+        if (roomParticipants[item.value.room] !== undefined) {
+          roomParticipants[item.value.room].push(item.value);
+        } else {
+          roomParticipants[item.value.room] = [item.value];
         }
       });
 
@@ -223,7 +221,7 @@ export default function RoomGrid() {
   }
 
   displayRooms.push({
-    id: null,
+    id: undefined,
     name: 'Bathroom',
     description: 'This is the bathroom, take a break from the party.',
   });
