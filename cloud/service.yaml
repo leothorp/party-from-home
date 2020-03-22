@@ -98,6 +98,11 @@ spec:
                 secretKeyRef:
                   name: passcode
                   key: passcode
+            - name: ADMIN_PASSCODE
+              valueFrom:
+                secretKeyRef:
+                  name: admin-passcode
+                  key: passcode
             - name: BASE_URL
               valueFrom:
                 configMapKeyRef:
