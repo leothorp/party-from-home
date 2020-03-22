@@ -96,10 +96,15 @@ export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
   }, [getSyncToken]);
 
   const updateSyncToken = useCallback(() => {
-    getSyncToken().then(token => {
-      client?.updateToken(token);
-      setClient(client);
-    });
+    getSyncToken()
+      .then(token => {
+        client?.updateToken(token);
+        setClient(client);
+      })
+      .catch(e => {
+        console.error(e);
+        setTimeout(updateSyncToken, 1000);
+      });
   }, [client, getSyncToken]);
 
   useEffect(() => {
