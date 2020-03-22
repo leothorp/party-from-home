@@ -545,7 +545,7 @@ app.post('/api/hooks/room_status', (req, res) => {
 
       break;
     case 'participant-disconnected':
-      setUserRoom(identity, null);
+      setUserRoom(identity, undefined);
 
       break;
     default:

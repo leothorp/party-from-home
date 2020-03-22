@@ -111,7 +111,7 @@ export default function RoomGrid() {
   const onSelectRoom = useCallback(
     (id: string) => {
       if (roomState !== 'disconnected') room.disconnect();
-      if (id !== null) getToken(user?.uid || '', id).then(token => connect(token));
+      if (id !== undefined && id !== 'bathroom') getToken(user?.uid || '', id).then(token => connect(token));
       setOpen(false);
     },
     [roomState, room, getToken, user, connect]
@@ -121,22 +121,21 @@ export default function RoomGrid() {
     (args: any) => {
       const value = args.item.value;
       const roomParticipants = { ...participants };
+      const roomId = value.room || 'bathroom';
 
-      if (value.room !== undefined) {
-        const par = {
-          uid: value.identity,
-          displayName: value.displayName,
-          photoURL: value.photoURL,
-        };
+      const par = {
+        uid: value.identity,
+        displayName: value.displayName,
+        photoURL: value.photoURL,
+      };
 
-        if (roomParticipants[value.room] !== undefined) {
-          roomParticipants[value.room].push(par);
-        } else {
-          roomParticipants[value.room] = [par];
-        }
-
-        setParticipants(roomParticipants);
+      if (roomParticipants[roomId] !== undefined) {
+        roomParticipants[roomId].push(par);
+      } else {
+        roomParticipants[roomId] = [par];
       }
+
+      setParticipants(roomParticipants);
     },
     [participants]
   );
@@ -145,15 +144,14 @@ export default function RoomGrid() {
     (item: any) => {
       const value = item.value;
       const roomParticipants = { ...participants };
+      const roomId = value.room || 'bathroom';
 
-      if (value.room !== undefined) {
-        if (roomParticipants[value.room] !== undefined) {
-          const roomUsers = roomParticipants[value.room];
-          roomParticipants[value.room] = roomUsers.filter(u => u.uid !== value.identity);
-        }
-
-        setParticipants(roomParticipants);
+      if (roomParticipants[roomId] !== undefined) {
+        const roomUsers = roomParticipants[roomId];
+        roomParticipants[roomId] = roomUsers.filter(u => u.uid !== value.identity);
       }
+
+      setParticipants(roomParticipants);
     },
     [participants]
   );
@@ -162,27 +160,28 @@ export default function RoomGrid() {
     (args: any) => {
       const value = args.item.value;
       const roomParticipants = { ...participants };
+      const roomId = value.room || 'bathroom';
 
-      if (value.room !== undefined) {
-        const par = {
-          uid: value.identity,
-          displayName: value.displayName,
-          photoURL: value.photoURL,
-        };
+      const par = {
+        uid: value.identity,
+        displayName: value.displayName,
+        photoURL: value.photoURL,
+      };
 
-        for (const roomName in roomParticipants) {
-          const roomUsers = roomParticipants[roomName];
-          roomParticipants[roomName] = roomUsers.filter(u => u.uid !== value.identity);
-        }
-
-        if (roomParticipants.hasOwnProperty(value.room)) {
-          roomParticipants[value.room].push(par);
-        } else {
-          roomParticipants[value.room] = [par];
-        }
-
-        setParticipants(roomParticipants);
+      for (const roomName in roomParticipants) {
+        const roomUsers = roomParticipants[roomName];
+        roomParticipants[roomName] = roomUsers.filter(u => u.uid !== value.identity);
       }
+
+      roomParticipants['bathroom'] = roomParticipants['bathroom'].filter(u => u.uid !== value.identity);
+
+      if (roomParticipants.hasOwnProperty(value.room)) {
+        roomParticipants[roomId].push(par);
+      } else {
+        roomParticipants[roomId] = [par];
+      }
+
+      setParticipants(roomParticipants);
     },
     [participants]
   );
@@ -203,10 +202,11 @@ export default function RoomGrid() {
       const roomParticipants: Participants = {};
 
       paginator.items.forEach((item: any) => {
-        if (roomParticipants[item.value.room] !== undefined) {
-          roomParticipants[item.value.room].push(item.value);
+        const roomId = item.value.room || 'bathroom';
+        if (roomParticipants[roomId] !== undefined) {
+          roomParticipants[roomId].push(item.value);
         } else {
-          roomParticipants[item.value.room] = [item.value];
+          roomParticipants[roomId] = [item.value];
         }
       });
 
@@ -221,7 +221,7 @@ export default function RoomGrid() {
   }
 
   displayRooms.push({
-    id: undefined,
+    id: 'bathroom',
     name: 'Bathroom',
     description: 'This is the bathroom, take a break from the party.',
   });
