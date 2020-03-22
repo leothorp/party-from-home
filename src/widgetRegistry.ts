@@ -1,5 +1,4 @@
 import { FunctionComponent } from 'react';
-import TestWidget from './components/Widgets/TestWidget';
 import KingsCup from './components/Widgets/KingsCup';
 
 export interface WidgetRegistration {
@@ -13,11 +12,6 @@ export interface WidgetRegistry {
 }
 
 export default {
-  test: {
-    name: 'Test Widget',
-    component: TestWidget,
-    description: 'A test widget, temporary',
-  },
   kingscup: {
     name: 'Kings Cup',
     component: KingsCup,
