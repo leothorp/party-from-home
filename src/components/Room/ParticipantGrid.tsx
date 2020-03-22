@@ -130,8 +130,9 @@ export default function ParticipantStrip(props: Props) {
   const [selectedParticipant, setSelectedParticipant] = useSelectedParticipant();
   const users = useMapItems('users');
 
+  const localIdentity = localParticipant.identity;
   const roomParticipants: any[] = [];
-  var dominant = participants.findIndex(p => p.identity === speaker.identity);
+  var dominant = -1;
 
   if (props.children) {
     // special case to render widget
@@ -140,11 +141,11 @@ export default function ParticipantStrip(props: Props) {
   }
 
   roomParticipants.push(localParticipant);
+  roomParticipants.push(...participants);
 
-  const { layout, layoutParticipants, columns, rowHeight } = getRoomLayout(
-    roomParticipants.concat(participants),
-    dominant
-  );
+  if (dominant < 0) dominant = roomParticipants.findIndex(p => p.identity === speaker.identity);
+
+  const { layout, layoutParticipants, columns, rowHeight } = getRoomLayout(roomParticipants, dominant);
 
   const basePriority = participants.length > 10 ? 'low' : 'standard';
 
@@ -174,7 +175,8 @@ export default function ParticipantStrip(props: Props) {
                 onClick={() => setSelectedParticipant(participant)}
                 displayName={users[participant.identity]?.displayName}
                 maxWidth={layout[i].w * (rowHeight / 0.5625)}
-                videoPriority={i === dominant ? 'high' : basePriority}
+                videoPriority={i === dominant || participant.identity === localIdentity ? 'high' : basePriority}
+                enableScreenShare={i === dominant}
               />
             </div>
           );
