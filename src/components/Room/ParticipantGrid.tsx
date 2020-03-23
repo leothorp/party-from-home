@@ -17,42 +17,55 @@ const getRoomLayout = (participants: any[], primarySpeaker: number) => {
   var columns = 2;
   var pWidth = 1;
   var pHeight = 1;
+  var sWidth = 1;
+  var sHeight = 1;
   var rowHeight = 680;
 
-  if (total <= 4) {
+  if (total <= 2) {
     columns = 2;
-    rowHeight = 340;
-  } else if (total <= 16) {
+    rowHeight = 390;
+  } else if (total <= 4) {
     columns = 4;
     rowHeight = 170;
-  } else if (total <= 24) {
+    pWidth = 3;
+    pHeight = 2.8;
+  } else if (total <= 12) {
+    columns = 5;
+    rowHeight = 160;
+    pWidth = 3;
+    pHeight = 2.8;
+  } else if (total <= 22) {
     columns = 6;
+    rowHeight = 130;
+    pWidth = 3;
+    pHeight = 2.8;
+  } else if (total <= 27) {
+    columns = 6;
+    rowHeight = 130;
     pWidth = 2;
-    pHeight = 1;
-    rowHeight = 170;
-  } else if (total <= 32) {
-    columns = 8;
-    pWidth = 3;
-    pHeight = 2.8;
-    rowHeight = 170;
-  } else if (total <= 40) {
-    columns = 10;
-    pWidth = 3;
-    pHeight = 2.8;
-    rowHeight = 170;
+    pHeight = 2;
+  } else if (total <= 39) {
+    columns = 7;
+    rowHeight = 110;
+    pWidth = 2;
+    pHeight = 2;
   } else {
-    columns = 12;
-    pWidth = 3;
-    pHeight = 2.8;
-    rowHeight = 170;
+    columns = 9;
+    rowHeight = 80;
+    pWidth = 4;
+    pHeight = 4;
   }
 
+  var rows = Math.floor(total / columns);
   var x = 0;
   var y = 0;
   var px = primarySpeaker % columns;
   var py = Math.floor(primarySpeaker / columns);
   const w = pWidth;
   const h = pHeight;
+  if (py + h > rows - Math.ceil(sHeight)) {
+    rows -= rows - (py + h + sHeight);
+  }
 
   // Edge correction assumes w < cols and h < height
   if (px > columns - Math.ceil(w)) {
@@ -68,10 +81,10 @@ const getRoomLayout = (participants: any[], primarySpeaker: number) => {
     console.log(`New index: ${primarySpeaker}, new X: ${px}`);
   }
 
-  if (py > Math.floor(participants.length / columns) - Math.ceil(h)) {
+  if (py > rows - Math.ceil(h)) {
     console.log(`Speaker ${primarySpeaker} too far down`);
     // dominant is too far down
-    const newY = py + (Math.floor(participants.length / columns) - (py + Math.ceil(h)) + 1);
+    const newY = py + (rows - (py + Math.ceil(h)) + 1);
     const newPrimarySpeaker = newY * columns + px;
     const otherParticipant = participants[newPrimarySpeaker];
     participants[newPrimarySpeaker] = participants[primarySpeaker];
@@ -86,7 +99,7 @@ const getRoomLayout = (participants: any[], primarySpeaker: number) => {
     if (i === primarySpeaker) {
       layout.push({ i: i.toString(), x: x, y: y, w, h, static: true });
     } else {
-      layout.push({ i: i.toString(), x: x, y: y, w: 1, h: 1, static: true });
+      layout.push({ i: i.toString(), x: x, y: y, w: sWidth, h: sHeight, static: true });
     }
 
     if (y >= py && y < py + Math.ceil(h)) {
@@ -115,7 +128,9 @@ const getRoomLayout = (participants: any[], primarySpeaker: number) => {
   return { layout, layoutParticipants: participants, columns, rowHeight };
 };
 
-const WidgetContainer = styled('div')({});
+const WidgetContainer = styled('div')({
+  height: '100%',
+});
 
 export interface Props {
   children?: ReactChild | ReactChild[] | undefined;
@@ -151,7 +166,7 @@ export default function ParticipantStrip(props: Props) {
 
   return (
     <GridLayout
-      layouts={{ lg: layout }}
+      layouts={{ lg: layout, md: layout, sm: layout, xs: layout, xxs: layout }}
       breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
       cols={{ lg: columns, md: columns, sm: columns, xs: columns, xxs: columns }}
       rowHeight={rowHeight}
@@ -162,7 +177,7 @@ export default function ParticipantStrip(props: Props) {
         if (participant === 'widget') {
           return (
             <div key={i}>
-              <WidgetContainer key={i}>{props.children}</WidgetContainer>
+              <WidgetContainer>{props.children}</WidgetContainer>
             </div>
           );
         } else {
