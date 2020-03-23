@@ -28,14 +28,18 @@ export default function UserEntryBanner() {
 
   const userAdded = useCallback((args: any) => {
     const user = args.item.value;
-    setOpen(true);
-    setMessage('\uD83C\uDF89 ' + user.displayName + ' joined the party! \uD83C\uDF89');
+    if (user && user.displayName) {
+      setOpen(true);
+      setMessage('\uD83C\uDF89 ' + user.displayName + ' joined the party! \uD83C\uDF89');
+    }
   }, []);
 
   const userRemoved = useCallback((item: any) => {
     const user = item.value;
-    setOpen(true);
-    setMessage('\uD83E\uDD7A ' + user.displayName + ' left the party \uD83E\uDD7A');
+    if (user && user.displayName) {
+      setOpen(true);
+      setMessage('\uD83E\uDD7A ' + user.displayName + ' left the party \uD83E\uDD7A');
+    }
   }, []);
 
   useMap('users', {
