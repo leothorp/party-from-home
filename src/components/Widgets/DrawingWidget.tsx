@@ -11,7 +11,7 @@ const Container = styled('div')({
 });
 
 export default function TestWidget() {
-  const { state, setState, ready } = useWidgetContext({ canvasData: {} });
+  const { state, setState, ready } = useWidgetContext({ canvasData: { lines: [] } });
   const canvasRef = useRef<any | null>(null);
   const containerRef = useRef<any | null>(null);
   const [lazyBrush, setLazyBrush] = useState(false);
