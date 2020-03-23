@@ -5,10 +5,10 @@ import useParticipants from '../../hooks/useParticipants/useParticipants';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import useSelectedParticipant from '../VideoProvider/useSelectedParticipant/useSelectedParticipant';
 import useMapItems from '../../hooks/useSync/useMapItems';
-import { Responsive, WidthProvider } from 'react-grid-layout';
+import GridLayout, { WidthProvider } from 'react-grid-layout';
 import useMainSpeaker from '../../hooks/useMainSpeaker/useMainSpeaker';
 
-const GridLayout = WidthProvider(Responsive);
+const Grid = WidthProvider(GridLayout);
 
 // todo(carlos): allow for different layout strategies
 const getRoomLayout = (participants: any[], primarySpeaker: number) => {
@@ -165,19 +165,12 @@ export default function ParticipantStrip(props: Props) {
   const basePriority = participants.length > 10 ? 'low' : 'standard';
 
   return (
-    <GridLayout
-      layouts={{ lg: layout, md: layout, sm: layout, xs: layout, xxs: layout }}
-      breakpoints={{ lg: 1200, md: 996, sm: 768, xs: 480, xxs: 0 }}
-      cols={{ lg: columns, md: columns, sm: columns, xs: columns, xxs: columns }}
-      rowHeight={rowHeight}
-      margin={[4, 4]}
-      useCSSTransforms={true}
-    >
+    <Grid layout={layout} cols={columns} rowHeight={rowHeight} margin={[4, 4]} useCSSTransforms={true}>
       {layoutParticipants.map((participant, i) => {
         if (participant === 'widget') {
           return (
             <div key={i}>
-              <WidgetContainer>{props.children}</WidgetContainer>
+              <WidgetContainer style={{ width: layout[i].w * (rowHeight / 0.5625) }}>{props.children}</WidgetContainer>
             </div>
           );
         } else {
@@ -197,6 +190,6 @@ export default function ParticipantStrip(props: Props) {
           );
         }
       })}
-    </GridLayout>
+    </Grid>
   );
 }
