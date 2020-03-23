@@ -32,9 +32,9 @@ export default function ParticipantTracks({
   let filteredPublications;
 
   if (enableScreenShare && publications.some(p => p.trackName === 'screen')) {
-    filteredPublications = publications.filter(p => p.trackName !== 'camera' && p.trackName !== 'audio');
+    filteredPublications = publications.filter(p => p.trackName !== 'camera' || p.kind === 'audio');
   } else {
-    filteredPublications = publications.filter(p => p.trackName !== 'screen' && p.trackName !== 'audio');
+    filteredPublications = publications.filter(p => p.trackName !== 'screen' || p.kind === 'audio');
   }
 
   return (
