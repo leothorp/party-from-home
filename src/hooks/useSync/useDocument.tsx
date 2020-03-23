@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { useAppState } from '../../state';
 
 interface Options {
@@ -8,13 +8,31 @@ interface Options {
 
 export default function useDocument(name: string, options?: Options) {
   const { syncClient } = useAppState();
+  const [retries, setRetries] = useState(10);
   const [document, setDocument] = useState<any | null>(null);
 
+  const getDocument = useCallback(() => {
+    syncClient
+      ?.document(name)
+      .then((d: any) => {
+        setDocument(d);
+      })
+      .catch(e => {
+        console.log(e);
+        if (retries > 0) {
+          console.log('retrying document');
+          setRetries(retries - 1);
+        }
+      });
+  }, [name, retries, syncClient]);
+
   useEffect(() => {
-    syncClient?.document(name).then((d: any) => {
-      setDocument(d);
-    });
-  }, [syncClient, name]);
+    if (retries === 10) {
+      getDocument();
+    } else {
+      setTimeout(getDocument, 1000);
+    }
+  }, [getDocument, retries]);
 
   useEffect(() => {
     if (options && document) {
