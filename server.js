@@ -244,6 +244,7 @@ const grantPermissionsForList = (listId, users, permissions) => {
 
     users.forEach(identity => {
       service.syncLists(listId).syncListPermissions(identity).update(permissions).then(() => {
+        console.log(`Granted list permissions to ${identity}`);
         responses += 1;
         if (responses >= users.length)
           resolve();
@@ -501,7 +502,7 @@ app.post('/api/create_widget_state', (req, res) => {
     service.syncMaps('rooms').syncMapItems(roomId).fetch().then(roomItem => {
       service.documents.create({data: {}}).then(doc => {
         getRoomUsers(roomId).then(roomUsers => {
-          grantPermissionsForDocument(doc.sid, roomUsers.map(u => u.uid), { read: true, write: true, manage: false }).then(() => {
+          grantPermissionsForDocument(doc.sid, roomUsers.map(u => u.identity), { read: true, write: true, manage: false }).then(() => {
           console.log(`Granted permissions for ${doc.sid} to users in ${roomId}`);
           roomItem.update({ data: { ...roomItem.data, widgetId, widgetStateId: doc.sid } }).then(() => {
             console.log(`Set widget ID for ${roomItem.data.id} to ${doc.sid}`);

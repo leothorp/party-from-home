@@ -20,7 +20,6 @@ const List = styled('ul')({});
 const ListItem = styled('li')({});
 
 export default function RoomList() {
-  const [rooms, setRooms] = useState<any[]>([]);
   const [broadcastedMessages, setBroadcastedMessages] = useState<any[]>([]);
   const [messageText, setMessageText] = useState('');
   const { user } = useAppState();
@@ -34,15 +33,9 @@ export default function RoomList() {
     [broadcastedMessages]
   );
 
-  const { list, addItem } = useList('broadcastedMessages', {
+  const { list, addItem } = useList('broadcasts', {
     onAdded: messageAdded,
   });
-
-  useEffect(() => {
-    list?.getItems().then((paginator: any) => {
-      setRooms(paginator.items.map((i: any) => i.value));
-    });
-  }, [list]);
 
   const onSubmitMessage = useCallback(() => {
     addItem({
