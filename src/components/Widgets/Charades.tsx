@@ -5,6 +5,8 @@ import CardContent from '@material-ui/core/CardContent';
 import useWidgetContext from '../../hooks/useWidgetContext/useWidgetContext';
 import { useAppState } from '../../state';
 
+const wordList = require('../../../public/charades.json');
+
 const Container = styled('div')({
   display: 'flex',
   flexDirection: 'column',
@@ -89,7 +91,8 @@ export default function Charades() {
     currentTeam: 'Nobody',
     currentActor: { uid: '', displayName: '' },
     score: { red: 0, blue: 0 },
-    deck: ['placeholder'],
+    //TODO(roman): let players choose category;
+    deck: wordList.charades.medium,
     canDraw: true,
     drawn: [''],
     cardText: 'Click new game to begin!',
@@ -112,7 +115,7 @@ export default function Charades() {
     const currentActor = pickActor(currentTeam, teams);
     const score = { red: 0, blue: 0 };
 
-    const deck = ['placeholder'];
+    const deck = wordList.charades.medium;
     const canDraw = true;
     const drawn = [''];
     const cardText = 'Draw a card to begin!';
