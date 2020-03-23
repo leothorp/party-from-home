@@ -496,7 +496,7 @@ app.post('/api/create_widget_state', (req, res) => {
   // set room widget id
   // add all room users to acl read/write
   // return widget id
-  const { roomId, widgetId, passcode } = req.body;
+  const { identity, roomId, widgetId, passcode } = req.body;
 
   if (passcode === PASSCODE) {
     service.syncMaps('rooms').syncMapItems(roomId).fetch().then(roomItem => {
@@ -504,7 +504,7 @@ app.post('/api/create_widget_state', (req, res) => {
         getRoomUsers(roomId).then(roomUsers => {
           grantPermissionsForDocument(doc.sid, roomUsers.map(u => u.identity), { read: true, write: true, manage: false }).then(() => {
           console.log(`Granted permissions for ${doc.sid} to users in ${roomId}`);
-          roomItem.update({ data: { ...roomItem.data, widgetId, widgetStateId: doc.sid } }).then(() => {
+          roomItem.update({ data: { ...roomItem.data, widgetId, widgetStateId: doc.sid, widgetUser: identity } }).then(() => {
             console.log(`Set widget ID for ${roomItem.data.id} to ${doc.sid}`);
 
 
@@ -538,11 +538,11 @@ app.post('/api/delete_widget_state', (req, res) => {
   // get room
   // if room has widget, remove widget id
   // delete state document
-  const { passcode, roomId } = req.body;
+  const { identity, passcode, roomId } = req.body;
 
   if (passcode === PASSCODE) {
     service.syncMaps('rooms').syncMapItems(roomId).fetch().then(item => {
-      item.update({ data: { ...item.data, widgetId: null, widgetStateId: null } }).then(() => {
+      item.update({ data: { ...item.data, widgetId: null, widgetStateId: null, widgetUser: identity } }).then(() => {
         console.log(`Removed widget for room ${roomId}`);
 
         res.send({});

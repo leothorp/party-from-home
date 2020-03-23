@@ -9,6 +9,7 @@ import RoomGrid from './components/RoomGrid/RoomGrid';
 import AdminEscalation from './components/AdminPanel/AdminEscalation';
 import BroadcastedMessageAlert from './components/shared/BroadcastedMessageAlert/BroadcastedMessageAlert';
 import UserEntryBanner from './components/UserEntryBanner/UserEntryBanner';
+import GameBanner from './components/GameBanner/GameBanner';
 
 import useRoomState from './hooks/useRoomState/useRoomState';
 
@@ -53,6 +54,7 @@ export default function App() {
       <RoomGrid />
       <BroadcastedMessageAlert />
       <UserEntryBanner />
+      <GameBanner />
     </Container>
   );
 }

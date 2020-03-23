@@ -14,7 +14,7 @@ export interface WidgetRegistry {
 
 export default {
   kingscup: {
-    name: 'Kings Cup',
+    name: "King's Cup",
     component: KingsCup,
     description: "Yea, it's actually King's Cup... the drinking game...",
   },
