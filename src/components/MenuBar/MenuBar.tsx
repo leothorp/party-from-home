@@ -9,9 +9,7 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Menu from './Menu/Menu';
 import RoomControls from './RoomControls';
 
-import { useAppState } from '../../state';
 import useRoomState from '../../hooks/useRoomState/useRoomState';
-import { Typography } from '@material-ui/core';
 import useCurrentRoom from '../../hooks/useCurrentRoom/useCurrentRoom';
 
 const useStyles = makeStyles((theme: Theme) =>
