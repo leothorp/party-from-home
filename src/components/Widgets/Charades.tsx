@@ -154,7 +154,7 @@ export default function Charades() {
     setGameState(newGS);
   }
 
-  const playAreaContent = getPlayAreaContent(gameState, user);
+  const playAreaContent = getPlayAreaContent(gameState, user, userTeam);
 
   return (
     <Container>
@@ -191,14 +191,19 @@ export default function Charades() {
   );
 }
 
-function getPlayAreaContent(gameState: any, user: any) {
+function getPlayAreaContent(gameState: any, user: any, userTeam: string) {
   const gameInProgress = gameState.currentTeam !== 'Nobody';
   const isCurrentActor = user.uid === gameState.currentActor.uid;
 
   if (!gameInProgress) return <CharadesCard cardText="Click new game to begin!" />;
-  if (!isCurrentActor) return <CharadesCard cardText="The other team is playing. Sit back and relax!" />;
+  if (userTeam === 'none') return <CharadesCard cardText="Game in progress, wait for a new game to join!" />;
 
-  return <CharadesCard cardText={gameState.cardText} />;
+  if (gameState.currentTeam !== userTeam) {
+    return <CharadesCard cardText="The other team is playing. Sit back and relax!" />;
+  } else {
+    if (!isCurrentActor) return <CharadesCard cardText="Someone else on your team is acting." />;
+    return <CharadesCard cardText={gameState.cardText} />;
+  }
 }
 
 function getUserTeam(user: any, teams: Teams) {
