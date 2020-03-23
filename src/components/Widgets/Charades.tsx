@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { styled, Button } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -92,39 +92,8 @@ export default function Charades() {
 
   const { user } = useAppState();
 
-  useEffect(() => {
-    if (participants && participants.length > 0 && gameState && gameState.nextPlayer === null) {
-      setGameState({
-        ...gameState,
-        nextPlayer: participants[0].displayName,
-      });
-    }
-  }, [gameState, participants, setGameState]);
-
-  // Moves game to next team
-  function NextTeam(gs: any) {
-    const newGS = { ...gs };
-
-    // Pick card and remove from deck
-    const drawNumber = Math.floor(gs.deck.length * Math.random());
-    newGS.drawn = newGS.deck.splice(drawNumber, 1).concat(gs.drawn);
-    newGS.topCardText = newGS.drawn[0];
-
-    // Handle an empty deck
-    if (newGS.deck.length === 0) {
-      newGS.deckImg = '/images/cards/empty.png';
-      newGS.canDraw = false;
-    }
-
-    // Update team and actor
-    newGS.currentTeam = getCurrentTeam(gs.currentTeam);
-    newGS.currentActor = pickActor(newGS.currentTeam, newGS.teams);
-
-    setGameState(newGS);
-  }
-
   // Starts a new game
-  function StartGame(gs: any) {
+  function startGame() {
     const players = participants;
 
     if (players.length < 2) {
@@ -132,7 +101,7 @@ export default function Charades() {
       return;
     }
     const teams = defineTeams(players);
-    const currentTeam = getCurrentTeam(gs.currentTeam);
+    const currentTeam = 'red';
     const currentActor = pickActor(currentTeam, teams);
     const score = { red: 0, blue: 0 };
 
@@ -142,6 +111,35 @@ export default function Charades() {
     const cardText = 'Draw a card to begin!';
 
     setGameState({ deck, canDraw, drawn, cardText, currentActor, currentTeam, score });
+  }
+
+  // Moves game to next team
+  function nextTeam() {
+    const newGS = { ...gameState };
+
+    // Pick card and remove from deck
+    const drawNumber = Math.floor(gameState.deck.length * Math.random());
+    newGS.drawn = newGS.deck.splice(drawNumber, 1).concat(gameState.drawn);
+    newGS.topCardText = newGS.drawn[0];
+
+    // Update team and actor
+    newGS.currentTeam = getCurrentTeam(gameState.currentTeam);
+    newGS.currentActor = pickActor(newGS.currentTeam, newGS.teams);
+
+    // Handle an empty deck
+    if (newGS.deck.length === 0) {
+      newGS.currentTeam = 'Nobody';
+      newGS.canDraw = false;
+    }
+
+    setGameState(newGS);
+  }
+
+  function addScore(team: string) {
+    const newGS = { ...gameState };
+    newGS.score = gameState.score[team] + 1;
+
+    setGameState(newGS);
   }
 
   const playAreaContent = getPlayAreaContent(gameState, user);
@@ -154,12 +152,22 @@ export default function Charades() {
             <Instruction>{gameState.currentActor.displayName}'s turn!</Instruction>
           </Header>
           <PlayArea>{playAreaContent}</PlayArea>
+          <Footer id="score">
+            <Button id="redScore" onClick={() => addScore('red')}>
+              +
+            </Button>
+            <h1>Red: {gameState.score.red}</h1>
+            <h1>Blue: {gameState.score.blue}</h1>
+            <Button id="blueScore" onClick={() => addScore('blue')}>
+              +
+            </Button>
+          </Footer>
           <Footer>
             <h1>Current Team: {gameState.currentTeam}</h1>
-            <Button id="shuffle" onClick={() => StartGame(gameState)}>
+            <Button id="shuffle" onClick={() => startGame()}>
               New Game
             </Button>
-            <Button id="nextTurn" onClick={() => NextTeam(gameState)}>
+            <Button id="nextTurn" onClick={() => nextTeam()}>
               Next Team
             </Button>
           </Footer>
@@ -169,6 +177,16 @@ export default function Charades() {
       )}
     </Container>
   );
+}
+
+function getPlayAreaContent(gameState: any, user: any) {
+  const gameInProgress = gameState.currentTeam !== 'Nobody';
+  const isCurrentActor = user.uid === gameState.currentActor.uid;
+
+  if (!gameInProgress) return <CharadesCard cardText="Click new game to begin!" />;
+  if (!isCurrentActor) return <CharadesCard cardText="The other team is playing. Sit back and relax!" />;
+
+  return <CharadesCard cardText={gameState.cardText} />;
 }
 
 function getCurrentTeam(lastTeam: String) {
@@ -205,14 +223,4 @@ function shuffle(a: Array<any>) {
     [a[i], a[j]] = [a[j], a[i]];
   }
   return a;
-}
-
-function getPlayAreaContent(gameState: any, user: any) {
-  const gameInProgress = gameState.currentTeam !== 'Nobody';
-  const isCurrentActor = user.uid === gameState.currentActor.uid;
-
-  if (!gameInProgress) return <CharadesCard cardText="Click new game to begin!" />;
-  if (!isCurrentActor) return <CharadesCard cardText="The other team is playing. Sit back and relax!" />;
-
-  return <CharadesCard cardText={gameState.cardText} />;
 }
