@@ -318,10 +318,7 @@ app.get('/api/sync_token', (req, res) => {
 
       service.syncMaps('rooms').syncMapPermissions(identity).update({ read: true, write: false, manage: false }).then(() => {
         console.log(`Gave ${identity} permission for 'rooms'`);
-        grantPermissionsForList('broadcasts', [identity], { read: true, write: false, manage: false }).then(() => {
-          console.log(`Gave ${identity} permission for 'broadcasts'`);
-          res.send(token.toJwt());
-        }).catch(er => console.log(er));
+        res.send(token.toJwt());
       });
     });
     
@@ -343,8 +340,10 @@ app.post('/api/register', (req, res) => {
           .catch(e => console.log(e));
         res.send({ token });
       }).catch(e => {
-        console.log(e);
-        res.send({});
+        grantPermissionsForList('broadcasts', [uid], { read: true, write: false, manage: false }).then(() => {
+          console.log(`Gave ${uid} permission for 'broadcasts'`);
+          res.send({});
+        }).catch(er => console.log(er));
       });
     } else {
       getAdminToken(uid).then(token => {
@@ -352,7 +351,10 @@ app.post('/api/register', (req, res) => {
           .catch(e => console.log(e));
         res.send({ token });
       }).catch(() => {
-        res.send({});
+        grantPermissionsForList('broadcasts', [uid], { read: true, write: false, manage: false }).then(() => {
+          console.log(`Gave ${uid} permission for 'broadcasts'`);
+          res.send({});
+        }).catch(er => console.log(er));
       });
     }
   } else {

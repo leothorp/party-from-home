@@ -184,10 +184,10 @@ metadata:
 spec:
   tls:
     - hosts:
-      - beta.nitsan.party
+      - nitsan.party
       secretName: letsencrypt-prod
   rules:
-  - host: beta.nitsan.party
+  - host: nitsan.party
     http:
       paths:
       - backend:
