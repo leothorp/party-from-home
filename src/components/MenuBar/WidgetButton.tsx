@@ -31,6 +31,9 @@ const WidgetInfoContainer = styled('div')(({ theme }) => ({
   cursor: 'pointer',
   backgroundColor: theme.palette.background.paper,
   padding: '16px',
+  borderBottomColor: '#000',
+  borderBottomStyle: 'solid',
+  borderBottomWidth: '1px',
 }));
 
 const WidgetInfoTitle = styled('p')(({ theme }) => ({
