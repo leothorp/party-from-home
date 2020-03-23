@@ -1,30 +1,62 @@
 import React, { useEffect } from 'react';
-import { styled } from '@material-ui/core';
+import { styled, Button } from '@material-ui/core';
 import useWidgetContext from '../../hooks/useWidgetContext/useWidgetContext';
 
 const Container = styled('div')({
   display: 'flex',
-  alignContent: 'center',
+  flexDirection: 'column',
+  alignItems: 'center',
+  justifyContent: 'center',
   backgroundColor: 'darkgreen',
   height: '100%',
 });
 
-const Column = styled('div')({
+const Header = styled('div')({
   display: 'flex',
   alignItems: 'center',
-  width: '25%',
+  justifyContent: 'center',
+  height: '25%',
   '& img': {
     alignSelf: 'center',
-    maxWidth: '100%',
+    maxHeight: '100%',
   },
   '& input': {
-    maxWidth: '100%',
+    maxHeight: '100%',
   },
 });
 
-const Row = styled('div')({
+const PlayArea = styled('div')({
   display: 'flex',
-  alignContent: 'center',
+  alignItems: 'center',
+  justifyContent: 'center',
+  height: '50%',
+  '& *': {
+    marginLeft: '10px',
+  },
+  '& img': {
+    alignSelf: 'center',
+    maxHeight: '100%',
+  },
+  '& input': {
+    maxHeight: '100%',
+  },
+});
+
+const Footer = styled('div')({
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'space-around',
+  height: '25%',
+  '& *': {
+    marginLeft: '10px',
+  },
+  '& img': {
+    alignSelf: 'center',
+    maxHeight: '100%',
+  },
+  '& input': {
+    maxHeight: '100%',
+  },
 });
 
 const Instruction = styled('h1')({
@@ -34,58 +66,58 @@ const Instruction = styled('h1')({
 export default function KingsCup() {
   const { participants, state: gameState, setState: setGameState } = useWidgetContext({
     deck: [
-      '2c',
-      '2d',
-      '2s',
-      '2h',
-      '3c',
-      '3d',
-      '3s',
-      '3h',
-      '4c',
-      '4d',
-      '4s',
-      '4h',
-      '5c',
-      '5d',
-      '5s',
-      '5h',
-      '6c',
-      '6d',
-      '6s',
-      '6h',
-      '7c',
-      '7d',
-      '7s',
-      '7h',
-      '8c',
-      '8d',
-      '8s',
-      '8h',
-      '9c',
-      '9d',
-      '9s',
-      '9h',
-      '10c',
-      '10d',
-      '10s',
-      '10h',
-      'jc',
-      'jd',
-      'js',
-      'jh',
-      'qc',
-      'qd',
-      'qs',
-      'qh',
-      'kc',
-      'kd',
-      'ks',
-      'kh',
-      'ac',
-      'ad',
-      'as',
-      'ah',
+      '2C',
+      '2D',
+      '2S',
+      '2H',
+      '3C',
+      '3C',
+      '3S',
+      '3H',
+      '4C',
+      '4D',
+      '4S',
+      '4H',
+      '5C',
+      '5D',
+      '5S',
+      '5H',
+      '6C',
+      '6D',
+      '6S',
+      '6H',
+      '7C',
+      '7D',
+      '7S',
+      '7H',
+      '8C',
+      '8D',
+      '8S',
+      '8H',
+      '9C',
+      '9D',
+      '9S',
+      '9H',
+      '10C',
+      '10D',
+      '10S',
+      '10H',
+      'JC',
+      'JD',
+      'JS',
+      'JH',
+      'QC',
+      'QD',
+      'QS',
+      'QH',
+      'KC',
+      'KD',
+      'KS',
+      'KH',
+      'AC',
+      'AD',
+      'AS',
+      'AH',
     ],
     deckImg: '/images/cards/deck.png',
     canDraw: true,
@@ -217,10 +249,10 @@ export default function KingsCup() {
     <Container>
       {gameState && gameState.beerImg ? (
         <>
-          <Column>
+          <Header>
             <Instruction>{gameState.nextPlayer}'s turn!</Instruction>
-          </Column>
-          <Column>
+          </Header>
+          <PlayArea>
             <input
               type="image"
               id="drawButton"
@@ -228,23 +260,15 @@ export default function KingsCup() {
               onClick={() => DrawCard(gameState)}
               src={gameState.deckImg}
             ></input>
-          </Column>
-          <Column>
             <img src={gameState.topCardImg}></img>
-          </Column>
-          <Column>
-            <Row>
-              <img src={gameState.beerImg}></img>
-            </Row>
-            <Row>
-              <h1>Cards Drawn: {gameState.drawn.length - 1}</h1>
-            </Row>
-            <Row>
-              <button id="shuffle" onClick={() => ShuffleDeck(gameState)}>
-                Shuffle Deck
-              </button>
-            </Row>
-          </Column>
+          </PlayArea>
+          <Footer>
+            <img src={gameState.beerImg}></img>
+            <h1>Cards Drawn: {gameState.drawn.length - 1}</h1>
+            <Button id="shuffle" onClick={() => ShuffleDeck(gameState)}>
+              Shuffle Deck
+            </Button>
+          </Footer>
         </>
       ) : (
         <p>Loading...</p>
