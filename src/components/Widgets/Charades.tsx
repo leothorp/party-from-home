@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { styled, Button } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
@@ -70,6 +70,11 @@ type CardProps = {
   cardText: String;
 };
 
+type Teams = {
+  red: Array<any>;
+  blue: Array<any>;
+};
+
 function CharadesCard(props: CardProps) {
   return (
     <Card style={{ minWidth: 275 }}>
@@ -80,22 +85,24 @@ function CharadesCard(props: CardProps) {
 
 export default function Charades() {
   const { participants, state: gameState, setState: setGameState } = useWidgetContext({
+    teams: { red: [], blue: [] },
+    currentTeam: 'Nobody',
+    currentActor: { uid: '', displayName: '' },
+    score: { red: 0, blue: 0 },
     deck: ['placeholder'],
     canDraw: true,
     drawn: [''],
     cardText: 'Click new game to begin!',
-    currentActor: { uid: '', displayName: '' },
-    currentTeam: 'Nobody',
-    teams: { red: [], blue: [] },
-    score: { red: 0, blue: 0 },
   });
 
   const { user } = useAppState();
+  const [userTeam, setUserTeam] = useState(getUserTeam(user, gameState.teams));
 
   // Starts a new game
   function startGame() {
     const players = participants;
 
+    // TODO(roman): fix this (low priority)
     if (players.length < 2) {
       setGameState({ cardText: 'You need at least two players to start a game!' });
       return;
@@ -110,11 +117,13 @@ export default function Charades() {
     const drawn = [''];
     const cardText = 'Draw a card to begin!';
 
-    setGameState({ deck, canDraw, drawn, cardText, currentActor, currentTeam, score });
+    setGameState({ teams, currentTeam, currentActor, score, deck, canDraw, drawn, cardText });
+
+    setUserTeam(getUserTeam(user, teams));
   }
 
   // Moves game to next team
-  function nextTeam() {
+  function nextTurn() {
     const newGS = { ...gameState };
 
     // Pick card and remove from deck
@@ -163,12 +172,12 @@ export default function Charades() {
             </Button>
           </Footer>
           <Footer>
-            <h1>Current Team: {gameState.currentTeam}</h1>
             <Button id="shuffle" onClick={() => startGame()}>
               New Game
             </Button>
-            <Button id="nextTurn" onClick={() => nextTeam()}>
-              Next Team
+            <h1>Your team: {userTeam}</h1>
+            <Button id="nextTurn" onClick={() => nextTurn()}>
+              Next Turn
             </Button>
           </Footer>
         </>
@@ -189,6 +198,18 @@ function getPlayAreaContent(gameState: any, user: any) {
   return <CharadesCard cardText={gameState.cardText} />;
 }
 
+function getUserTeam(user: any, teams: Teams) {
+  for (const player of teams.red) {
+    if (user.uid === player.uid) return 'red';
+  }
+
+  for (const player of teams.blue) {
+    if (user.uid === player.uid) return 'blue';
+  }
+
+  return 'none';
+}
+
 function getCurrentTeam(lastTeam: String) {
   if (lastTeam === 'red') {
     return 'blue';
@@ -197,7 +218,7 @@ function getCurrentTeam(lastTeam: String) {
   }
 }
 
-function pickActor(currentTeam: String, teams: Object) {
+function pickActor(currentTeam: String, teams: Teams) {
   // @ts-ignore
   const pickablePlayers = teams[currentTeam];
 
