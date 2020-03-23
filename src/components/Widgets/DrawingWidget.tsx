@@ -1,6 +1,6 @@
-import React, { useCallback } from 'react';
+import React, { useCallback, useRef } from 'react';
 import useWidgetContext from '../../hooks/useWidgetContext/useWidgetContext';
-import { styled } from '@material-ui/core';
+import { styled, Button } from '@material-ui/core';
 import DrawingCanvas from './Drawing.js';
 
 const Container = styled('div')({
@@ -12,6 +12,7 @@ const Container = styled('div')({
 
 export default function TestWidget() {
   const { state, setState, ready } = useWidgetContext({ canvasData: {} });
+  const canvasRef = useRef<any | null>(null);
 
   const onChange = useCallback(
     (canvas: any) => {
@@ -21,10 +22,20 @@ export default function TestWidget() {
     [setState]
   );
 
+  const onClear = useCallback(() => {
+    canvasRef.current?.clear();
+  }, [canvasRef]);
+
+  const onUndo = useCallback(() => {
+    canvasRef.current?.undo();
+  }, [canvasRef]);
+
   if (ready) {
     return (
       <Container>
-        <DrawingCanvas onChange={onChange} data={state.canvasData} />
+        <DrawingCanvas ref={canvasRef} onChange={onChange} data={state.canvasData} lazyRadius={0} />
+        <Button onClick={onUndo}>Undo</Button>
+        <Button onClick={onClear}>Clear</Button>
       </Container>
     );
   } else {
