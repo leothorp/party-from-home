@@ -1,4 +1,4 @@
-import React, { useCallback, useRef } from 'react';
+import React, { useCallback, useRef, useState } from 'react';
 import useWidgetContext from '../../hooks/useWidgetContext/useWidgetContext';
 import { styled, Button } from '@material-ui/core';
 import DrawingCanvas from './Drawing.js';
@@ -13,6 +13,8 @@ const Container = styled('div')({
 export default function TestWidget() {
   const { state, setState, ready } = useWidgetContext({ canvasData: {} });
   const canvasRef = useRef<any | null>(null);
+  const containerRef = useRef<any | null>(null);
+  const [lazyBrush, setLazyBrush] = useState(false);
 
   const onChange = useCallback(
     (canvas: any) => {
@@ -32,10 +34,18 @@ export default function TestWidget() {
 
   if (ready) {
     return (
-      <Container>
-        <DrawingCanvas ref={canvasRef} onChange={onChange} data={state.canvasData} lazyRadius={0} />
+      <Container ref={containerRef}>
+        <DrawingCanvas
+          ref={canvasRef}
+          onChange={onChange}
+          data={state.canvasData}
+          lazyRadius={lazyBrush ? 12 : 0}
+          canvasWidth={containerRef.current?.offsetWidth}
+          canvasHeight={containerRef.current ? containerRef.current.offsetHeight - 24 : undefined}
+        />
         <Button onClick={onUndo}>Undo</Button>
         <Button onClick={onClear}>Clear</Button>
+        <Button onClick={() => setLazyBrush(!lazyBrush)}>Toggle Lazy Brush</Button>
       </Container>
     );
   } else {

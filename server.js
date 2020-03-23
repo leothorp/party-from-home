@@ -573,11 +573,6 @@ app.post('/api/hooks/room_status', (req, res) => {
   const identity = req.body.ParticipantIdentity;
   const room = req.body.RoomName;
 
-  if (!identity) {
-    res.sendStatus(200);
-    return;
-  }
-
   switch(req.body.StatusCallbackEvent) {
     case 'room-created':
 
@@ -597,6 +592,11 @@ app.post('/api/hooks/room_status', (req, res) => {
 
       break;
     case 'participant-connected':
+      if (!identity) {
+        res.sendStatus(200);
+        return;
+      }
+
       setUserRoom(identity, room);
       service.syncMaps('rooms').syncMapItems(room).fetch().then(item => {
         if (item.data.widgetStateId) {
@@ -612,6 +612,11 @@ app.post('/api/hooks/room_status', (req, res) => {
 
       break;
     case 'participant-disconnected':
+      if (!identity) {
+        res.sendStatus(200);
+        return;
+      }
+
       setUserRoom(identity, undefined);
 
       break;
