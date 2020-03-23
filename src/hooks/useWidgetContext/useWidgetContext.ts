@@ -11,12 +11,13 @@ export default function useWidgetContext(initialState?: any) {
     throw new Error('useWidgetContext must be used within a RoomWidgetProvider');
   }
 
+  console.log(context.documentId);
   const [state, setState] = useSyncState(context.documentId, {
     onReady: () => {
       if (initialState) {
         setState(initialState);
       }
-    }
+    },
   });
   const { user } = useAppState();
   const room = useCurrentRoom();

@@ -32,7 +32,7 @@ const IconContainer = styled('div')({
 export default function BroadcastedMessageAlert() {
   const classes = useStyles();
   const [lastMessageClosedId, setLastMessageClosedId] = useState(null);
-  const broadcastedMessages = useListItems('broadcastedMessages') || [];
+  const broadcastedMessages = useListItems('broadcasts');
   const lastBroadcastedMessage = broadcastedMessages[broadcastedMessages.length - 1] || null;
 
   const handleClose = (_: React.SyntheticEvent | MouseEvent, reason?: string) => {
