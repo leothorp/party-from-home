@@ -2,6 +2,7 @@ import React from 'react';
 import { styled } from '@material-ui/core/styles';
 import { Tooltip } from '@material-ui/core';
 import { Participant } from './RoomGrid';
+import UserAvatar from '../MenuBar/UserAvatar/UserAvatar';
 
 const GridItem = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -41,12 +42,9 @@ const RoomParticipant = styled('div')({
   marginRight: '4px',
   marginBottom: '4px',
   overflow: 'hidden',
-});
-
-const AvatarPlaceholder = styled('div')({
-  width: '100%',
-  height: '100%',
-  backgroundColor: '#EB5757',
+  display: 'flex',
+  alignItems: 'center',
+  justifyContent: 'center',
 });
 
 interface Props {
@@ -72,7 +70,7 @@ export default function RoomGridItem(props: Props) {
         {props.participants.map(p => (
           <Tooltip key={p.uid} title={p.displayName}>
             <RoomParticipant>
-              {p.photoURL ? <img alt="avatar" src={p.photoURL} /> : <AvatarPlaceholder />}
+              {p.photoURL ? <img alt="avatar" src={p.photoURL} /> : <UserAvatar user={p as any} />}
             </RoomParticipant>
           </Tooltip>
         ))}
