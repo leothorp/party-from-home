@@ -1,68 +1,83 @@
-import React, { PureComponent } from "react";
-import PropTypes from "prop-types";
-// @ts-ignore
-import { LazyBrush } from "lazy-brush";
-// @ts-ignore
-import { Catenary } from "catenary-curve";
-import ResizeObserver from "resize-observer-polyfill";
-import drawImage from './DrawingUtils';
-import useWidgetContext from '../../hooks/useWidgetContext/useWidgetContext';
+import React, { PureComponent } from 'react';
+import PropTypes from 'prop-types';
+import { LazyBrush } from 'lazy-brush';
+import { Catenary } from 'catenary-curve';
 
-function midPointBtw(p1: any, p2: any) {
+import ResizeObserver from 'resize-observer-polyfill';
+
+import drawImage from './DrawingUtils';
+
+function midPointBtw(p1, p2) {
   return {
     x: p1.x + (p2.x - p1.x) / 2,
-    y: p1.y + (p2.y - p1.y) / 2
+    y: p1.y + (p2.y - p1.y) / 2,
   };
 }
 
 const canvasStyle = {
-  display: "block",
-  position: "absolute"
+  display: 'block',
+  position: 'absolute',
 };
 
 const canvasTypes = [
   {
-    name: "interface",
-    zIndex: 15
+    name: 'interface',
+    zIndex: 15,
   },
   {
-    name: "drawing",
-    zIndex: 11
+    name: 'drawing',
+    zIndex: 11,
   },
   {
-    name: "temp",
-    zIndex: 12
+    name: 'temp',
+    zIndex: 12,
   },
   {
-    name: "grid",
-    zIndex: 10
-  }
+    name: 'grid',
+    zIndex: 10,
+  },
 ];
 
-const dimensionsPropTypes = PropTypes.oneOfType([
-  PropTypes.number,
-  PropTypes.string
-]);
+const dimensionsPropTypes = PropTypes.oneOfType([PropTypes.number, PropTypes.string]);
 
-export default function Drawing() {
-  const { state, setState } = useWidgetContext({
+export default class extends PureComponent {
+  static propTypes = {
+    onChange: PropTypes.func,
+    loadTimeOffset: PropTypes.number,
+    lazyRadius: PropTypes.number,
+    brushRadius: PropTypes.number,
+    brushColor: PropTypes.string,
+    catenaryColor: PropTypes.string,
+    gridColor: PropTypes.string,
+    backgroundColor: PropTypes.string,
+    hideGrid: PropTypes.bool,
+    canvasWidth: dimensionsPropTypes,
+    canvasHeight: dimensionsPropTypes,
+    disabled: PropTypes.bool,
+    imgSrc: PropTypes.string,
+    saveData: PropTypes.string,
+    immediateLoading: PropTypes.bool,
+    hideInterface: PropTypes.bool,
+  };
+
+  static defaultProps = {
     onChange: null,
     loadTimeOffset: 5,
     lazyRadius: 12,
     brushRadius: 10,
-    brushColor: "#444",
-    catenaryColor: "#0a0302",
-    gridColor: "rgba(150,150,150,0.17)",
-    backgroundColor: "#FFF",
+    brushColor: '#444',
+    catenaryColor: '#0a0302',
+    gridColor: 'rgba(150,150,150,0.17)',
+    backgroundColor: '#FFF',
     hideGrid: false,
     canvasWidth: 400,
     canvasHeight: 400,
     disabled: false,
-    imgSrc: "",
-    saveData: "",
+    imgSrc: '',
+    saveData: '',
     immediateLoading: false,
-    hideInterface: false
-  });
+    hideInterface: false,
+  };
 
   constructor(props) {
     super(props);
@@ -87,14 +102,12 @@ export default function Drawing() {
       enabled: true,
       initialPoint: {
         x: window.innerWidth / 2,
-        y: window.innerHeight / 2
-      }
+        y: window.innerHeight / 2,
+      },
     });
     this.chainLength = this.props.lazyRadius * window.devicePixelRatio;
 
-    this.canvasObserver = new ResizeObserver((entries, observer) =>
-      this.handleCanvasResize(entries, observer)
-    );
+    this.canvasObserver = new ResizeObserver((entries, observer) => this.handleCanvasResize(entries, observer));
     this.canvasObserver.observe(this.canvasContainer);
 
     this.drawImage();
@@ -103,14 +116,8 @@ export default function Drawing() {
     window.setTimeout(() => {
       const initX = window.innerWidth / 2;
       const initY = window.innerHeight / 2;
-      this.lazy.update(
-        { x: initX - this.chainLength / 4, y: initY },
-        { both: true }
-      );
-      this.lazy.update(
-        { x: initX + this.chainLength / 4, y: initY },
-        { both: false }
-      );
+      this.lazy.update({ x: initX - this.chainLength / 4, y: initY }, { both: true });
+      this.lazy.update({ x: initX + this.chainLength / 4, y: initY }, { both: false });
       this.mouseHasMoved = true;
       this.valuesChanged = true;
       this.clear();
@@ -143,6 +150,10 @@ export default function Drawing() {
     this.canvasObserver.unobserve(this.canvasContainer);
   };
 
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.data) this.loadSaveData(nextProps.data, true);
+  }
+
   drawImage = () => {
     if (!this.props.imgSrc) return;
 
@@ -151,8 +162,7 @@ export default function Drawing() {
     this.image.src = this.props.imgSrc;
 
     // Draw the image once loaded
-    this.image.onload = () =>
-      drawImage({ ctx: this.ctx.grid, img: this.image });
+    this.image.onload = () => drawImage({ ctx: this.ctx.grid, img: this.image });
   };
 
   undo = () => {
@@ -164,22 +174,18 @@ export default function Drawing() {
 
   getSaveData = () => {
     // Construct and return the stringified saveData object
-    return JSON.stringify({
-      lines: this.lines,
+    return {
+      lines: [...this.lines],
       width: this.props.canvasWidth,
-      height: this.props.canvasHeight
-    });
+      height: this.props.canvasHeight,
+    };
   };
 
   loadSaveData = (saveData, immediate = this.props.immediateLoading) => {
-    if (typeof saveData !== "string") {
-      throw new Error("saveData needs to be of type string!");
-    }
+    const { lines, width, height } = saveData;
 
-    const { lines, width, height } = JSON.parse(saveData);
-
-    if (!lines || typeof lines.push !== "function") {
-      throw new Error("saveData.lines needs to be an array!");
+    if (!lines || typeof lines.push !== 'function') {
+      throw new Error('saveData.lines needs to be an array!');
     }
 
     this.clear();
@@ -187,7 +193,7 @@ export default function Drawing() {
     if (width === this.props.canvasWidth && height === this.props.canvasHeight) {
       this.simulateDrawingLines({
         lines,
-        immediate
+        immediate,
       });
     } else {
       // we need to rescale the lines based on saved & current dimensions
@@ -200,11 +206,11 @@ export default function Drawing() {
           ...line,
           points: line.points.map(p => ({
             x: p.x * scaleX,
-            y: p.y * scaleY
+            y: p.y * scaleY,
           })),
-          brushRadius: line.brushRadius * scaleAvg
+          brushRadius: line.brushRadius * scaleAvg,
         })),
-        immediate
+        immediate,
       });
     }
   };
@@ -220,7 +226,7 @@ export default function Drawing() {
 
       // Draw all at once if immediate flag is set, instead of using setTimeout
       if (immediate) {
-        this.drawLine(line);
+        this.drawLine({ ...line, preventChange: true });
         return;
       }
 
@@ -231,7 +237,7 @@ export default function Drawing() {
           this.drawPoints({
             points: points.slice(0, i + 1),
             brushColor,
-            brushRadius
+            brushRadius,
           });
         }, curTime);
       }
@@ -240,37 +246,40 @@ export default function Drawing() {
       window.setTimeout(() => {
         // Save this line with its props instead of this.props
         this.points = points;
-        this.saveLine({ brushColor, brushRadius });
+        this.saveLine({ brushColor, brushRadius, preventChange: true });
       }, curTime);
     });
   };
 
-  drawLine = ({points, brushColor, brushRadius}) => {
+  drawLine = ({ points, brushColor, brushRadius, preventChange }) => {
     if (points.length === 0) {
-      throw new Error("line has no points!");
+      throw new Error('line has no points!');
     }
 
     // Draw the points
-    this.drawPoints({
-      points,
-      brushColor,
-      brushRadius
-    }, 'loading');
+    this.drawPoints(
+      {
+        points,
+        brushColor,
+        brushRadius,
+      },
+      'loading'
+    );
 
     // Save line with the drawn points
     this.points = points;
-    this.saveLine({brushColor, brushRadius}, 'loading');
+    this.saveLine({ brushColor, brushRadius, preventChange }, 'loading');
   };
 
-  updateCanvas = (saveData) => {
-    if (typeof saveData !== "string") {
-      throw new Error("saveData needs to be of type string!");
+  updateCanvas = saveData => {
+    if (typeof saveData !== 'string') {
+      throw new Error('saveData needs to be of type string!');
     }
 
-    const {lines, width, height} = JSON.parse(saveData);
+    const { lines, width, height } = saveData;
 
-    if (!lines || typeof lines.push !== "function") {
-      throw new Error("saveData.lines needs to be an array!");
+    if (!lines || typeof lines.push !== 'function') {
+      throw new Error('saveData.lines needs to be an array!');
     }
 
     const currentLine = this.points;
@@ -280,7 +289,7 @@ export default function Drawing() {
     if (width === this.props.canvasWidth && height === this.props.canvasHeight) {
       this.simulateDrawingLines({
         lines,
-        immediate: true
+        immediate: true,
       });
     } else {
       // we need to rescale the lines based on saved & current dimensions
@@ -293,11 +302,11 @@ export default function Drawing() {
           ...line,
           points: line.points.map(p => ({
             x: p.x * scaleX,
-            y: p.y * scaleY
+            y: p.y * scaleY,
           })),
-          brushRadius: line.brushRadius * scaleAvg
+          brushRadius: line.brushRadius * scaleAvg,
         })),
-        immediate: true
+        immediate: true,
       });
     }
 
@@ -381,7 +390,7 @@ export default function Drawing() {
     // return mouse/touch position inside canvas
     return {
       x: clientX - rect.left,
-      y: clientY - rect.top
+      y: clientY - rect.top,
     };
   };
 
@@ -391,10 +400,7 @@ export default function Drawing() {
     const hasChanged = this.lazy.update({ x, y });
     const isDisabled = !this.lazy.isEnabled();
 
-    if (
-      (this.isPressing && hasChanged && !this.isDrawing) ||
-      (isDisabled && this.isPressing)
-    ) {
+    if ((this.isPressing && hasChanged && !this.isDrawing) || (isDisabled && this.isPressing)) {
       // Start drawing and add point
       this.isDrawing = true;
       this.points.push(this.lazy.brush.toObject());
@@ -408,7 +414,7 @@ export default function Drawing() {
       this.drawPoints({
         points: this.points,
         brushColor: this.props.brushColor,
-        brushRadius: this.props.brushRadius
+        brushRadius: this.props.brushRadius,
       });
     }
 
@@ -416,8 +422,8 @@ export default function Drawing() {
   };
 
   drawPoints = ({ points, brushColor, brushRadius }) => {
-    this.ctx.temp.lineJoin = "round";
-    this.ctx.temp.lineCap = "round";
+    this.ctx.temp.lineJoin = 'round';
+    this.ctx.temp.lineCap = 'round';
     this.ctx.temp.strokeStyle = brushColor;
 
     this.ctx.temp.clearRect(0, 0, this.ctx.temp.canvas.width, this.ctx.temp.canvas.height);
@@ -444,18 +450,18 @@ export default function Drawing() {
     this.ctx.temp.stroke();
   };
 
-  saveLine = ({ brushColor, brushRadius } = {}) => {
+  saveLine = ({ brushColor, brushRadius, preventChange } = {}) => {
     if (this.points.length < 2) return;
 
     // Save as new line
     this.lines.push({
       points: [...this.points],
       brushColor: brushColor || this.props.brushColor,
-      brushRadius: brushRadius || this.props.brushRadius
+      brushRadius: brushRadius || this.props.brushRadius,
     });
 
     // Reset points array
-    this.points.length = 0;
+    this.points = [];
 
     const width = this.canvas.temp.width;
     const height = this.canvas.temp.height;
@@ -466,7 +472,7 @@ export default function Drawing() {
     // Clear the temporary line-drawing canvas
     this.ctx.temp.clearRect(0, 0, width, height);
 
-    this.triggerOnChange();
+    if (!preventChange) this.triggerOnChange();
   };
 
   triggerOnChange = () => {
@@ -548,15 +554,10 @@ export default function Drawing() {
     if (this.lazy.isEnabled()) {
       ctx.beginPath();
       ctx.lineWidth = 2;
-      ctx.lineCap = "round";
+      ctx.lineCap = 'round';
       ctx.setLineDash([2, 4]);
       ctx.strokeStyle = this.props.catenaryColor;
-      this.catenary.drawToCanvas(
-        this.ctx.interface,
-        brush,
-        pointer,
-        this.chainLength
-      );
+      this.catenary.drawToCanvas(this.ctx.interface, brush, pointer, this.chainLength);
       ctx.stroke();
     }
 
@@ -572,12 +573,12 @@ export default function Drawing() {
       <div
         className={this.props.className}
         style={{
-          display: "block",
+          display: 'block',
           background: this.props.backgroundColor,
-          touchAction: "none",
+          touchAction: 'none',
           width: this.props.canvasWidth,
           height: this.props.canvasHeight,
-          ...this.props.style
+          ...this.props.style,
         }}
         ref={container => {
           if (container) {
@@ -586,14 +587,14 @@ export default function Drawing() {
         }}
       >
         {canvasTypes.map(({ name, zIndex }) => {
-          const isInterface = name === "interface";
+          const isInterface = name === 'interface';
           return (
             <canvas
               key={name}
               ref={canvas => {
                 if (canvas) {
                   this.canvas[name] = canvas;
-                  this.ctx[name] = canvas.getContext("2d");
+                  this.ctx[name] = canvas.getContext('2d');
                 }
               }}
               style={{ ...canvasStyle, zIndex }}

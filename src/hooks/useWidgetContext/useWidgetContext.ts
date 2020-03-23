@@ -11,18 +11,16 @@ export default function useWidgetContext(initialState?: any) {
     throw new Error('useWidgetContext must be used within a RoomWidgetProvider');
   }
 
-  console.log(context.documentId);
   const [state, setState] = useSyncState(context.documentId, {
     onReady: () => {
-      if (initialState) {
-        setState(initialState);
-      }
+      setReady(true);
     },
   });
   const { user } = useAppState();
   const room = useCurrentRoom();
   const users = useMapItems('users');
   const [participants, setParticipants] = useState<any[]>([]);
+  const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (room) {
@@ -30,5 +28,5 @@ export default function useWidgetContext(initialState?: any) {
     }
   }, [room, users]);
 
-  return { state, setState, user, room, participants };
+  return { state, setState, user, room, participants, ready };
 }
