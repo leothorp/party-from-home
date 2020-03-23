@@ -228,7 +228,7 @@ const grantPermissionsForDocument = (docId, users, permissions) => {
       service.documents(docId).documentPermissions(identity).update(permissions).then(() => {
         responses += 1;
         if (responses >= users.length)
-          setTimeout(resolve(), 5000);
+          setTimeout(resolve, 1000);
       }).catch(e => {
         reject(e);
       });
