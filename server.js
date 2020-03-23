@@ -227,6 +227,7 @@ const grantPermissionsForDocument = (docId, users, permissions) => {
 
     users.forEach(identity => {
       service.documents(docId).documentPermissions(identity).update(permissions).then(() => {
+        console.log(`Granted widget permissions to ${identity}`);
         responses += 1;
         if (responses >= users.length)
           resolve();
@@ -316,7 +317,10 @@ app.get('/api/sync_token', (req, res) => {
 
       service.syncMaps('rooms').syncMapPermissions(identity).update({ read: true, write: false, manage: false }).then(() => {
         console.log(`Gave ${identity} permission for 'rooms'`);
-        res.send(token.toJwt());
+        grantPermissionsForList('broadcasts', [identity], { read: true, write: false, manage: false }).then(() => {
+          console.log(`Gave ${identity} permission for 'broadcasts'`);
+          res.send(token.toJwt());
+        }).catch(er => console.log(er));
       });
     });
     
@@ -339,8 +343,6 @@ app.post('/api/register', (req, res) => {
         res.send({ token });
       }).catch(e => {
         console.log(e);
-        grantPermissionsForList('broadcasts', [uid], { read: true, write: false, manage: false })
-          .catch(er => console.log(er));
         res.send({});
       });
     } else {
@@ -349,8 +351,6 @@ app.post('/api/register', (req, res) => {
           .catch(e => console.log(e));
         res.send({ token });
       }).catch(() => {
-        grantPermissionsForList('broadcasts', [uid], { read: true, write: false, manage: false })
-          .catch(e => console.log(e));
         res.send({});
       });
     }
@@ -571,6 +571,11 @@ app.post('/api/hooks/room_status', (req, res) => {
 
   const identity = req.body.ParticipantIdentity;
   const room = req.body.RoomName;
+
+  if (!identity) {
+    res.sendStatus(200);
+    return;
+  }
 
   switch(req.body.StatusCallbackEvent) {
     case 'room-created':
