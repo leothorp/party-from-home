@@ -1,7 +1,7 @@
 import React, { useCallback, useRef, useState } from 'react';
 import useWidgetContext from '../../hooks/useWidgetContext/useWidgetContext';
 import { styled, Button } from '@material-ui/core';
-import DrawingCanvas from './Drawing.js';
+import DrawingCanvas from './DrawingCanvas.js';
 
 const Container = styled('div')({
   width: '100%',
