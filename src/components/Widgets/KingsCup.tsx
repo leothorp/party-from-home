@@ -64,7 +64,7 @@ const Instruction = styled('h1')({
 });
 
 export default function KingsCup() {
-  const { participants, state: gameState, setState: setGameState } = useWidgetContext({
+  const { participants, state: gameState, setState: setGameState, ready } = useWidgetContext({
     deck: [
       '2C',
       '2D',
@@ -247,7 +247,7 @@ export default function KingsCup() {
 
   return (
     <Container>
-      {gameState && gameState.beerImg ? (
+      {ready && gameState ? (
         <>
           <Header>
             <Instruction>{gameState.nextPlayer}'s turn!</Instruction>

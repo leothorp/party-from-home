@@ -15,6 +15,7 @@ export default function useWidgetContext(initialState?: any) {
     onReady: () => {
       setReady(true);
     },
+    initialState,
   });
   const { user } = useAppState();
   const room = useCurrentRoom();

@@ -23,9 +23,10 @@ export default function useSyncState(name: string, opts?: Options) {
   useEffect(() => {
     if (document && data === null) {
       setData(document.value);
-      if (opts?.onReady) {
-        opts.onReady();
-      }
+    }
+
+    if (document && opts?.onReady) {
+      opts.onReady();
     }
   }, [data, document, opts]);
 
