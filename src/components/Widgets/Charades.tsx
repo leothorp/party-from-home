@@ -135,7 +135,7 @@ export default function Charades() {
     newGS.topCardText = newGS.drawn[0];
 
     // Update team and actor
-    newGS.currentTeam = getCurrentTeam(gameState.currentTeam);
+    newGS.currentTeam = getNextTeam(gameState.currentTeam);
     newGS.currentActor = pickActor(newGS.currentTeam, newGS.teams);
 
     // Handle an empty deck
@@ -213,7 +213,7 @@ function getUserTeam(user: any, teams: Teams) {
   return 'none';
 }
 
-function getCurrentTeam(lastTeam: String) {
+function getNextTeam(lastTeam: String) {
   if (lastTeam === 'red') {
     return 'blue';
   } else {
