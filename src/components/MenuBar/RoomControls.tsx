@@ -1,5 +1,5 @@
-import React from 'react';
-import { IconButton, Tooltip, styled, makeStyles, createStyles } from '@material-ui/core';
+import React, { useCallback, useState } from 'react';
+import { Drawer, IconButton, Tooltip, styled, makeStyles, createStyles } from '@material-ui/core';
 import { Mic, MicOff, Videocam, VideocamOff, ScreenShare, StopScreenShare } from '@material-ui/icons';
 import useRoomState from '../../hooks/useRoomState/useRoomState';
 import useLocalAudioToggle from '../../hooks/useLocalAudioToggle/useLocalAudioToggle';
@@ -7,6 +7,7 @@ import useLocalVideoToggle from '../../hooks/useLocalVideoToggle/useLocalVideoTo
 import useScreenShareToggle from '../../hooks/useScreenShareToggle/useScreenShareToggle';
 import useScreenShareParticipant from '../../hooks/useScreenShareParticipant/useScreenShareParticipant';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
+import useMountEffect from '../../hooks/useMountEffect/useMountEffect';
 import { useAppState } from '../../state';
 import useCurrentRoom from '../../hooks/useCurrentRoom/useCurrentRoom';
 import WidgetButton from './WidgetButton';
@@ -27,9 +28,14 @@ const Container = styled('div')({
   marginLeft: 'auto',
 });
 
+const Link = styled('a')({
+  color: 'yellow',
+});
+
 export default function RoomControls() {
   const classes = useStyles();
   const roomState = useRoomState();
+  const [isPartyRulesOpen, setIsPartyRulesOpen] = useState(false);
   const isReconnecting = roomState === 'reconnecting';
   const [isAudioEnabled, toggleAudioEnabled] = useLocalAudioToggle();
   const [isVideoEnabled, toggleVideoEnabled] = useLocalVideoToggle();
@@ -45,6 +51,18 @@ export default function RoomControls() {
   const allowedToStartGame =
     !currentRoom?.disableWidgets &&
     (!currentRoom?.adminStartGames || (!currentRoom?.disableWidgets && user?.token !== undefined));
+
+  const openPartyRules = useCallback(event => {
+    setIsPartyRulesOpen(true);
+  }, []);
+
+  const handlePartyRulesClose = useCallback(event => {
+    setIsPartyRulesOpen(false);
+  }, []);
+
+  useMountEffect(() => {
+    setIsPartyRulesOpen(true);
+  });
 
   return (
     <Container>
@@ -84,6 +102,23 @@ export default function RoomControls() {
           </Tooltip>
         </>
       )}
+      <IconButton onClick={openPartyRules} disabled={isPartyRulesOpen}>
+        <span role="img" aria-label="rules">
+	  📋
+	</span>
+      </IconButton>
+      <Drawer anchor={'bottom'} open={isPartyRulesOpen} onClose={handlePartyRulesClose}>
+        <h2>&nbsp;&nbsp;Party Rules</h2>
+        <ul>
+          <li>Be nice, inviting, and introduce yourself to people! We’re all in this together.</li>
+	  <li><Link href="https://www.watch2gether.com/rooms/8lkzv3katmr6pvgcej?lang=en">Listen to the party music with everyone!</Link></li>
+	  <li>Allow newcomers to join your activity!</li>
+	  <li>If you feel like rooms are crowded, message Nitsan or Carlos to ask to add a room.</li>
+	  <li>In order to limit background noise in large rooms, try muting yourself when you’re not speaking.</li>
+	  <li>Don’t close an ongoing activity in a room! If you want to have another activity, go to another room or ask admins to add a second room for that activity.</li>
+	  <li>This party is not free unfortunately. But if you venmo nitsanshai any amount, I will take a shot. All money will go towards the cost of the party, and any extra will be donated to the WHO’s <Link href="https://www.who.int/emergencies/diseases/novel-coronavirus-2019/donate">COVID-19 Solidarity Response Fund</Link>.</li>
+        </ul>
+      </Drawer>
     </Container>
   );
 }
