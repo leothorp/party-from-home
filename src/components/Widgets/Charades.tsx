@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { styled, Button } from '@material-ui/core';
 import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import useWidgetContext from '../../hooks/useWidgetContext/useWidgetContext';
 import { useAppState } from '../../state';
 
-const wordList = require('../../../public/charades.json');
+const wordList = require('./charades.json');
 
 const Container = styled('div')({
   display: 'flex',
@@ -86,10 +86,10 @@ function CharadesCard(props: CardProps) {
 }
 
 export default function Charades() {
-  const { participants, state: gameState, setState: setGameState } = useWidgetContext({
+  const { participants, state: gameState, setState: setGameState, ready } = useWidgetContext({
     teams: { red: [], blue: [] },
     currentTeam: 'Nobody',
-    currentActor: { uid: '', displayName: '' },
+    currentActor: { identity: '', displayName: '' },
     score: { red: 0, blue: 0 },
     //TODO(roman): let players choose category;
     deck: wordList.charades.medium,
@@ -98,16 +98,25 @@ export default function Charades() {
     cardText: 'Click new game to begin!',
   });
 
+  console.log(gameState);
+
   const { user } = useAppState();
-  const [userTeam, setUserTeam] = useState(getUserTeam(user, gameState.teams));
+  const [userTeam, setUserTeam] = useState<any | null>(null);
+  console.log(`team: ${userTeam}`);
+
+  useEffect(() => {
+    if (ready && user && (!userTeam || userTeam === 'none')) {
+      setUserTeam(getUserTeam(user, gameState.teams));
+    }
+  }, [gameState.teams, ready, user, userTeam]);
 
   // Starts a new game
-  function startGame() {
+  const startGame = useCallback(() => {
     const players = participants;
 
     // TODO(roman): fix this (low priority)
     if (players.length < 2) {
-      setGameState({ cardText: 'You need at least two players to start a game!' });
+      setGameState({ ...gameState, cardText: 'You need at least two players to start a game!' });
       return;
     }
     const teams = defineTeams(players);
@@ -120,13 +129,13 @@ export default function Charades() {
     const drawn = [''];
     const cardText = 'Draw a card to begin!';
 
-    setGameState({ teams, currentTeam, currentActor, score, deck, canDraw, drawn, cardText });
+    setGameState({ ...gameState, teams, currentTeam, currentActor, score, deck, canDraw, drawn, cardText });
 
     setUserTeam(getUserTeam(user, teams));
-  }
+  }, [gameState, participants, setGameState, user]);
 
   // Moves game to next team
-  function nextTurn() {
+  const nextTurn = useCallback(() => {
     const newGS = { ...gameState };
 
     // Pick card and remove from deck
@@ -145,55 +154,60 @@ export default function Charades() {
     }
 
     setGameState(newGS);
-  }
+  }, [gameState, setGameState]);
 
-  function addScore(team: string) {
-    const newGS = { ...gameState };
-    newGS.score = gameState.score[team] + 1;
+  const addScore = useCallback(
+    (team: string) => {
+      const newGS = { ...gameState };
+      newGS.score = gameState.score[team] + 1;
 
-    setGameState(newGS);
-  }
-
-  const playAreaContent = getPlayAreaContent(gameState, user, userTeam);
-
-  return (
-    <Container>
-      {gameState && gameState.beerImg ? (
-        <>
-          <Header>
-            <Instruction>{gameState.currentActor.displayName}'s turn!</Instruction>
-          </Header>
-          <PlayArea>{playAreaContent}</PlayArea>
-          <Footer id="score">
-            <Button id="redScore" onClick={() => addScore('red')}>
-              +
-            </Button>
-            <h1>Red: {gameState.score.red}</h1>
-            <h1>Blue: {gameState.score.blue}</h1>
-            <Button id="blueScore" onClick={() => addScore('blue')}>
-              +
-            </Button>
-          </Footer>
-          <Footer>
-            <Button id="shuffle" onClick={() => startGame()}>
-              New Game
-            </Button>
-            <h1>Your team: {userTeam}</h1>
-            <Button id="nextTurn" onClick={() => nextTurn()}>
-              Next Turn
-            </Button>
-          </Footer>
-        </>
-      ) : (
-        <p>Loading...</p>
-      )}
-    </Container>
+      setGameState(newGS);
+    },
+    [gameState, setGameState]
   );
+
+  if (ready && user) {
+    const playAreaContent = getPlayAreaContent(gameState, user, userTeam);
+
+    return (
+      <Container>
+        <Header>
+          <Instruction>{gameState.currentActor.displayName}'s turn!</Instruction>
+        </Header>
+        <PlayArea>{playAreaContent}</PlayArea>
+        <Footer id="score">
+          <Button id="redScore" onClick={() => addScore('red')}>
+            +
+          </Button>
+          <h1>Red: {gameState.score.red}</h1>
+          <h1>Blue: {gameState.score.blue}</h1>
+          <Button id="blueScore" onClick={() => addScore('blue')}>
+            +
+          </Button>
+        </Footer>
+        <Footer>
+          <Button id="shuffle" onClick={() => startGame()}>
+            New Game
+          </Button>
+          <h1>Your team: {userTeam}</h1>
+          <Button id="nextTurn" onClick={() => nextTurn()}>
+            Next Turn
+          </Button>
+        </Footer>
+      </Container>
+    );
+  } else {
+    return (
+      <Container>
+        <p>Loading...</p>
+      </Container>
+    );
+  }
 }
 
 function getPlayAreaContent(gameState: any, user: any, userTeam: string) {
   const gameInProgress = gameState.currentTeam !== 'Nobody';
-  const isCurrentActor = user.uid === gameState.currentActor.uid;
+  const isCurrentActor = user.uid === gameState.currentActor.identity;
 
   if (!gameInProgress) return <CharadesCard cardText="Click new game to begin!" />;
   if (userTeam === 'none') return <CharadesCard cardText="Game in progress, wait for a new game to join!" />;
@@ -208,11 +222,11 @@ function getPlayAreaContent(gameState: any, user: any, userTeam: string) {
 
 function getUserTeam(user: any, teams: Teams) {
   for (const player of teams.red) {
-    if (user.uid === player.uid) return 'red';
+    if (user.uid === player.identity) return 'red';
   }
 
   for (const player of teams.blue) {
-    if (user.uid === player.uid) return 'blue';
+    if (user.uid === player.identity) return 'blue';
   }
 
   return 'none';

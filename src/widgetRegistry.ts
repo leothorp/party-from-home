@@ -1,6 +1,7 @@
 import { FunctionComponent } from 'react';
 import KingsCup from './components/Widgets/KingsCup';
 import DrawingWidget from './components/Widgets/DrawingWidget';
+import Charades from './components/Widgets/Charades';
 
 export interface WidgetRegistration {
   name: string;
@@ -22,5 +23,10 @@ export default {
     name: 'Whiteboard',
     component: DrawingWidget,
     description: 'A white board, can be used for games like Pictionary!',
+  },
+  charades: {
+    name: 'Charades',
+    component: Charades,
+    description: 'Charades with your friends!',
   },
 } as WidgetRegistry;
