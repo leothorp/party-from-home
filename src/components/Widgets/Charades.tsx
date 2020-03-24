@@ -126,8 +126,10 @@ export default function Charades() {
 
     const deck = wordList.charades.medium;
     const canDraw = true;
-    const drawn = [''];
-    const cardText = 'Draw a card to begin!';
+    // Pick card and remove from deck
+    const drawNumber = Math.floor(gameState.deck.length * Math.random());
+    const drawn = gameState.deck.splice(drawNumber, 1).concat(gameState.drawn);
+    const cardText = drawn[0];
 
     setGameState({ ...gameState, teams, currentTeam, currentActor, score, deck, canDraw, drawn, cardText });
 
@@ -159,7 +161,7 @@ export default function Charades() {
   const addScore = useCallback(
     (team: string) => {
       const newGS = { ...gameState };
-      newGS.score = gameState.score[team] + 1;
+      newGS.score[team] = gameState.score[team] + 1;
 
       setGameState(newGS);
     },
