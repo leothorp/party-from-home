@@ -102,21 +102,35 @@ export default function RoomControls() {
           </Tooltip>
         </>
       )}
-      <IconButton onClick={openPartyRules} disabled={isPartyRulesOpen}>
+      <IconButton onClick={openPartyRules} className={classes.endCallButton} disabled={isPartyRulesOpen}>
         <span role="img" aria-label="rules">
-	  📋
-	</span>
+          📋
+        </span>
       </IconButton>
       <Drawer anchor={'bottom'} open={isPartyRulesOpen} onClose={handlePartyRulesClose}>
         <h2>&nbsp;&nbsp;Party Rules</h2>
         <ul>
           <li>Be nice, inviting, and introduce yourself to people! We’re all in this together.</li>
-	  <li><Link href="https://www.watch2gether.com/rooms/8lkzv3katmr6pvgcej?lang=en">Listen to the party music with everyone!</Link></li>
-	  <li>Allow newcomers to join your activity!</li>
-	  <li>If you feel like rooms are crowded, message Nitsan or Carlos to ask to add a room.</li>
-	  <li>In order to limit background noise in large rooms, try muting yourself when you’re not speaking.</li>
-	  <li>Don’t close an ongoing activity in a room! If you want to have another activity, go to another room or ask admins to add a second room for that activity.</li>
-	  <li>This party is not free unfortunately. But if you venmo nitsanshai any amount, I will take a shot. All money will go towards the cost of the party, and any extra will be donated to the WHO’s <Link href="https://www.who.int/emergencies/diseases/novel-coronavirus-2019/donate">COVID-19 Solidarity Response Fund</Link>.</li>
+          <li>
+            <Link target="blank" href="https://www.watch2gether.com/rooms/8lkzv3katmr6pvgcej?lang=en">
+              Listen to the party music with everyone!
+            </Link>
+          </li>
+          <li>Allow newcomers to join your activity!</li>
+          <li>If you feel like rooms are crowded, message Nitsan or Carlos to ask to add a room.</li>
+          <li>In order to limit background noise in large rooms, try muting yourself when you’re not speaking.</li>
+          <li>
+            Don’t close an ongoing activity in a room! If you want to have another activity, go to another room or ask
+            admins to add a second room for that activity.
+          </li>
+          <li>
+            This party is not free unfortunately. But if you venmo nitsanshai any amount, I will take a shot. All money
+            will go towards the cost of the party, and any extra will be donated to the WHO’s{' '}
+            <Link target="blank" href="https://www.who.int/emergencies/diseases/novel-coronavirus-2019/donate">
+              COVID-19 Solidarity Response Fund
+            </Link>
+            .
+          </li>
         </ul>
       </Drawer>
     </Container>
