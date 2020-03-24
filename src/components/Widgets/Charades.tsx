@@ -141,7 +141,7 @@ export default function Charades() {
     // Pick card and remove from deck
     const drawNumber = Math.floor(gameState.deck.length * Math.random());
     newGS.drawn = newGS.deck.splice(drawNumber, 1).concat(gameState.drawn);
-    newGS.topCardText = newGS.drawn[0];
+    newGS.cardText = newGS.drawn[0];
 
     // Update team and actor
     newGS.currentTeam = getNextTeam(gameState.currentTeam);
