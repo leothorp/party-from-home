@@ -21,6 +21,8 @@ See browser support table for [twilio-video.js SDK](https://github.com/twilio/tw
 
 ## Getting Started
 
+_Note: this doesn't currently work, some extra steps are required._
+
 Run `npm install` to install all dependencies.
 
 The fastest way to get started is to use the Twilio CLI:
