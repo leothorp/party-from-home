@@ -14,13 +14,13 @@ jobs:
     steps:
     - uses: actions/checkout@v1
     - name: Build the Docker image
-      run: docker build . --file Dockerfile.client --tag docker.pkg.github.com/carlosdp/lockdown-party/lockdown-client:${{ github.sha }}
+      run: docker build . --file Dockerfile.client --tag docker.pkg.github.com/carlosdp/party-from-home/lockdown-client:${{ github.sha }}
     - name: Tag latest
-      run: docker tag docker.pkg.github.com/carlosdp/lockdown-party/lockdown-client:${{ github.sha }} docker.pkg.github.com/carlosdp/lockdown-party/lockdown-client:latest
+      run: docker tag docker.pkg.github.com/carlosdp/party-from-home/lockdown-client:${{ github.sha }} docker.pkg.github.com/carlosdp/party-from-home/lockdown-client:latest
     - name: Push Image
-      run: docker login docker.pkg.github.com -u ${{ secrets.GITHUB_USERNAME }} -p ${{ secrets.GITHUB_TOKEN }} && docker push docker.pkg.github.com/carlosdp/lockdown-party/lockdown-client
+      run: docker login docker.pkg.github.com -u ${{ secrets.GITHUB_USERNAME }} -p ${{ secrets.GITHUB_TOKEN }} && docker push docker.pkg.github.com/carlosdp/party-from-home/lockdown-client
     - name: curl
       uses: wei/curl@master
       with:
         args: >
-          -u "keel:${{ secrets.KEEL_PASSWORD }}" -d '{\"name\": \"docker.pkg.github.com/carlosdp/lockdown-party/lockdown-client\", \"tag\": \"latest\"}' https://keel.carlos-dp.com/v1/webhooks/native
+          -u "keel:${{ secrets.KEEL_PASSWORD }}" -d '{\"name\": \"docker.pkg.github.com/carlosdp/party-from-home/lockdown-client\", \"tag\": \"latest\"}' https://keel.carlos-dp.com/v1/webhooks/native
