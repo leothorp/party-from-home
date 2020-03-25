@@ -41,8 +41,10 @@ This application requires an access token to connect to a Room. The included loc
 
 - Create an account in the [Twilio Console](https://www.twilio.com/console).
 - Click on 'Settings' and take note of your Account SID.
-- Create a new API Key in the [API Keys Section](https://www.twilio.com/console/video/project/api-keys) under Programmable Video Tools in the Twilio Console. Take note of the SID and Secret of the new API key.
-- Store your Account SID, API Key SID, and API Key Secret in a new file called `.env` in the root level of the application (example below).
+- Under "Auth Token", click "View" and note this value.
+- Create a new API Key in the [API Keys Section](https://www.twilio.com/console/video/project/api-keys) under Programmable Video Tools > Tools in the Twilio Console. Take note of the SID and Secret of the new API key.
+- Under Sync > Services, create a new service and note the SID.
+- Store these values in a new file called `.env` in the root level of the application (example below).
 
 ```
 TWILIO_ACCOUNT_SID=ACxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
@@ -50,11 +52,20 @@ TWILIO_AUTH_TOKEN=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_API_KEY_SID=SKxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_API_KEY_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_SERVICE_SID=ISxxxxxxxxxxxxxxxxxxxxxxxxxx # Sync Service SID
+```
+
+Now the local token server (see [server.js](server.js)) can dispense Access Tokens to connect to a Room.
+
+Add the following lines to the .env file to add a passcode to your party (required):
+```
 REACT_APP_SET_AUTH=passcode
 PASSCODE=pass # Set passcode here
 ```
 
-Now the local token server (see [server.js](server.js)) can dispense Access Tokens to connect to a Room.
+To enable TTS, follow the [Google Cloud Text-to-Speech quickstart guide](https://cloud.google.com/text-to-speech/docs/quickstart-client-libraries). Save the JSON file on your machine and add the full path to your .env file:
+```
+GOOGLE_APPLICATION_CREDENTIALS=/path/to/credentials.json
+```
 
 ### Running the App
 
