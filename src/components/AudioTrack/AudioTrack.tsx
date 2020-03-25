@@ -11,10 +11,11 @@ export default function AudioTrack({ track }: AudioTrackProps) {
   useEffect(() => {
     const el = ref.current;
     track.attach(el);
+    el.muted = false;
     return () => {
       track.detach(el);
     };
   }, [track]);
 
-  return <audio ref={ref} />;
+  return <audio ref={ref} muted={false} />;
 }
