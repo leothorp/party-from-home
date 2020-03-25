@@ -66,9 +66,6 @@ ReactDOM.render(
           <Route path="/user_setup">
             <UserSetup />
           </Route>
-	  <Route path="/welcome_video">
-	    <WelcomeVideo />
-	  </Route>
           <Redirect to="/" />
         </Switch>
       </AppStateProvider>
