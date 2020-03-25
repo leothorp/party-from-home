@@ -105,7 +105,7 @@ export default function LoginPage() {
     } else {
       if (setUser) {
         setUser(name).then(() => {
-          history.replace({ pathname: '/welcome_video' });
+          history.replace({ pathname: '/' });
         });
       }
     }
@@ -117,12 +117,14 @@ export default function LoginPage() {
     setUserInfo();
   };
 
-  const onFBLogin = useCallback((info: ReactFacebookLoginInfo) => {
-    if (setUser) {
-      setUser(info.name || '', info?.picture?.data?.url || '')
-        .then(() => history.replace({ pathname: '/welcome_video' }));
-    }
-  }, [user]);
+  const onFBLogin = useCallback(
+    (info: ReactFacebookLoginInfo) => {
+      if (setUser) {
+        setUser(info.name || '', info?.picture?.data?.url || '').then(() => history.replace({ pathname: '/' }));
+      }
+    },
+    [history, setUser]
+  );
 
   const currentName = name === '' && user?.displayName ? user.displayName : name;
 
@@ -170,12 +172,7 @@ export default function LoginPage() {
             <SeparatorText>OR</SeparatorText>
             <Separator></Separator>
           </SeparatorContainer>
-          <FacebookLogin
-            appId={'2488611224802561'}
-            autoLoad={false}
-            fields="name,picture"
-            callback={onFBLogin}
-          />
+          <FacebookLogin appId={'2488611224802561'} autoLoad={false} fields="name,picture" callback={onFBLogin} />
         </HeroContainer>
       </Grid>
     </ThemeProvider>
