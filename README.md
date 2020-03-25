@@ -1,26 +1,13 @@
 # Lockdown Party
 
-[![CircleCI](https://circleci.com/gh/twilio/twilio-video-app-react.svg?style=svg)](https://circleci.com/gh/twilio/twilio-video-app-react)
+Virtual party app using Twilio Video/Sync.
 
 Forked from [Twilio's Video Conference demo app](https://github.com/twilio/twilio-video-app-react)
 
 
 ## Contributing
 
-If you'd like to contribute, open a Pull Request. It is recommended you follow the Roadmap laid out below when developing features, since the project is in an early stage.
-If you have questions about the roadmap, contact @carlosdp.
-
-
-## Roadmap
-
-- [ ] Facebook Login
-- [ ] Authenticate using Facebook Event
-- [ ] Welcome video
-- [ ] Basic Moderation (kick, ban, mute)
-- [ ] Global text announcements
-- [ ] Dynamically configurable rooms
-- [ ] Room banners
-
+If you'd like to contribute, open a Pull Request.
 
 ## Requirements
 
@@ -33,6 +20,8 @@ Node.js Version | NPM Version
 See browser support table for [twilio-video.js SDK](https://github.com/twilio/twilio-video.js/tree/master/#browser-support).
 
 ## Getting Started
+
+_Note: this doesn't currently work, some extra steps are required._
 
 Run `npm install` to install all dependencies.
 
