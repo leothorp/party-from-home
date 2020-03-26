@@ -184,6 +184,7 @@ export default function ParticipantStrip(props: Props) {
                 displayName={users[participant.identity]?.displayName}
                 maxWidth={layout[i].w * (rowHeight / 0.5625)}
                 videoPriority={i === dominant || participant.identity === localIdentity ? 'high' : basePriority}
+                disableAudio={participant.identity === localIdentity}
                 enableScreenShare={i === dominant}
               />
             </div>
