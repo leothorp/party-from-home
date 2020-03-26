@@ -146,7 +146,7 @@ export default function ParticipantStrip(props: Props) {
   const users = useMapItems('users');
 
   const localIdentity = localParticipant.identity;
-  const roomParticipants: any[] = [];
+  var roomParticipants: any[] = [];
   var dominant = -1;
 
   if (props.children) {
@@ -157,6 +157,13 @@ export default function ParticipantStrip(props: Props) {
 
   roomParticipants.push(localParticipant);
   roomParticipants.push(...participants);
+
+  roomParticipants = roomParticipants.sort((a, b) => {
+    if (a === 'widget') return -1;
+
+    if (a.identity < b.identity) return -1;
+    else return 1;
+  });
 
   if (dominant < 0) dominant = roomParticipants.findIndex(p => p.identity === speaker.identity);
 
