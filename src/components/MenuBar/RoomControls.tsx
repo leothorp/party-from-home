@@ -60,10 +60,6 @@ export default function RoomControls() {
     setIsPartyRulesOpen(false);
   }, []);
 
-  useMountEffect(() => {
-    setIsPartyRulesOpen(true);
-  });
-
   return (
     <Container>
       {roomState !== 'disconnected' && <WidgetButton disabled={isReconnecting || !allowedToStartGame} />}
