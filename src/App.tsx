@@ -30,7 +30,7 @@ export default function App() {
 
   const openEscalate = useCallback(
     (e: any) => {
-      if (e.key === 'b' && (e.ctrlKey || e.metaKey)) {
+      if (e.code === 'KeyB' && (e.ctrlKey || e.metaKey)) {
         setEscalateOpen(true);
       }
     },
