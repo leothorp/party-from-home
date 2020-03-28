@@ -1,7 +1,8 @@
 import React from 'react';
-import ParticipantInfo from '../ParticipantInfo/ParticipantInfo';
+import ParticipantScreen from '../ParticipantScreen';
 import ParticipantTracks from '../ParticipantTracks/ParticipantTracks';
 import { LocalParticipant, RemoteParticipant, Track } from 'twilio-video';
+import { Overlays } from '../../Overlay';
 
 interface ParticipantProps {
   participant: LocalParticipant | RemoteParticipant;
@@ -11,7 +12,9 @@ interface ParticipantProps {
   isSelected: boolean;
   displayName?: string;
   maxWidth?: number;
+  maxHeight?: number;
   videoPriority?: Track.Priority;
+  overlays?: Overlays;
 }
 
 export default function Participant({
@@ -22,15 +25,19 @@ export default function Participant({
   isSelected,
   displayName,
   maxWidth,
+  maxHeight,
   videoPriority,
+  overlays,
 }: ParticipantProps) {
   return (
-    <ParticipantInfo
+    <ParticipantScreen
       participant={participant}
       displayName={displayName}
       onClick={onClick}
       isSelected={isSelected}
       maxWidth={maxWidth}
+      maxHeight={maxHeight}
+      overlays={overlays}
     >
       <ParticipantTracks
         participant={participant}
@@ -38,6 +45,6 @@ export default function Participant({
         enableScreenShare={enableScreenShare}
         videoPriority={videoPriority}
       />
-    </ParticipantInfo>
+    </ParticipantScreen>
   );
 }

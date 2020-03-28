@@ -2,11 +2,11 @@ import React from 'react';
 import clsx from 'clsx';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { LocalParticipant, RemoteParticipant, RemoteVideoTrack, LocalVideoTrack } from 'twilio-video';
+import { Overlays } from '../../Overlay';
+import UserOverlayArea from './Overlays/UserOverlayArea';
 
 import BandwidthWarning from '../BandwidthWarning/BandwidthWarning';
 import MicOff from '@material-ui/icons/MicOff';
-import NetworkQualityLevel from '../NewtorkQualityLevel/NetworkQualityLevel';
-import ParticipantConnectionIndicator from './ParticipantConnectionIndicator/ParticipantConnectionIndicator';
 import PinIcon from './PinIcon/PinIcon';
 import ScreenShare from '@material-ui/icons/ScreenShare';
 import VideocamOff from '@material-ui/icons/VideocamOff';
@@ -67,32 +67,33 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-interface ParticipantInfoProps {
+interface ParticipantScreenProps {
   participant: LocalParticipant | RemoteParticipant;
   children: React.ReactNode;
   onClick: () => void;
   isSelected: boolean;
   displayName?: string;
   maxWidth?: number;
+  maxHeight?: number;
+  overlays?: Overlays;
 }
 
-export default function ParticipantInfo({
+export default function ParticipantScreen({
   participant,
   onClick,
   isSelected,
   children,
   displayName,
   maxWidth,
-}: ParticipantInfoProps) {
+  maxHeight,
+  overlays,
+}: ParticipantScreenProps) {
   const publications = usePublications(participant);
 
   const audioPublication = publications.find(p => p.kind === 'audio');
   const videoPublication = publications.find(p => p.trackName === 'camera');
 
-  const networkQualityLevel = useParticipantNetworkQualityLevel(participant);
-  const isAudioEnabled = usePublicationIsTrackEnabled(audioPublication);
   const isVideoEnabled = Boolean(videoPublication);
-  const isScreenShareEnabled = publications.find(p => p.trackName === 'screen');
 
   const videoTrack = useTrack(videoPublication);
   const isVideoSwitchedOff = useIsTrackSwitchedOff(videoTrack as LocalVideoTrack | RemoteVideoTrack);
@@ -109,19 +110,7 @@ export default function ParticipantInfo({
       style={{ width: maxWidth || 'inherit' }}
     >
       <div className={clsx(classes.infoContainer, { [classes.hideVideo]: !isVideoEnabled })}>
-        <div className={classes.infoRow}>
-          <h4 className={classes.identity}>
-            <ParticipantConnectionIndicator participant={participant} />
-            {displayName || participant.identity}
-          </h4>
-          <NetworkQualityLevel qualityLevel={networkQualityLevel} />
-        </div>
-        <div>
-          {!isAudioEnabled && <MicOff data-cy-audio-mute-icon />}
-          {!isVideoEnabled && <VideocamOff />}
-          {isScreenShareEnabled && <ScreenShare />}
-          {isSelected && <PinIcon />}
-        </div>
+        <UserOverlayArea overlays={overlays.userInfoOverlays} />
       </div>
       {isVideoSwitchedOff && <BandwidthWarning />}
       {children}

@@ -1,4 +1,5 @@
 import { FunctionComponent } from 'react';
+import { GameSpaceOverlay } from './Overlay';
 import KingsCup from './components/Widgets/KingsCup';
 import DrawingWidget from './components/Widgets/DrawingWidget';
 import Charades from './components/Widgets/Charades';
@@ -6,6 +7,7 @@ import Charades from './components/Widgets/Charades';
 export interface WidgetRegistration {
   name: string;
   component: FunctionComponent;
+  overlay?: GameSpaceOverlay;
   description: string;
 }
 
