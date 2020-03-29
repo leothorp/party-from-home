@@ -54,7 +54,6 @@ interface ParticipantScreenProps {
   participant: LocalParticipant | RemoteParticipant;
   children: React.ReactNode;
   onClick: () => void;
-  isSelected: boolean;
   maxWidth?: number;
   maxHeight?: number;
   overlays?: Overlays;
@@ -63,7 +62,6 @@ interface ParticipantScreenProps {
 export default function ParticipantScreen({
   participant,
   onClick,
-  isSelected,
   children,
   maxWidth,
   maxHeight,
@@ -90,7 +88,7 @@ export default function ParticipantScreen({
       style={{ width: maxWidth || 'inherit' }}
     >
       <div className={clsx(classes.infoContainer, { [classes.hideVideo]: !isVideoEnabled })}>
-        <UserInfoOverlayArea participant={participant} isSelected={isSelected} overlays={overlays?.userInfoOverlays} />
+        <UserInfoOverlayArea participant={participant} overlays={overlays?.userInfoOverlays} />
       </div>
       {/* TODO(gail.wilson) -- Make Bandwidth warning a "screen takeover" overlay of some sort */}
       {isVideoSwitchedOff && <BandwidthWarning />}

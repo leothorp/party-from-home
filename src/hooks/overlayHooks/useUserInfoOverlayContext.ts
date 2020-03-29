@@ -13,10 +13,11 @@ export default function useUserInfoOverlayContext(): { participant: LocalPartici
   const {
     room: { localParticipant },
   } = useVideoContext();
-  let participant: LocalParticipant | RemoteParticipant | undefined =
-    localParticipant.identity === context.participantId ? localParticipant : undefined;
   const participants = useParticipants();
-  participant = participants.find(p => p.identity === context.participantId);
+  const participant: LocalParticipant | RemoteParticipant | undefined =
+    localParticipant.identity === context.participantId
+      ? localParticipant
+      : participants.find(p => p.identity === context.participantId);
 
   if (!participant) {
     throw new Error(`In useUserInfoOverlayContext : participant with id ${context.participantId} was not found`);

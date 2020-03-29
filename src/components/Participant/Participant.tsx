@@ -9,7 +9,6 @@ interface ParticipantProps {
   disableAudio?: boolean;
   enableScreenShare?: boolean;
   onClick: () => void;
-  isSelected: boolean;
   displayName?: string;
   maxWidth?: number;
   maxHeight?: number;
@@ -22,7 +21,6 @@ export default function Participant({
   disableAudio,
   enableScreenShare,
   onClick,
-  isSelected,
   maxWidth,
   maxHeight,
   videoPriority,
@@ -32,7 +30,6 @@ export default function Participant({
     <ParticipantScreen
       participant={participant}
       onClick={onClick}
-      isSelected={isSelected}
       maxWidth={maxWidth}
       maxHeight={maxHeight}
       overlays={overlays}

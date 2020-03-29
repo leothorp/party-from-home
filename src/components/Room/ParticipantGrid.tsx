@@ -188,7 +188,6 @@ export default function ParticipantGrid(props: Props) {
               <Participant
                 key={i}
                 participant={participant}
-                isSelected={selectedParticipant === participant}
                 onClick={() => setSelectedParticipant(participant)}
                 displayName={users[participant.identity]?.displayName}
                 maxWidth={layout[i].w * (rowHeight / 0.5625)}

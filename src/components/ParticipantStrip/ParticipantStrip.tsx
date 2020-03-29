@@ -20,20 +20,15 @@ export default function ParticipantStrip() {
     room: { localParticipant },
   } = useVideoContext();
   const participants = useParticipants();
-  const [selectedParticipant, setSelectedParticipant] = useSelectedParticipant();
+  const [_, setSelectedParticipant] = useSelectedParticipant();
 
   return (
     <Container>
-      <Participant
-        participant={localParticipant}
-        isSelected={selectedParticipant === localParticipant}
-        onClick={() => setSelectedParticipant(localParticipant)}
-      />
+      <Participant participant={localParticipant} onClick={() => setSelectedParticipant(localParticipant)} />
       {participants.map(participant => (
         <Participant
           key={participant.sid}
           participant={participant}
-          isSelected={selectedParticipant === participant}
           onClick={() => setSelectedParticipant(participant)}
         />
       ))}

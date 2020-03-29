@@ -4,14 +4,17 @@ import { LocalParticipant, RemoteParticipant } from 'twilio-video';
 import ParticipantConnectionIndicator from './ParticipantConnectionIndicator';
 import useUserInfoOverlayContext from '../../../../../hooks/overlayHooks/useUserInfoOverlayContext';
 import useMapItems from '../../../../../hooks/useSync/useMapItems';
+import { Tooltip } from '@material-ui/core';
 
 const useStyles = makeStyles({
-  identity: {
-    background: 'rgba(0, 0, 0, 0.7)',
+  container: {
     padding: '0.1em 0.3em',
     margin: 0,
-    display: 'flex',
-    alignItems: 'center',
+    display: 'inline',
+  },
+  nameContainer: {
+    margin: 0,
+    display: 'inline',
   },
 });
 
@@ -25,11 +28,11 @@ export default function UserAndConnectionInfo() {
   const displayedName = (participant && users[participant.identity]?.displayName) || participant?.identity;
 
   return (
-    <>
-      <h4 className={classes.identity}>
-        {participant && <ParticipantConnectionIndicator participant={participant} />}
-        {displayedName}
-      </h4>
-    </>
+    <div className={classes.container}>
+      {participant && <ParticipantConnectionIndicator participant={participant} />}
+      <Tooltip title={displayedName} placement="top">
+        <h4 className={classes.nameContainer}>{displayedName}</h4>
+      </Tooltip>
+    </div>
   );
 }

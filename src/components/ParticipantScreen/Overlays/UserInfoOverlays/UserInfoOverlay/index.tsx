@@ -1,4 +1,4 @@
-import React from './node_modules/react';
+import React from 'react';
 import userInfoOverlayRegistry from '../../../../../registries/userInfoOverlayRegistry';
 import UserInfoOverlayProvider from './UserInfoOverlayProvider';
 

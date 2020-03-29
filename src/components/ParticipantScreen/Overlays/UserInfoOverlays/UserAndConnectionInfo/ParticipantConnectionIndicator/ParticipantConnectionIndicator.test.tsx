@@ -4,7 +4,7 @@ import Tooltip from '@material-ui/core/Tooltip';
 import ParticipantConnectionIndicator from '.';
 import useParticipantIsReconnecting from '../../../../../../hooks/useParticipantIsReconnecting/useParticipantIsReconnecting';
 
-jest.mock('../../../hooks/useParticipantIsReconnecting/useParticipantIsReconnecting');
+jest.mock('../../../../../../hooks/useParticipantIsReconnecting/useParticipantIsReconnecting');
 
 const mockUseParticipantIsReconnecting = useParticipantIsReconnecting as jest.Mock<boolean>;
 
