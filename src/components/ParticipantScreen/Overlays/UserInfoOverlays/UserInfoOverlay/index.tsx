@@ -1,15 +1,14 @@
 import React from 'react';
-import userInfoOverlayRegistry from '../../../../../registries/userInfoOverlayRegistry';
+import { UserInfoOverlayDefinition } from '../../../../../Overlay';
 import UserInfoOverlayProvider from './UserInfoOverlayProvider';
 
 interface Props {
-  overlayId: string;
+  overlayDefinition: UserInfoOverlayDefinition;
   participantId: string;
 }
 
 export default function UserInfoOverlay(props: Props) {
-  const userInfoOverlay = userInfoOverlayRegistry[props.overlayId];
-  const OverlayComponent = userInfoOverlay.component;
+  const OverlayComponent = props.overlayDefinition.component;
 
   return (
     <UserInfoOverlayProvider participantId={props.participantId}>

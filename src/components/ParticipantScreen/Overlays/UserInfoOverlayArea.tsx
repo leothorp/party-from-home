@@ -1,9 +1,8 @@
 import React from 'react';
-import { UserInfoOverlayType, Overlays } from '../../../Overlay';
+import { UserInfoOverlayDefinition } from '../../../Overlay';
 import { styled, makeStyles, createStyles, Theme } from '@material-ui/core';
 import { LocalParticipant, RemoteParticipant } from 'twilio-video';
 import UserInfoOverlay from './UserInfoOverlays/UserInfoOverlay';
-import { USER_INFO_OVERLAY_TYPES } from '../../../constants/registryContants';
 
 const Container = styled('div')({
   height: '7.5%',
@@ -12,7 +11,7 @@ const Container = styled('div')({
 export interface Props {
   maxHeight?: number;
   maxWidth?: number;
-  overlays?: UserInfoOverlayType[];
+  overlays: UserInfoOverlayDefinition[];
   participant: LocalParticipant | RemoteParticipant;
 }
 
@@ -29,6 +28,8 @@ const useStyles = makeStyles((theme: Theme) =>
       whiteSpace: 'nowrap',
       overflow: 'hidden',
       background: 'rgba(0, 0, 0, 0.7)',
+      float: 'left',
+      maxWidth: '100%',
     },
     scrollableInfoBlock: {
       width: '75%',
@@ -47,30 +48,22 @@ const useStyles = makeStyles((theme: Theme) =>
   })
 );
 
-export default function UserInfoOverlayArea({ participant }: Props) {
+export default function UserInfoOverlayArea({ participant, overlays }: Props) {
   const classes = useStyles();
+  const [userNameOverlay, ...restOfUserOverlays] = overlays;
 
   return (
     <Container>
       <div className={classes.staticUserInfoBlock}>
         <div className={classes.innerStaticUserInfoBlock}>
-          <UserInfoOverlay
-            overlayId={USER_INFO_OVERLAY_TYPES.USER_AND_CONNECTION_INFO}
-            participantId={participant.identity}
-          />
+          <UserInfoOverlay overlayDefinition={userNameOverlay} participantId={participant.identity} />
         </div>
       </div>
       <div className={classes.scrollableInfoBlock}>
         <div className={classes.innerScrollableInfoBlock}>
-          <UserInfoOverlay
-            overlayId={USER_INFO_OVERLAY_TYPES.NETWORK_QUALITY_LEVEL}
-            participantId={participant.identity}
-          />
-          <UserInfoOverlay
-            overlayId={USER_INFO_OVERLAY_TYPES.VIDEO_AND_AUDIO_INFO}
-            participantId={participant.identity}
-          />
-          <UserInfoOverlay overlayId={USER_INFO_OVERLAY_TYPES.PIN_ICON} participantId={participant.identity} />
+          {restOfUserOverlays.map(overlay => (
+            <UserInfoOverlay key={overlay.id} overlayDefinition={overlay} participantId={participant.identity} />
+          ))}
         </div>
       </div>
     </Container>

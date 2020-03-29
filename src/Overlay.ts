@@ -1,25 +1,26 @@
 import { FunctionComponent } from 'react';
 
-export interface UserInfoOverlayType {
+export interface UserInfoOverlayDefinition {
+  id: string;
   component: FunctionComponent;
 }
 
-export interface EphemeralOverlayType {
+export interface EphemeralOverlayDefinition {
   component: FunctionComponent;
 }
 
-export interface GameSpaceOverlayType {
+export interface GameSpaceOverlayDefinition {
   component: FunctionComponent;
 }
 
-export interface BorderOverlayType {
+export interface BorderOverlayDefinition {
   color: string;
   text?: string;
 }
 
 export interface Overlays {
-  userInfoOverlays: UserInfoOverlayType[];
-  ephemeralOverlays: EphemeralOverlayType[];
-  gameSpaceOverlay: GameSpaceOverlayType | undefined;
-  borderOverlays: BorderOverlayType[];
+  userInfoOverlays: UserInfoOverlayDefinition[];
+  ephemeralOverlays: EphemeralOverlayDefinition[];
+  gameSpaceOverlay: GameSpaceOverlayDefinition | undefined;
+  borderOverlays: BorderOverlayDefinition[];
 }

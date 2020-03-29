@@ -88,7 +88,7 @@ export default function ParticipantScreen({
       style={{ width: maxWidth || 'inherit' }}
     >
       <div className={clsx(classes.infoContainer, { [classes.hideVideo]: !isVideoEnabled })}>
-        <UserInfoOverlayArea participant={participant} overlays={overlays?.userInfoOverlays} />
+        <UserInfoOverlayArea participant={participant} overlays={overlays?.userInfoOverlays || []} />
       </div>
       {/* TODO(gail.wilson) -- Make Bandwidth warning a "screen takeover" overlay of some sort */}
       {isVideoSwitchedOff && <BandwidthWarning />}
