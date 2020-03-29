@@ -23,7 +23,6 @@ export default function Participant({
   enableScreenShare,
   onClick,
   isSelected,
-  displayName,
   maxWidth,
   maxHeight,
   videoPriority,
@@ -32,7 +31,6 @@ export default function Participant({
   return (
     <ParticipantScreen
       participant={participant}
-      displayName={displayName}
       onClick={onClick}
       isSelected={isSelected}
       maxWidth={maxWidth}

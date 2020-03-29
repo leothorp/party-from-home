@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { Snackbar, styled } from '@material-ui/core';
 import useCurrentRoom from '../../hooks/useCurrentRoom/useCurrentRoom';
 import useMapItems from '../../hooks/useSync/useMapItems';
-import widgetRegistry from '../../widgetRegistry';
+import widgetRegistry from '../../registries/widgetRegistry';
 
 const useStyles = makeStyles(theme => ({
   snackbarOverride: {

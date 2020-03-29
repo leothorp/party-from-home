@@ -1,5 +1,7 @@
 import React from 'react';
 import { styled } from '@material-ui/core/styles';
+import useParticipantNetworkQualityLevel from '../../../../../hooks/useParticipantNetworkQualityLevel/useParticipantNetworkQualityLevel';
+import { LocalParticipant, RemoteParticipant } from 'twilio-video';
 
 const Container = styled('div')({
   display: 'flex',
@@ -16,7 +18,9 @@ const Container = styled('div')({
 
 const STEP = 3;
 
-export default function NetworkQualityLevel({ qualityLevel }: { qualityLevel: number | null }) {
+export default function NetworkQualityLevel({ participant }: { participant: LocalParticipant | RemoteParticipant }) {
+  const qualityLevel = useParticipantNetworkQualityLevel(participant);
+
   if (qualityLevel === null) return null;
   return (
     <Container>

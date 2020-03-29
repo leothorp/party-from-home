@@ -3,7 +3,7 @@ import useCurrentRoom from '../../hooks/useCurrentRoom/useCurrentRoom';
 import ParticipantGrid from './ParticipantGrid';
 import { styled } from '@material-ui/core/styles';
 import { Overlays } from '../../Overlay';
-import widgetRegistry from '../../widgetRegistry';
+import widgetRegistry from '../../registries/widgetRegistry';
 import RoomWidget from '../RoomWidget/RoomWidget';
 
 const Container = styled('div')({

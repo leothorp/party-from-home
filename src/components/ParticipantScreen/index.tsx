@@ -3,18 +3,12 @@ import clsx from 'clsx';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { LocalParticipant, RemoteParticipant, RemoteVideoTrack, LocalVideoTrack } from 'twilio-video';
 import { Overlays } from '../../Overlay';
-import UserOverlayArea from './Overlays/UserOverlayArea';
+import UserInfoOverlayArea from './Overlays/UserInfoOverlayArea';
 
 import BandwidthWarning from '../BandwidthWarning/BandwidthWarning';
-import MicOff from '@material-ui/icons/MicOff';
-import PinIcon from './PinIcon/PinIcon';
-import ScreenShare from '@material-ui/icons/ScreenShare';
-import VideocamOff from '@material-ui/icons/VideocamOff';
 
-import useParticipantNetworkQualityLevel from '../../hooks/useParticipantNetworkQualityLevel/useParticipantNetworkQualityLevel';
 import usePublications from '../../hooks/usePublications/usePublications';
 import useIsTrackSwitchedOff from '../../hooks/useIsTrackSwitchedOff/useIsTrackSwitchedOff';
-import usePublicationIsTrackEnabled from '../../hooks/usePublicationIsTrackEnabled/usePublicationIsTrackEnabled';
 import useTrack from '../../hooks/useTrack/useTrack';
 
 const useStyles = makeStyles((theme: Theme) =>
@@ -53,17 +47,6 @@ const useStyles = makeStyles((theme: Theme) =>
     hideVideo: {
       background: 'black',
     },
-    identity: {
-      background: 'rgba(0, 0, 0, 0.7)',
-      padding: '0.1em 0.3em',
-      margin: 0,
-      display: 'flex',
-      alignItems: 'center',
-    },
-    infoRow: {
-      display: 'flex',
-      justifyContent: 'space-between',
-    },
   })
 );
 
@@ -72,7 +55,6 @@ interface ParticipantScreenProps {
   children: React.ReactNode;
   onClick: () => void;
   isSelected: boolean;
-  displayName?: string;
   maxWidth?: number;
   maxHeight?: number;
   overlays?: Overlays;
@@ -83,14 +65,12 @@ export default function ParticipantScreen({
   onClick,
   isSelected,
   children,
-  displayName,
   maxWidth,
   maxHeight,
   overlays,
 }: ParticipantScreenProps) {
   const publications = usePublications(participant);
 
-  const audioPublication = publications.find(p => p.kind === 'audio');
   const videoPublication = publications.find(p => p.trackName === 'camera');
 
   const isVideoEnabled = Boolean(videoPublication);
@@ -110,8 +90,9 @@ export default function ParticipantScreen({
       style={{ width: maxWidth || 'inherit' }}
     >
       <div className={clsx(classes.infoContainer, { [classes.hideVideo]: !isVideoEnabled })}>
-        <UserOverlayArea overlays={overlays.userInfoOverlays} />
+        <UserInfoOverlayArea participant={participant} isSelected={isSelected} overlays={overlays?.userInfoOverlays} />
       </div>
+      {/* TODO(gail.wilson) -- Make Bandwidth warning a "screen takeover" overlay of some sort */}
       {isVideoSwitchedOff && <BandwidthWarning />}
       {children}
     </div>

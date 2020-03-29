@@ -4,8 +4,6 @@ import { styled } from '@material-ui/core/styles';
 import useParticipants from '../../hooks/useParticipants/useParticipants';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import useSelectedParticipant from '../VideoProvider/useSelectedParticipant/useSelectedParticipant';
-import { useAppState } from '../../state';
-import useMapItems from '../../hooks/useSync/useMapItems';
 
 const Container = styled('aside')(({ theme }) => ({
   position: 'absolute',
@@ -23,8 +21,6 @@ export default function ParticipantStrip() {
   } = useVideoContext();
   const participants = useParticipants();
   const [selectedParticipant, setSelectedParticipant] = useSelectedParticipant();
-  const { user } = useAppState();
-  const users = useMapItems('users');
 
   return (
     <Container>
@@ -32,7 +28,6 @@ export default function ParticipantStrip() {
         participant={localParticipant}
         isSelected={selectedParticipant === localParticipant}
         onClick={() => setSelectedParticipant(localParticipant)}
-        displayName={user?.displayName}
       />
       {participants.map(participant => (
         <Participant
@@ -40,7 +35,6 @@ export default function ParticipantStrip() {
           participant={participant}
           isSelected={selectedParticipant === participant}
           onClick={() => setSelectedParticipant(participant)}
-          displayName={users[participant.identity]?.displayName}
         />
       ))}
     </Container>
