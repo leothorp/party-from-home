@@ -52,7 +52,7 @@ if (process.env.REACT_APP_USE_MOCKS) {
           const canvas = canvasses[i % canvasses.length];
           const identity = mockUserNames[i % mockUserNames.length];
           //@ts-ignore
-          const stream = canvas.captureStream(1);
+          const stream = canvas.captureStream(0);
           const mediaTrack: any = {
             on: (_e: any, _l: any) => {},
             off: (_e: any, _l: any) => {},

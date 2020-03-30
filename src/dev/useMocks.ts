@@ -35,8 +35,8 @@ const useMocks = () => {
 
     for (const src of USER_PICTURES) {
       const canvas = document.createElement('canvas');
-      canvas.width = 1280;
-      canvas.height = 723;
+      canvas.width = 480;
+      canvas.height = 270;
 
       const image = new Image();
       image.src = src;
@@ -45,7 +45,7 @@ const useMocks = () => {
         const reDraw = () => {
           const ctx = canvas?.getContext('2d');
           //@ts-ignore
-          ctx.drawImage(image, 0, 0, 1280, 853);
+          ctx.drawImage(image, 0, 0, 480, 319);
         };
 
         setInterval(reDraw, 1000);
@@ -70,9 +70,15 @@ const useMocks = () => {
     const newMocks = { ...mocks };
     newMocks.room = undefined;
     setMocks(newMocks);
-  }, []);
+  }, [mocks]);
 
-  return { participantCount: mocks.participantCount, canvasses, connect, disconnect, room: mocks.room };
+  const setParticipantCount = useCallback((count: number) => {
+    const newMocks = { ...mocks };
+    newMocks.participantCount = count;
+    setMocks(newMocks);
+  }, [mocks]);
+
+  return { participantCount: mocks.participantCount, setParticipantCount, canvasses, connect, disconnect, room: mocks.room };
 };
 
 export default createHook(useMocks);
