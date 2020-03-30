@@ -2,7 +2,7 @@ import React from 'react';
 import clsx from 'clsx';
 import { makeStyles } from '@material-ui/core/styles';
 import { LocalParticipant, RemoteParticipant } from 'twilio-video';
-import useParticipantIsReconnecting from '../../../hooks/useParticipantIsReconnecting/useParticipantIsReconnecting';
+import useParticipantIsReconnecting from '../../../../../../hooks/useParticipantIsReconnecting/useParticipantIsReconnecting';
 import { Tooltip } from '@material-ui/core';
 
 const useStyles = makeStyles({

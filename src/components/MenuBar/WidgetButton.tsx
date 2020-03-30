@@ -3,7 +3,7 @@ import { IconButton, Modal, styled } from '@material-ui/core';
 import { Casino, CasinoOutlined } from '@material-ui/icons';
 import useApi from '../../hooks/useApi/useApi';
 import useCurrentRoom from '../../hooks/useCurrentRoom/useCurrentRoom';
-import registry, { WidgetRegistration } from '../../widgetRegistry';
+import registry, { WidgetRegistration } from '../../registries/widgetRegistry';
 
 const SelectorContainer = styled('div')(({ theme }) => ({
   position: 'fixed',

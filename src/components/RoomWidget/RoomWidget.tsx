@@ -1,5 +1,5 @@
 import React from 'react';
-import registry from '../../widgetRegistry';
+import registry from '../../registries/widgetRegistry';
 import RoomWidgetProvider from './RoomWidgetProvider';
 
 interface Props {
