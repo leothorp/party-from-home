@@ -891,4 +891,14 @@ app.get('/', (req, res) => res.send(''));
 
 app.get('*', (_, res) => res.sendFile(path.join(__dirname, 'build/index.html')));
 
-app.listen(PORT, () => console.log('token server running on 8081'));
+const server = app.listen(PORT, () => console.log(`token server running on ${PORT}`));
+
+//@ts-ignore
+if (module.hot) {
+  // @ts-ignore
+  module.hot.accept();
+  // @ts-ignore
+  module.hot.dispose(() => {
+    server?.close();
+  });
+}

@@ -7,7 +7,7 @@ const paths = require('./paths');
 
 module.exports = {
   mode: 'development',
-  entry: [path.join(paths.appPath, 'src/server.ts')],
+  entry: ['webpack/hot/poll?1000', path.join(paths.appPath, 'src/server.ts')],
   target: 'node',
   output: {
     path: paths.appBuild,
@@ -53,7 +53,7 @@ module.exports = {
   ],
   plugins: [
     new CleanWebpackPlugin(),
-    // new webpack.HotModuleReplacementPlugin(),
+    new webpack.HotModuleReplacementPlugin(),
     new WebpackShellPlugin({ onBuildEnd: [`node ${paths.appBuild}/server.js`] }),
   ],
   watch: true,
