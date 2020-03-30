@@ -1,6 +1,7 @@
 import React, { ReactChild } from 'react';
 import Participant from '../Participant/Participant';
 import { styled } from '@material-ui/core/styles';
+import { Overlays } from '../../Overlay';
 import useParticipants from '../../hooks/useParticipants/useParticipants';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import useSelectedParticipant from '../VideoProvider/useSelectedParticipant/useSelectedParticipant';
@@ -133,10 +134,11 @@ const WidgetContainer = styled('div')({
 });
 
 export interface Props {
+  overlays?: Overlays;
   children?: ReactChild | ReactChild[] | undefined;
 }
 
-export default function ParticipantStrip(props: Props) {
+export default function ParticipantGrid(props: Props) {
   const {
     room: { localParticipant },
   } = useVideoContext();
@@ -186,13 +188,14 @@ export default function ParticipantStrip(props: Props) {
               <Participant
                 key={i}
                 participant={participant}
-                isSelected={selectedParticipant === participant}
                 onClick={() => setSelectedParticipant(participant)}
                 displayName={users[participant.identity]?.displayName}
                 maxWidth={layout[i].w * (rowHeight / 0.5625)}
+                maxHeight={rowHeight}
                 videoPriority={i === dominant || participant.identity === localIdentity ? 'high' : basePriority}
                 disableAudio={participant.identity === localIdentity}
                 enableScreenShare={i === dominant}
+                overlays={props.overlays}
               />
             </div>
           );

@@ -1,10 +1,10 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import Tooltip from '@material-ui/core/Tooltip';
-import ParticipantConnectionIndicator from './ParticipantConnectionIndicator';
-import useParticipantIsReconnecting from '../../../hooks/useParticipantIsReconnecting/useParticipantIsReconnecting';
+import ParticipantConnectionIndicator from '.';
+import useParticipantIsReconnecting from '../../../../../../hooks/useParticipantIsReconnecting/useParticipantIsReconnecting';
 
-jest.mock('../../../hooks/useParticipantIsReconnecting/useParticipantIsReconnecting');
+jest.mock('../../../../../../hooks/useParticipantIsReconnecting/useParticipantIsReconnecting');
 
 const mockUseParticipantIsReconnecting = useParticipantIsReconnecting as jest.Mock<boolean>;
 

@@ -3,12 +3,10 @@
 exports[`the ParticipantStrip component should correctly render ParticipantInfo components 1`] = `
 <Styled(aside)>
   <Participant
-    isSelected={false}
     onClick={[Function]}
     participant="localParticipant"
   />
   <Participant
-    isSelected={false}
     key="0"
     onClick={[Function]}
     participant={
@@ -18,7 +16,6 @@ exports[`the ParticipantStrip component should correctly render ParticipantInfo 
     }
   />
   <Participant
-    isSelected={false}
     key="1"
     onClick={[Function]}
     participant={
