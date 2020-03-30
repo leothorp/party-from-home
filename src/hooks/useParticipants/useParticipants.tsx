@@ -74,6 +74,7 @@ if (process.env.REACT_APP_USE_MOCKS) {
             isStarted: true,
             isEnabled: true,
             name: 'camera',
+            kind: 'video',
             trackName: 'camera',
             mediaStreamTrack: mediaTrack,
             track: mediaTrack,

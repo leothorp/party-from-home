@@ -27,7 +27,7 @@ export default function ParticipantTracks({
 }: ParticipantTracksProps) {
   const { room } = useVideoContext();
   const publications = usePublications(participant);
-  const isLocal = participant === room.localParticipant;
+  const isLocal = participant.sid === room.localParticipant.sid;
 
   let filteredPublications;
 

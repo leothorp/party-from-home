@@ -3,6 +3,7 @@ import { VideoContext } from '../../components/VideoProvider';
 import useMocks from '../../dev/useMocks';
 import useParticipants from '../useParticipants/useParticipants';
 import EventEmitter from 'events';
+import { LocalTrackPublication } from 'twilio-video';
 
 var useVideoContext = () => {
   const context = useContext(VideoContext);
@@ -45,13 +46,38 @@ if (process.env.REACT_APP_USE_MOCKS) {
         newRoom.name = room.id;
         newRoom.participants = participants;
         newRoom.disconnect = disconnect;
+        const localVideoTrack: LocalTrackPublication = {
+          sid: 'SR2323323',
+          isSwitchedOff: false,
+          setPriority: (_p: any) => {},
+          isStarted: true,
+          isTrackEnabled: true,
+          name: 'camera',
+          kind: 'video',
+          trackName: 'camera',
+          track: context.localTracks.find(t => t.kind === 'video'),
+          on: (_e: any, _l: any) => {},
+          off: (_e: any, _l: any) => {},
+        } as any;
+        const localAudioTrack: LocalTrackPublication = {
+          sid: 'SR2323323',
+          isSwitchedOff: false,
+          setPriority: (_p: any) => {},
+          isStarted: true,
+          isTrackEnabled: true,
+          name: 'audio',
+          kind: 'audio',
+          trackName: 'audio',
+          track: context.localTracks.find(t => t.kind === 'audio'),
+          on: (_e: any, _l: any) => {},
+          off: (_e: any, _l: any) => {},
+        } as any;
         newRoom.localParticipant = {
           ...contextRoom.localParticipant,
           sid: 'SR232321111',
           identity: 'local',
-          tracks: context.localTracks,
+          tracks: [localVideoTrack, localAudioTrack],
         };
-        console.log(newRoom);
         setContextRoom(newRoom);
       } else if (!room && contextRoom?.state === 'connected') {
         newRoom.state = 'disconnected';
