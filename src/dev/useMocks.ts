@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import useMountEffect from '../hooks/useMountEffect/useMountEffect';
 //@ts-ignore
 import { createHook } from 'hookleton';
@@ -15,6 +15,7 @@ class Mocks {
   lists: Map<string, MockDocument>;
   documents: Map<string, MockDocument>;
   participantCount: number;
+  room: { id: string } | undefined;
 
   constructor() {
     this.maps = new Map();
@@ -56,7 +57,22 @@ const useMocks = () => {
     setCanvasses(userCanvasses);
   });
 
-  return { participantCount: mocks.participantCount, canvasses };
+  const connect = useCallback(
+    (_token: string) => {
+      const newMocks = { ...mocks };
+      newMocks.room = { id: 'mock-room' };
+      setMocks(newMocks);
+    },
+    [mocks, setMocks]
+  );
+
+  const disconnect = useCallback(() => {
+    const newMocks = { ...mocks };
+    newMocks.room = undefined;
+    setMocks(newMocks);
+  }, []);
+
+  return { participantCount: mocks.participantCount, canvasses, connect, disconnect, room: mocks.room };
 };
 
 export default createHook(useMocks);

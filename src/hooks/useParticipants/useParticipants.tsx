@@ -41,60 +41,67 @@ if (process.env.REACT_APP_USE_MOCKS) {
   const mockUserNames = ['Jed', 'Josh', 'Toby', 'Claudia', 'Margaret', 'Donna', 'Sam', 'Will', 'Anabeth'];
 
   useParticipants = () => {
-    const { participantCount, canvasses } = useMocks();
+    const { participantCount, canvasses, room } = useMocks();
+    const [participants, setParticipants] = useState<RemoteParticipant[]>([]);
 
-    const participants: RemoteParticipant[] = [];
+    useEffect(() => {
+      if (room) {
+        const newParticipants = [];
 
-    for (var i = 0; i < participantCount; i++) {
-      const canvas = canvasses[i % canvasses.length];
-      const identity = mockUserNames[i % mockUserNames.length];
-      //@ts-ignore
-      const stream = canvas.captureStream(1);
-      const mediaTrack: any = {
-        on: (_e: any, _l: any) => {},
-        off: (_e: any, _l: any) => {},
-        attach: (el: any) => {
+        for (var i = 0; i < participantCount; i++) {
+          const canvas = canvasses[i % canvasses.length];
+          const identity = mockUserNames[i % mockUserNames.length];
           //@ts-ignore
-          el.srcObject = stream;
-          el.autoplay = true;
-          el.playsInline = true;
-        },
-        detach: (el: any) => {
-          el.srcObject = undefined;
-        },
-        kind: 'video',
-      };
-      const remoteTrack: RemoteVideoTrack = {
-        sid: 'SR2323323',
-        isSwitchedOff: false,
-        setPriority: _p => {},
-        isStarted: true,
-        isEnabled: true,
-        name: 'camera',
-        trackName: 'camera',
-        mediaStreamTrack: mediaTrack,
-        track: mediaTrack,
-        on: (_e, _l) => {},
-        off: (_e, _l) => {},
-      } as RemoteVideoTrack & RemoteTrackPublication;
+          const stream = canvas.captureStream(1);
+          const mediaTrack: any = {
+            on: (_e: any, _l: any) => {},
+            off: (_e: any, _l: any) => {},
+            attach: (el: any) => {
+              //@ts-ignore
+              el.srcObject = stream;
+              el.autoplay = true;
+              el.playsInline = true;
+            },
+            detach: (el: any) => {
+              el.srcObject = undefined;
+            },
+            kind: 'video',
+          };
+          const remoteTrack: RemoteVideoTrack = {
+            sid: 'SR2323323',
+            isSwitchedOff: false,
+            setPriority: _p => {},
+            isStarted: true,
+            isEnabled: true,
+            name: 'camera',
+            trackName: 'camera',
+            mediaStreamTrack: mediaTrack,
+            track: mediaTrack,
+            on: (_e, _l) => {},
+            off: (_e, _l) => {},
+          } as RemoteVideoTrack & RemoteTrackPublication;
 
-      const videoTracks = new Map();
-      videoTracks.set('camera', remoteTrack);
+          const videoTracks = new Map();
+          videoTracks.set('camera', remoteTrack);
 
-      participants.push({
-        identity: identity,
-        sid: identity,
-        tracks: videoTracks,
-        audioTracks: new Map(),
-        videoTracks: videoTracks,
-        dataTracks: new Map(),
-        networkQualityLevel: null,
-        networkQualityStats: null,
-        state: 'running',
-        on: (_e, _l) => {},
-        off: (_e, _l) => {},
-      } as RemoteParticipant);
-    }
+          newParticipants.push({
+            identity: identity,
+            sid: identity,
+            tracks: videoTracks,
+            audioTracks: new Map(),
+            videoTracks: videoTracks,
+            dataTracks: new Map(),
+            networkQualityLevel: null,
+            networkQualityStats: null,
+            state: 'running',
+            on: (_e, _l) => {},
+            off: (_e, _l) => {},
+          } as RemoteParticipant);
+        }
+
+        setParticipants(newParticipants);
+      }
+    }, [canvasses, participantCount, room]);
 
     return participants;
   };

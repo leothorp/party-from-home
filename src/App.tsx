@@ -1,6 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { styled } from '@material-ui/core/styles';
-import useMocks from './dev/useMocks';
 
 import LocalVideoPreview from './components/LocalVideoPreview/LocalVideoPreview';
 import MenuBar from './components/MenuBar/MenuBar';
@@ -28,7 +27,6 @@ const Main = styled('main')({
 export default function App() {
   const roomState = useRoomState();
   const [escalateOpen, setEscalateOpen] = useState(false);
-  useMocks.use();
 
   const openEscalate = useCallback(
     (e: any) => {
