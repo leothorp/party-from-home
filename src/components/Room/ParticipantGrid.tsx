@@ -192,7 +192,7 @@ export default function ParticipantGrid(props: Props) {
                 displayName={users[participant.identity]?.displayName}
                 maxWidth={layout[i].w * (rowHeight / 0.5625)}
                 maxHeight={rowHeight}
-                videoPriority={i === dominant || participant.identity === localIdentity ? 'high' : basePriority}
+                videoPriority={i === dominant || participant === localParticipant ? 'high' : basePriority}
                 disableAudio={participant.identity === localIdentity}
                 enableScreenShare={i === dominant}
                 overlays={props.overlays}

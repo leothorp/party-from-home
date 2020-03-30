@@ -15,6 +15,7 @@ import theme from './theme';
 import './types';
 import { VideoProvider } from './components/VideoProvider';
 import UserSetup from './components/UserSetup/UserSetup';
+import useMocks from './dev/useMocks';
 
 // See: https://media.twiliocdn.com/sdk/js/video/releases/2.0.0/docs/global.html#ConnectOptions
 // for available connection options.
@@ -38,6 +39,7 @@ const connectionOptions: ConnectOptions = {
 
 const VideoApp = () => {
   const { error, setError } = useAppState();
+  useMocks.use();
 
   return (
     <VideoProvider options={connectionOptions} onError={setError}>
