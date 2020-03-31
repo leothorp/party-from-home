@@ -460,39 +460,39 @@ app.get('/api/sync_token', (req, res) => {
 });
 
 app.post('/api/register', (req, res) => {
-  const { uid, displayName, photoURL, passcode } = req.body;
+  const { identity, displayName, photoURL, passcode } = req.body;
 
   if (passcode === PASSCODE) {
-    addUser(uid, displayName, photoURL);
+    addUser(identity, displayName, photoURL);
 
     if (ENV !== 'production') {
-      setAdmin(uid, true)
+      setAdmin(identity, true)
         .then(token => {
-          grantPermissionsForList('broadcasts', [uid], { read: true, write: true, manage: false }).catch(e =>
+          grantPermissionsForList('broadcasts', [identity], { read: true, write: true, manage: false }).catch(e =>
             console.log(e)
           );
           res.send({ token });
         })
         .catch(e => {
-          grantPermissionsForList('broadcasts', [uid], { read: true, write: false, manage: false })
+          grantPermissionsForList('broadcasts', [identity], { read: true, write: false, manage: false })
             .then(() => {
-              console.log(`Gave ${uid} permission for 'broadcasts'`);
+              console.log(`Gave ${identity} permission for 'broadcasts'`);
               res.send({});
             })
             .catch(er => console.log(er));
         });
     } else {
-      getAdminToken(uid)
+      getAdminToken(identity)
         .then(token => {
-          grantPermissionsForList('broadcasts', [uid], { read: true, write: true, manage: false }).catch(e =>
+          grantPermissionsForList('broadcasts', [identity], { read: true, write: true, manage: false }).catch(e =>
             console.log(e)
           );
           res.send({ token });
         })
         .catch(() => {
-          grantPermissionsForList('broadcasts', [uid], { read: true, write: false, manage: false })
+          grantPermissionsForList('broadcasts', [identity], { read: true, write: false, manage: false })
             .then(() => {
-              console.log(`Gave ${uid} permission for 'broadcasts'`);
+              console.log(`Gave ${identity} permission for 'broadcasts'`);
               res.send({});
             })
             .catch(er => console.log(er));
