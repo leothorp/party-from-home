@@ -1,8 +1,8 @@
 import React from 'react';
 import { styled } from '@material-ui/core/styles';
 import { Tooltip } from '@material-ui/core';
-import { Participant } from './RoomGrid';
 import UserAvatar from '../MenuBar/UserAvatar/UserAvatar';
+import { User } from '../../types/user';
 
 const GridItem = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -50,7 +50,7 @@ const RoomParticipant = styled('div')({
 interface Props {
   id: string;
   title: string;
-  participants: Participant[];
+  participants: User[];
   onClick?: (id: string) => void;
 }
 

@@ -4,6 +4,7 @@ import Card from '@material-ui/core/Card';
 import CardContent from '@material-ui/core/CardContent';
 import useWidgetContext from '../../hooks/useWidgetContext/useWidgetContext';
 import { useAppState } from '../../state';
+import { User } from '../../types/user';
 
 const wordList = require('./charades.json');
 
@@ -73,8 +74,8 @@ type CardProps = {
 };
 
 type Teams = {
-  red: Array<any>;
-  blue: Array<any>;
+  red: Array<User>;
+  blue: Array<User>;
 };
 
 function CharadesCard(props: CardProps) {
@@ -219,7 +220,11 @@ function getPlayAreaContent(gameState: any, user: any, userTeam: string) {
   }
 }
 
-function getUserTeam(user: any, teams: Teams) {
+function getUserTeam(user: User | null | undefined, teams: Teams) {
+  if (user == null) {
+    return 'none';
+  }
+
   for (const player of teams.red) {
     if (user.identity === player.identity) return 'red';
   }
@@ -246,7 +251,7 @@ function pickActor(currentTeam: String, teams: Teams) {
   return pickablePlayers[Math.floor(pickablePlayers.length * Math.random())];
 }
 
-function defineTeams(players: Array<Object>) {
+function defineTeams(players: Array<User>) {
   shuffle(players);
 
   const slicePoint = Math.ceil(players.length / 2);

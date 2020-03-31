@@ -2,14 +2,7 @@ import React, { createContext, useContext, useState, useCallback, useEffect } fr
 import { TwilioError } from 'twilio-video';
 import usePasscodeAuth from './usePasscodeAuth/usePasscodeAuth';
 import { SyncClient } from 'twilio-sync';
-
-export interface User {
-  identity: string;
-  displayName: string;
-  photoURL: string;
-  passcode?: string;
-  token?: string;
-}
+import { User } from '../types/user';
 
 export interface StateContextType {
   error: TwilioError | null;

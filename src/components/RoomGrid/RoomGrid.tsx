@@ -8,6 +8,7 @@ import { useAppState } from '../../state';
 import useRoomState from '../../hooks/useRoomState/useRoomState';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import RoomGridItem from './RoomGridItem';
+import { User } from '../../types/user';
 
 interface ContainerProps {
   open: boolean;
@@ -64,14 +65,8 @@ const ItemContainer = styled('div')({
   flex: 1,
 });
 
-export interface Participant {
-  identity: string;
-  displayName: string | undefined;
-  photoURL: string | undefined;
-}
-
 interface Participants {
-  [key: string]: Participant[];
+  [key: string]: User[];
 }
 
 const HEARTBEAT_INTERVAL = 100000;

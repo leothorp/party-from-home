@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { User } from '../../state';
+import { User } from '../../types/user';
 
 export function getStoredUser() {
   const match = window.location.search.match(/passcode=(.*)&?/);
@@ -32,7 +32,7 @@ export function verifyPasscode(passcode: string) {
   });
 }
 
-const registerUser = (newUser?: any): Promise<string | null> => {
+const registerUser = (newUser?: User): Promise<string | null> => {
   return new Promise((resolve, reject) => {
     if (newUser && newUser.identity) {
       fetch('/api/register', {
@@ -127,7 +127,7 @@ export default function usePasscodeAuth() {
     console.log('setting');
     const identity = user?.identity ? user.identity : new Date().getTime().toString();
     const newUser = { ...user, identity, displayName, photoURL };
-    setUser(newUser as any);
+    setUser(newUser as User);
     window.sessionStorage.setItem('user', JSON.stringify(newUser));
     registerUser(newUser);
     return Promise.resolve();
