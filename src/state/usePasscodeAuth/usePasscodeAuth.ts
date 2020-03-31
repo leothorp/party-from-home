@@ -1,6 +1,18 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { User } from '../../state';
+import gql from 'graphql-tag';
+import { useMutation } from '@apollo/react-hooks';
+
+const REGISTER = gql`
+  mutation Register($identity: String!, $displayName: String!, $photoURL: String) {
+    register(identity: $identity, displayName: $displayName, photoURL: $photoURL) {
+      identity
+      displayName
+      photoURL
+    }
+  }
+`;
 
 export function getStoredUser() {
   const match = window.location.search.match(/passcode=(.*)&?/);
@@ -32,26 +44,6 @@ export function verifyPasscode(passcode: string) {
   });
 }
 
-const registerUser = (newUser?: any): Promise<string | null> => {
-  return new Promise((resolve, reject) => {
-    if (newUser && newUser.uid) {
-      fetch('/api/register', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify(newUser),
-      })
-        .then(res => {
-          console.log('registered user with server');
-          return res.json();
-        })
-        .then(data => resolve(data.token))
-        .catch(reject);
-    }
-  });
-};
-
 export function getErrorMessage(message: string) {
   switch (message) {
     case 'passcode incorrect':
@@ -68,6 +60,17 @@ export default function usePasscodeAuth() {
 
   const [user, setUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
+  const onRegistered = useCallback(data => {
+    const newUser = {
+      ...user,
+      ...data.register,
+    };
+    setUser(newUser);
+    window.sessionStorage.setItem('user', JSON.stringify(newUser));
+  }, [user]);
+  const [register] = useMutation(REGISTER, {
+    onCompleted: onRegistered,
+  });
 
   const getToken = useCallback(
     (name: string, room: string) => {
@@ -88,23 +91,16 @@ export default function usePasscodeAuth() {
             setUser(storedUser);
             window.sessionStorage.setItem('user', JSON.stringify(storedUser));
             history.replace(window.location.pathname);
-            registerUser(storedUser)
-              .then(token => {
-                if (token) {
-                  storedUser.token = token;
-                }
-
-                setUser(storedUser);
-                window.sessionStorage.setItem('user', JSON.stringify(storedUser));
-              })
-              .catch(e => console.error(e));
+            register({
+              variables: storedUser,
+            });
           }
         })
         .then(() => setIsAuthReady(true));
     } else {
       setIsAuthReady(true);
     }
-  }, [history]);
+  }, [history, register]);
 
   const signIn = useCallback((passcode: string) => {
     return verifyPasscode(passcode).then(verification => {
@@ -125,11 +121,13 @@ export default function usePasscodeAuth() {
 
   const setUserNameAvatar = (displayName: string, photoURL?: string) => {
     console.log('setting');
-    const uid = user?.uid ? user.uid : new Date().getTime().toString();
-    const newUser = { ...user, uid, displayName, photoURL };
+    const identity = user?.identity ? user.identity : new Date().getTime().toString();
+    const newUser = { ...user, identity, displayName, photoURL };
     setUser(newUser as any);
     window.sessionStorage.setItem('user', JSON.stringify(newUser));
-    registerUser(newUser);
+    register({
+      variables: newUser,
+    });
     return Promise.resolve();
   };
 

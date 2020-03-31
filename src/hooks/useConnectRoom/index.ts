@@ -2,11 +2,11 @@ import { useCallback } from 'react';
 import useVideoContext from '../useVideoContext/useVideoContext';
 import useRoomState from '../useRoomState/useRoomState';
 import gql from 'graphql-tag';
-import { useLazyQuery } from '@apollo/react-hooks';
+import { useMutation } from '@apollo/react-hooks';
 
-const GET_TOKEN = gql`
-  query GetToken($roomName: String!) {
-    getToken(roomName: $roomName)
+const GEN_TOKEN = gql`
+  mutation GenerateToken($roomId: String!) {
+    generateRoomToken(roomId: $roomId)
   }
 `;
 
@@ -21,7 +21,7 @@ export default function useConnectRoom() {
     [connect, room, roomState]
   );
 
-  const [getToken] = useLazyQuery(GET_TOKEN, {
+  const [getToken] = useMutation(GEN_TOKEN, {
     onCompleted: onToken,
   });
 

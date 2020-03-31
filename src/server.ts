@@ -11,6 +11,9 @@ import { ApolloServer } from 'apollo-server-express';
 import graphRoot from './server/graphRoot';
 import { RequestContext } from './server/context';
 import { PartyRoom, Admin, PartyUser, SyncPermissions } from './server/db';
+import ngrok from 'ngrok';
+import LocalDB from './server/db/local';
+
 const AccessToken = jwt.AccessToken;
 const app = express();
 const VideoGrant = AccessToken.VideoGrant;
@@ -23,7 +26,7 @@ const MAX_ALLOWED_SESSION_DURATION =
 const ITEM_TTL = 120;
 const PASSCODE = process.env.PASSCODE;
 const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE;
-const PORT = process.env.PORT || 8081;
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 8081;
 const ROOM_TYPE = ENV === 'production' ? 'group' : 'group-small';
 const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
 const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
@@ -38,8 +41,7 @@ if (!twilioServiceSID) throw new Error('need TWILIO_SERVICE_SID');
 const service = client.sync.services.get(twilioServiceSID);
 var url = process.env.BASE_URL;
 var server: Server | undefined = undefined;
-
-var ngrok;
+var database = new LocalDB();
 
 service.syncMaps
   .create({ uniqueName: 'users' })
@@ -124,7 +126,6 @@ const updateRoomHooks = (hookUrl: string) => {
 };
 
 if (ENV !== 'production') {
-  ngrok = require('ngrok');
   ngrok
     .connect(PORT)
     .then((u: string) => {
@@ -439,50 +440,6 @@ app.get('/api/sync_token', (req, res) => {
       });
 
     console.log(`issued sync token for ${identity}`);
-  } else {
-    res.sendStatus(401);
-  }
-});
-
-app.post('/api/register', (req, res) => {
-  const { uid, displayName, photoURL, passcode } = req.body;
-
-  if (passcode === PASSCODE) {
-    addUser(uid, displayName, photoURL);
-
-    if (ENV !== 'production') {
-      setAdmin(uid, true)
-        .then(token => {
-          grantPermissionsForList('broadcasts', [uid], { read: true, write: true, manage: false }).catch(e =>
-            console.log(e)
-          );
-          res.send({ token });
-        })
-        .catch(e => {
-          grantPermissionsForList('broadcasts', [uid], { read: true, write: false, manage: false })
-            .then(() => {
-              console.log(`Gave ${uid} permission for 'broadcasts'`);
-              res.send({});
-            })
-            .catch(er => console.log(er));
-        });
-    } else {
-      getAdminToken(uid)
-        .then(token => {
-          grantPermissionsForList('broadcasts', [uid], { read: true, write: true, manage: false }).catch(e =>
-            console.log(e)
-          );
-          res.send({ token });
-        })
-        .catch(() => {
-          grantPermissionsForList('broadcasts', [uid], { read: true, write: false, manage: false })
-            .then(() => {
-              console.log(`Gave ${uid} permission for 'broadcasts'`);
-              res.send({});
-            })
-            .catch(er => console.log(er));
-        });
-    }
   } else {
     res.sendStatus(401);
   }
@@ -879,13 +836,16 @@ graphRoot().then(({ typeDefs, resolvers }) => {
     resolvers,
     typeDefs,
     context: ({ req }): RequestContext => {
-      const { passcode, identity } = req.body;
+      const { passcode, identity } = req.headers;
       if (passcode === PASSCODE) {
         return {
-          identity,
+          identity: identity as string | undefined,
+          db: database,
         };
       } else {
-        return {};
+        return {
+          db: database,
+        };
       }
     },
   });
@@ -897,6 +857,8 @@ graphRoot().then(({ typeDefs, resolvers }) => {
   app.get('*', (_, res) => res.sendFile(path.join(__dirname, 'build/index.html')));
 
   server = app.listen(PORT, () => console.log(`token server running on ${PORT}`));
+}).catch(e => {
+  console.log(e);
 });
 
 //@ts-ignore
@@ -906,5 +868,6 @@ if (module.hot) {
   // @ts-ignore
   module.hot.dispose(() => {
     server?.close();
+    ngrok.disconnect(url);
   });
 }

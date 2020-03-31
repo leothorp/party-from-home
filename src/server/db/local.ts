@@ -1,7 +1,7 @@
 import inflection from 'inflection';
-import { PartyDB, PartyRoom, Admin, PartyUser } from './';
+import { PartyDB, PartyRoom, PartyUser } from './';
 
-class LocalPartyDB implements PartyDB {
+export default class LocalPartyDB implements PartyDB {
     users: Map<string, PartyUser>;
     rooms: Map<string, PartyRoom>;
 

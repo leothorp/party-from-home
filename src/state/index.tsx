@@ -4,7 +4,7 @@ import usePasscodeAuth from './usePasscodeAuth/usePasscodeAuth';
 import { SyncClient } from 'twilio-sync';
 
 export interface User {
-  uid: string;
+  identity: string;
   displayName: string;
   photoURL: string;
   passcode?: string;
@@ -69,7 +69,7 @@ export default function AppStateProvider(props: React.PropsWithChildren<{}>) {
 
   const getSyncToken: StateContextType['getSyncToken'] = useCallback(() => {
     if (contextValue.user) {
-      const identity = contextValue.user?.uid;
+      const identity = contextValue.user?.identity;
       const passcode = contextValue.user?.passcode;
 
       return new Promise((resolve, reject) => {

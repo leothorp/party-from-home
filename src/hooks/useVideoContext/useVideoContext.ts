@@ -29,6 +29,7 @@ if (process.env.REACT_APP_USE_MOCKS) {
       on: fakeEmitter.on,
       off: fakeEmitter.off,
       localParticipant: {
+        identity: 'local',
         tracks: new Map(),
         on: fakeEmitter.on,
         off: fakeEmitter.off,

@@ -8,7 +8,7 @@ export class PartyRoom {
   name!: string;
   @Field()
   description!: string;
-  @Field(_type => String)
+  @Field(_type => String, { nullable: true })
   widgetId?: string | undefined;
   widgetStateId?: string | undefined;
 }
@@ -17,12 +17,16 @@ export interface Admin {
   token: string;
 }
 
-ObjectType();
+@ObjectType()
 export class PartyUser {
   @Field(_type => ID)
   identity!: string;
   @Field()
-  room!: string;
+  displayName!: string;
+  @Field({ nullable: true })
+  photoURL?: string;
+  @Field({ nullable: true })
+  room?: string;
 }
 
 export interface SyncPermissions {

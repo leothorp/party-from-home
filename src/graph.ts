@@ -12,15 +12,15 @@ const authLink = setContext(request => {
   const storedUser = JSON.parse(window.sessionStorage.getItem('user') || '{}');
 
   return {
-    params: {
-      passcode: storedUser.passcode,
-      identity: storedUser.identity,
+    headers: {
+      'passcode': storedUser.passcode,
+      'identity': storedUser.identity,
     },
   };
 });
 
 const client = new ApolloClient({
-  link: httpLink.concat(authLink),
+  link: authLink.concat(httpLink),
   cache,
 });
 
