@@ -53,10 +53,10 @@ export function getInitials(name: string) {
 
 export default function UserAvatar({ user }: { user: StateContextType['user'] }) {
   const classes = useStyles();
-  const { uid, displayName, photoURL } = user!;
+  const { identity, displayName, photoURL } = user!;
   const colors = Object.keys(classes);
   //@ts-ignore
-  const className = classes[colors[uid % colors.length]];
+  const className = classes[colors[identity % colors.length]];
 
   return photoURL ? (
     <Avatar src={photoURL} />

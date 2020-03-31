@@ -34,7 +34,7 @@ export function verifyPasscode(passcode: string) {
 
 const registerUser = (newUser?: any): Promise<string | null> => {
   return new Promise((resolve, reject) => {
-    if (newUser && newUser.uid) {
+    if (newUser && newUser.identity) {
       fetch('/api/register', {
         method: 'POST',
         headers: {
@@ -125,8 +125,8 @@ export default function usePasscodeAuth() {
 
   const setUserNameAvatar = (displayName: string, photoURL?: string) => {
     console.log('setting');
-    const uid = user?.uid ? user.uid : new Date().getTime().toString();
-    const newUser = { ...user, uid, displayName, photoURL };
+    const identity = user?.identity ? user.identity : new Date().getTime().toString();
+    const newUser = { ...user, identity, displayName, photoURL };
     setUser(newUser as any);
     window.sessionStorage.setItem('user', JSON.stringify(newUser));
     registerUser(newUser);

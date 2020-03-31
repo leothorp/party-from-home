@@ -65,7 +65,7 @@ const ItemContainer = styled('div')({
 });
 
 export interface Participant {
-  uid: string;
+  identity: string;
   displayName: string | undefined;
   photoURL: string | undefined;
 }
@@ -111,7 +111,7 @@ export default function RoomGrid() {
   const onSelectRoom = useCallback(
     (id: string) => {
       if (roomState !== 'disconnected') room.disconnect();
-      if (id !== undefined && id !== 'bathroom') getToken(user?.uid || '', id).then(token => connect(token));
+      if (id !== undefined && id !== 'bathroom') getToken(user?.identity || '', id).then(token => connect(token));
       setOpen(false);
     },
     [roomState, room, getToken, user, connect]
@@ -124,7 +124,7 @@ export default function RoomGrid() {
       const roomId = value.room || 'bathroom';
 
       const par = {
-        uid: value.identity,
+        identity: value.identity,
         displayName: value.displayName,
         photoURL: value.photoURL,
       };
@@ -148,7 +148,7 @@ export default function RoomGrid() {
 
       if (roomParticipants[roomId] !== undefined) {
         const roomUsers = roomParticipants[roomId];
-        roomParticipants[roomId] = roomUsers.filter(u => u.uid !== value.identity);
+        roomParticipants[roomId] = roomUsers.filter(u => u.identity !== value.identity);
       }
 
       setParticipants(roomParticipants);
@@ -163,18 +163,18 @@ export default function RoomGrid() {
       const roomId = value.room || 'bathroom';
 
       const par = {
-        uid: value.identity,
+        identity: value.identity,
         displayName: value.displayName,
         photoURL: value.photoURL,
       };
 
       for (const roomName in roomParticipants) {
         const roomUsers = roomParticipants[roomName];
-        roomParticipants[roomName] = roomUsers.filter(u => u.uid !== value.identity);
+        roomParticipants[roomName] = roomUsers.filter(u => u.identity !== value.identity);
       }
 
       if ('bathroom' in roomParticipants) {
-        roomParticipants['bathroom'] = roomParticipants['bathroom'].filter(u => u.uid !== value.identity);
+        roomParticipants['bathroom'] = roomParticipants['bathroom'].filter(u => u.identity !== value.identity);
       }
 
       if (roomParticipants.hasOwnProperty(value.room)) {
@@ -196,7 +196,7 @@ export default function RoomGrid() {
 
   // todo(carlos): move this to app state
   useMountEffect(() => {
-    setInterval(heartbeat(user?.uid || ''), HEARTBEAT_INTERVAL);
+    setInterval(heartbeat(user?.identity || ''), HEARTBEAT_INTERVAL);
   });
 
   useEffect(() => {
@@ -205,7 +205,7 @@ export default function RoomGrid() {
 
       paginator.items.forEach((item: any) => {
         const par = {
-          uid: item.value.identity,
+          identity: item.value.identity,
           displayName: item.value.displayName,
           photoURL: item.value.photoURL,
         };

@@ -39,7 +39,7 @@ export default function AdminEscalation(props: Props) {
   const submitPasscode = useCallback(() => {
     callApi('set_admin', {
       adminPasscode: passcode,
-      newAdminIdentity: user?.uid,
+      newAdminIdentity: user?.identity,
       admin: true,
     })
       .then(() => {

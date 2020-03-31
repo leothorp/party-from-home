@@ -68,7 +68,7 @@ export default function RoomGridItem(props: Props) {
       </RoomTitle>
       <RoomParticipantContainer>
         {props.participants.map(p => (
-          <Tooltip key={p.uid} title={p.displayName}>
+          <Tooltip key={p.identity} title={p.displayName}>
             <RoomParticipant>
               {p.photoURL ? <img alt="avatar" src={p.photoURL} /> : <UserAvatar user={p as any} />}
             </RoomParticipant>

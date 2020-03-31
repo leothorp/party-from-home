@@ -5,7 +5,7 @@ export default function useApi() {
 
   const callApi = (action: string, params: any): Promise<any> => {
     if (user) {
-      params.identity = user.uid;
+      params.identity = user.identity;
       params.token = user.token;
       params.passcode = user.passcode;
     }

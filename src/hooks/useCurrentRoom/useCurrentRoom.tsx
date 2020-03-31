@@ -11,7 +11,7 @@ export default function useCurrentRoom() {
 
   useEffect(() => {
     if (user && users && rooms) {
-      const userRoomId = users[user.uid]?.room;
+      const userRoomId = users[user.identity]?.room;
       const newCurrentRoom = rooms[userRoomId];
       setCurrentRoom(newCurrentRoom);
     }
