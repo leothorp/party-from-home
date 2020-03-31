@@ -5,6 +5,11 @@ import dotenv from 'dotenv';
 import bodyParser from 'body-parser';
 import inflection from 'inflection';
 import textToSpeech from '@google-cloud/text-to-speech';
+import { Server } from 'http';
+import { ApolloServer } from 'apollo-server-express';
+import graphRoot from './server/graphRoot';
+import { RequestContext } from './server/context';
+import { PartyRoom, Admin, PartyUser, SyncPermissions } from './server/db';
 const AccessToken = jwt.AccessToken;
 const app = express();
 const VideoGrant = AccessToken.VideoGrant;
@@ -31,28 +36,7 @@ const client: Twilio = new twilio(twilioAccountSid, twilioAuthToken);
 if (!twilioServiceSID) throw new Error('need TWILIO_SERVICE_SID');
 const service = client.sync.services.get(twilioServiceSID);
 var url = process.env.BASE_URL;
-
-interface PartyRoom {
-  id: string;
-  name: string;
-  widgetId: string | undefined;
-  widgetStateId: string | undefined;
-}
-
-interface Admin {
-  token: string;
-}
-
-interface PartyUser {
-  identity: string;
-  room: string;
-}
-
-interface SyncPermissions {
-  read: boolean;
-  write: boolean;
-  manage: boolean;
-}
+var server: Server | undefined = undefined;
 
 var ngrok;
 
@@ -889,9 +873,23 @@ app.post('/api/get_tts', (req, res) => {
 
 app.get('/', (req, res) => res.send(''));
 
-app.get('*', (_, res) => res.sendFile(path.join(__dirname, 'build/index.html')));
+graphRoot().then(({typeDefs, resolvers}) => {
+  const graph = new ApolloServer({
+    resolvers,
+    typeDefs,
+    context: ({ req }): RequestContext => {
+      return {};
+    }
+  });
+  graph.applyMiddleware({
+    app,
+    path: '/graphql',
+  });
 
-const server = app.listen(PORT, () => console.log(`token server running on ${PORT}`));
+  app.get('*', (_, res) => res.sendFile(path.join(__dirname, 'build/index.html')));
+
+  server = app.listen(PORT, () => console.log(`token server running on ${PORT}`));
+});
 
 //@ts-ignore
 if (module.hot) {
