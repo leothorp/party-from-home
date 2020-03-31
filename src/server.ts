@@ -1,3 +1,4 @@
+import 'reflect-metadata';
 import express from 'express';
 import path from 'path';
 import twilio, { jwt, Twilio } from 'twilio';
@@ -871,19 +872,26 @@ app.post('/api/get_tts', (req, res) => {
     });
 });
 
-app.get('/', (req, res) => res.send(''));
+app.get('/', (_req, res) => res.send(''));
 
-graphRoot().then(({typeDefs, resolvers}) => {
+graphRoot().then(({ typeDefs, resolvers }) => {
   const graph = new ApolloServer({
     resolvers,
     typeDefs,
     context: ({ req }): RequestContext => {
-      return {};
-    }
+      const { passcode, identity } = req.body;
+      if (passcode === PASSCODE) {
+        return {
+          identity,
+        };
+      } else {
+        return {};
+      }
+    },
   });
   graph.applyMiddleware({
     app,
-    path: '/graphql',
+    path: '/api/graphql',
   });
 
   app.get('*', (_, res) => res.sendFile(path.join(__dirname, 'build/index.html')));

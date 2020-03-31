@@ -5,8 +5,7 @@ import useMapItems from '../../hooks/useSync/useMapItems';
 import { styled } from '@material-ui/core/styles';
 import { ExpandMore, ExpandLess } from '@material-ui/icons';
 import { useAppState } from '../../state';
-import useRoomState from '../../hooks/useRoomState/useRoomState';
-import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
+import useConnectRoom from '../../hooks/useConnectRoom';
 import RoomGridItem from './RoomGridItem';
 
 interface ContainerProps {
@@ -101,20 +100,18 @@ const Header = (props: HeaderProps) => {
 };
 
 export default function RoomGrid() {
-  const { getToken, user } = useAppState();
-  const { connect, room } = useVideoContext();
-  const roomState = useRoomState();
+  const { user } = useAppState();
   const [participants, setParticipants] = useState({} as Participants);
   const [open, setOpen] = useState(false);
   const rooms = useMapItems('rooms');
+  const connectRoom = useConnectRoom();
 
   const onSelectRoom = useCallback(
     (id: string) => {
-      if (roomState !== 'disconnected') room.disconnect();
-      if (id !== undefined && id !== 'bathroom') getToken(user?.uid || '', id).then(token => connect(token));
+      if (id !== undefined && id !== 'bathroom') connectRoom(id);
       setOpen(false);
     },
-    [roomState, room, getToken, user, connect]
+    [connectRoom]
   );
 
   const onUserAdded = useCallback(
