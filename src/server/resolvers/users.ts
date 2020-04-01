@@ -10,6 +10,11 @@ export default class PartyUserResolver {
     return db.getUsers();
   }
 
+  @Query(_returns => PartyUser)
+  async user(@Arg("identity") identity: string, @Ctx() { db }: RequestContext) {
+    return db.getUser(identity);
+  }
+
   @Mutation(_returns => PartyUser)
   async register(
     @Ctx() { db }: RequestContext,
