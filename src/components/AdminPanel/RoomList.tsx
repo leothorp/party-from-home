@@ -1,7 +1,6 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { styled, TextField, Button, IconButton, List, ListItem, Switch, FormControlLabel } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
-import useApi from '../../hooks/useApi/useApi';
 import useRooms from '../../hooks/partyHooks/useRooms';
 import useRoom from '../../hooks/partyHooks/useRoom';
 
@@ -26,8 +25,7 @@ const SettingsContainer = styled('div')({
 export default function RoomList() {
   const [name, setName] = useState('');
   const [selectedRoom, setSelectedRoom] = useState<any | undefined>(undefined);
-  const { callApi } = useApi();
-  const { rooms, createRoom } = useRooms();
+  const { rooms, createRoom, deleteRoom } = useRooms();
   const { getRoom, updateRoom } = useRoom({
     onReceive: r => {
       setSelectedRoom(r);
@@ -42,13 +40,10 @@ export default function RoomList() {
 
   const onRemove = useCallback(
     (id: string) => {
-      callApi('delete_room', {
-        roomId: id,
-      }).then(() => {
-        setSelectedRoom(undefined);
-      });
+      deleteRoom(id);
+      setSelectedRoom(undefined);
     },
-    [callApi, setSelectedRoom]
+    [deleteRoom]
   );
 
   const changeSelectedRoom = useCallback(

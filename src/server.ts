@@ -1,5 +1,6 @@
 import 'reflect-metadata';
 import express from 'express';
+import { createServer } from 'http';
 import path from 'path';
 import twilio, { jwt, Twilio } from 'twilio';
 import dotenv from 'dotenv';
@@ -7,12 +8,13 @@ import bodyParser from 'body-parser';
 import inflection from 'inflection';
 import textToSpeech from '@google-cloud/text-to-speech';
 import { Server } from 'http';
-import { ApolloServer } from 'apollo-server-express';
+import { ApolloServer, PubSub } from 'apollo-server-express';
 import graphRoot from './server/graphRoot';
 import { RequestContext } from './server/context';
 import { PartyRoom, Admin, PartyUser, SyncPermissions } from './server/db';
 import ngrok from 'ngrok';
 import LocalDB from './server/db/local';
+import morgan from 'morgan';
 
 const AccessToken = jwt.AccessToken;
 const app = express();
@@ -42,6 +44,7 @@ const service = client.sync.services.get(twilioServiceSID);
 var url = process.env.BASE_URL;
 var server: Server | undefined = undefined;
 var database = new LocalDB();
+const pubsub = new PubSub();
 
 service.syncMaps
   .create({ uniqueName: 'users' })
@@ -831,35 +834,57 @@ app.post('/api/get_tts', (req, res) => {
 
 app.get('/', (_req, res) => res.send(''));
 
-graphRoot().then(({ typeDefs, resolvers }) => {
-  const graph = new ApolloServer({
-    resolvers,
-    typeDefs,
-    context: ({ req }): RequestContext => {
-      const { passcode, identity } = req.headers;
-      if (passcode === PASSCODE) {
-        return {
-          identity: identity as string | undefined,
-          db: database,
-        };
-      } else {
-        return {
-          db: database,
-        };
-      }
-    },
-  });
-  graph.applyMiddleware({
-    app,
-    path: '/api/graphql',
-  });
+graphRoot(pubsub)
+  .then(({ typeDefs, resolvers }) => {
+    const loggingPlugin = {
+      didEncounterErrors(request: any) {
+        console.log(request);
+      },
+    };
+    const graph = new ApolloServer({
+      resolvers,
+      typeDefs,
+      context: ({ req, connection }): RequestContext => {
+        if (connection) {
+          return connection.context;
+        } else {
+          const { passcode, identity } = req.headers;
+          if (passcode === PASSCODE) {
+            return {
+              identity: identity as string | undefined,
+              db: database,
+            };
+          } else {
+            return {
+              db: database,
+            };
+          }
+        }
+      },
+      subscriptions: {
+        path: '/api/graphql',
+      },
+      plugins: [loggingPlugin as any],
+    });
+    graph.applyMiddleware({
+      app,
+      path: '/api/graphql',
+    });
 
-  app.get('*', (_, res) => res.sendFile(path.join(__dirname, 'build/index.html')));
+    app.get('*', (_, res) => res.sendFile(path.join(__dirname, 'build/index.html')));
 
-  server = app.listen(PORT, () => console.log(`token server running on ${PORT}`));
-}).catch(e => {
-  console.log(e);
-});
+    server = createServer(app);
+    graph.installSubscriptionHandlers(server);
+
+    server.listen(PORT, () => {
+      console.log(`server running on ${PORT}`);
+      console.log(`graphql endpoint: http://localhost:${PORT}${graph.graphqlPath}`);
+      console.log(`subscriptions endpoint: ws://localhost:${PORT}${graph.subscriptionsPath}`);
+    });
+  })
+  .catch(e => {
+    console.log(e);
+  });
 
 //@ts-ignore
 if (module.hot) {
