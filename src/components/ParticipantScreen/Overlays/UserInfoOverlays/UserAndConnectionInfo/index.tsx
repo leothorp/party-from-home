@@ -3,7 +3,7 @@ import { makeStyles } from '@material-ui/core/styles';
 import { LocalParticipant, RemoteParticipant } from 'twilio-video';
 import ParticipantConnectionIndicator from './ParticipantConnectionIndicator';
 import useUserInfoOverlayContext from '../../../../../hooks/overlayHooks/useUserInfoOverlayContext';
-import useMapItems from '../../../../../hooks/useSync/useMapItems';
+import useUser from '../../../../../hooks/partyHooks/useUser';
 import { Tooltip } from '@material-ui/core';
 
 const useStyles = makeStyles({
@@ -23,9 +23,9 @@ export default function UserAndConnectionInfo() {
     participant,
   }: { participant: LocalParticipant | RemoteParticipant | undefined } = useUserInfoOverlayContext();
   const classes = useStyles();
+  const { user } = useUser({ userId: participant.identity });
 
-  const users = useMapItems('users');
-  const displayedName = (participant && users[participant.identity]?.displayName) || participant?.identity;
+  const displayedName = (participant && user?.displayName) || participant?.identity;
 
   return (
     <div className={classes.container}>

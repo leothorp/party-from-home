@@ -5,7 +5,7 @@ import { Overlays } from '../../Overlay';
 import useParticipants from '../../hooks/useParticipants/useParticipants';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
 import useSelectedParticipant from '../VideoProvider/useSelectedParticipant/useSelectedParticipant';
-import useMapItems from '../../hooks/useSync/useMapItems';
+import useUsers from '../../hooks/partyHooks/useUsers';
 import GridLayout, { WidthProvider } from 'react-grid-layout';
 import useMainSpeaker from '../../hooks/useMainSpeaker/useMainSpeaker';
 
@@ -145,7 +145,7 @@ export default function ParticipantGrid(props: Props) {
   const participants = useParticipants();
   const speaker = useMainSpeaker();
   const [selectedParticipant, setSelectedParticipant] = useSelectedParticipant();
-  const users = useMapItems('users');
+  const { users } = useUsers();
 
   const localIdentity = localParticipant.identity;
   var roomParticipants: any[] = [];
@@ -189,7 +189,7 @@ export default function ParticipantGrid(props: Props) {
                 key={i}
                 participant={participant}
                 onClick={() => setSelectedParticipant(participant)}
-                displayName={users[participant.identity]?.displayName}
+                displayName={users.find(u => u.identity === participant.identity)?.displayName}
                 maxWidth={layout[i].w * (rowHeight / 0.5625)}
                 maxHeight={rowHeight}
                 videoPriority={i === dominant || participant === localParticipant ? 'high' : basePriority}

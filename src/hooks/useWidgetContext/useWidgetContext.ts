@@ -1,7 +1,7 @@
 import { useContext, useState, useEffect } from 'react';
 import { useAppState } from '../../state';
 import useSyncState from '../useSync/useSyncState';
-import useMapItems from '../useSync/useMapItems';
+import useUsers from '../partyHooks/useUsers';
 import useCurrentRoom from '../useCurrentRoom/useCurrentRoom';
 import { RoomWidgetContext } from '../../components/RoomWidget/RoomWidgetProvider';
 
@@ -19,13 +19,13 @@ export default function useWidgetContext(initialState?: any) {
   });
   const { user } = useAppState();
   const room = useCurrentRoom();
-  const users = useMapItems('users');
+  const { users } = useUsers();
   const [participants, setParticipants] = useState<any[]>([]);
   const [ready, setReady] = useState(false);
 
   useEffect(() => {
     if (room) {
-      setParticipants(Object.values(users).filter((u: any) => u.room === room.id));
+      setParticipants(users.filter((u: any) => u.room === room.id));
     }
   }, [room, users]);
 

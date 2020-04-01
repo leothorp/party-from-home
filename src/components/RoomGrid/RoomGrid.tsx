@@ -1,8 +1,7 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import useMountEffect from '../../hooks/useMountEffect/useMountEffect';
-import useMap from '../../hooks/useSync/useMap';
-import useMapItems from '../../hooks/useSync/useMapItems';
 import useRooms from '../../hooks/partyHooks/useRooms';
+import useUsers from '../../hooks/partyHooks/useUsers';
 import { styled } from '@material-ui/core/styles';
 import { ExpandMore, ExpandLess } from '@material-ui/icons';
 import { useAppState } from '../../state';
@@ -102,9 +101,9 @@ const Header = (props: HeaderProps) => {
 
 export default function RoomGrid() {
   const { user } = useAppState();
-  const [participants, setParticipants] = useState({} as Participants);
   const [open, setOpen] = useState(false);
   const { rooms } = useRooms();
+  const { users } = useUsers();
   const connectRoom = useConnectRoom();
 
   const onSelectRoom = useCallback(
@@ -115,109 +114,21 @@ export default function RoomGrid() {
     [connectRoom]
   );
 
-  const onUserAdded = useCallback(
-    (args: any) => {
-      const value = args.item.value;
-      const roomParticipants = { ...participants };
-      const roomId = value.room || 'bathroom';
-
-      const par = {
-        identity: value.identity,
-        displayName: value.displayName,
-        photoURL: value.photoURL,
-      };
-
-      if (roomParticipants[roomId] !== undefined) {
-        roomParticipants[roomId].push(par);
-      } else {
-        roomParticipants[roomId] = [par];
-      }
-
-      setParticipants(roomParticipants);
-    },
-    [participants]
-  );
-
-  const onUserRemoved = useCallback(
-    (item: any) => {
-      const value = item.value;
-      const roomParticipants = { ...participants };
-      const roomId = value.room || 'bathroom';
-
-      if (roomParticipants[roomId] !== undefined) {
-        const roomUsers = roomParticipants[roomId];
-        roomParticipants[roomId] = roomUsers.filter(u => u.identity !== value.identity);
-      }
-
-      setParticipants(roomParticipants);
-    },
-    [participants]
-  );
-
-  const onUserUpdated = useCallback(
-    (args: any) => {
-      const value = args.item.value;
-      const roomParticipants = { ...participants };
-      const roomId = value.room || 'bathroom';
-
-      const par = {
-        identity: value.identity,
-        displayName: value.displayName,
-        photoURL: value.photoURL,
-      };
-
-      for (const roomName in roomParticipants) {
-        const roomUsers = roomParticipants[roomName];
-        roomParticipants[roomName] = roomUsers.filter(u => u.identity !== value.identity);
-      }
-
-      if ('bathroom' in roomParticipants) {
-        roomParticipants['bathroom'] = roomParticipants['bathroom'].filter(u => u.identity !== value.identity);
-      }
-
-      if (roomParticipants.hasOwnProperty(value.room)) {
-        roomParticipants[roomId].push(par);
-      } else {
-        roomParticipants[roomId] = [par];
-      }
-
-      setParticipants(roomParticipants);
-    },
-    [participants]
-  );
-
-  const { map } = useMap('users', {
-    onAdded: onUserAdded,
-    onRemoved: onUserRemoved,
-    onUpdated: onUserUpdated,
-  });
-
   // todo(carlos): move this to app state
   useMountEffect(() => {
     setInterval(heartbeat(user?.identity || ''), HEARTBEAT_INTERVAL);
   });
 
-  useEffect(() => {
-    map?.getItems().then((paginator: any) => {
-      const roomParticipants: Participants = {};
+  const participants: Record<string, any[]> = {};
 
-      paginator.items.forEach((item: any) => {
-        const par = {
-          identity: item.value.identity,
-          displayName: item.value.displayName,
-          photoURL: item.value.photoURL,
-        };
-        const roomId = item.value.room || 'bathroom';
-        if (roomParticipants[roomId] !== undefined) {
-          roomParticipants[roomId].push(par);
-        } else {
-          roomParticipants[roomId] = [par];
-        }
-      });
-
-      setParticipants(roomParticipants);
-    });
-  }, [map]);
+  for (const u of users) {
+    const currentRoom = u.room || 'bathroom';
+    if (currentRoom in participants) {
+      participants[currentRoom]?.push(u);
+    } else {
+      participants[currentRoom] = [u];
+    }
+  }
 
   const displayRooms: any[] = [];
 

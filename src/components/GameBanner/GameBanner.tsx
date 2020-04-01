@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import { Snackbar, styled } from '@material-ui/core';
 import useCurrentRoom from '../../hooks/useCurrentRoom/useCurrentRoom';
-import useMapItems from '../../hooks/useSync/useMapItems';
+import useUser from '../../hooks/partyHooks/useUser';
 import widgetRegistry from '../../registries/widgetRegistry';
 
 const useStyles = makeStyles(theme => ({
@@ -25,7 +25,30 @@ export default function GameBanner() {
   const [message, setMessage] = useState('');
   const [inWidget, setInWidget] = useState<string | null>(null);
   const currentRoom = useCurrentRoom();
-  const users = useMapItems('users');
+
+  const showBanner = useCallback(
+    (user: any) => {
+      if (currentRoom && currentRoom.widgetId && !inWidget) {
+        const widgetName = widgetRegistry[currentRoom.widgetId].name;
+        const userName = user.displayName;
+        setOpen(true);
+        setInWidget(currentRoom.widgetId);
+        setMessage(`🎲 ${userName} started ${widgetName}! 🎲`);
+      }
+
+      if (currentRoom && !currentRoom.widgetId && inWidget) {
+        const widgetName = widgetRegistry[inWidget].name;
+        const userName = user.displayName;
+        setOpen(true);
+        setInWidget(null);
+        setMessage(`🎲 ${userName} stopped ${widgetName}! 🎲`);
+      }
+    },
+    [currentRoom, inWidget]
+  );
+  const { getUser } = useUser({
+    onReceive: showBanner,
+  });
 
   const handleClose = (event?: React.SyntheticEvent, reason?: string) => {
     setOpen(false);
@@ -33,21 +56,13 @@ export default function GameBanner() {
 
   useEffect(() => {
     if (currentRoom && currentRoom.widgetId && !inWidget) {
-      const widgetName = widgetRegistry[currentRoom.widgetId].name;
-      const userName = users[currentRoom.widgetUser]?.displayName;
-      setOpen(true);
-      setInWidget(currentRoom.widgetId);
-      setMessage(`🎲 ${userName} started ${widgetName}! 🎲`);
+      getUser(currentRoom.widgetUser);
     }
 
     if (currentRoom && !currentRoom.widgetId && inWidget) {
-      const widgetName = widgetRegistry[inWidget].name;
-      const userName = users[currentRoom.widgetUser]?.displayName;
-      setOpen(true);
-      setInWidget(null);
-      setMessage(`🎲 ${userName} stopped ${widgetName}! 🎲`);
+      getUser(currentRoom.widgetUser);
     }
-  }, [currentRoom, inWidget, users]);
+  }, [currentRoom, getUser, inWidget]);
 
   return (
     <div>
