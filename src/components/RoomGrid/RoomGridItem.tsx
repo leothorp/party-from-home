@@ -33,6 +33,7 @@ const RoomParticipantContainer = styled('div')({
   '&::--webkit-scrollbar': {
     display: 'none',
   },
+  '-ms-overflow-style': 'none',
 });
 
 const RoomParticipant = styled('div')({

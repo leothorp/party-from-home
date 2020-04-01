@@ -2,6 +2,7 @@ import React, { useState, useCallback, useEffect } from 'react';
 import useMountEffect from '../../hooks/useMountEffect/useMountEffect';
 import useMap from '../../hooks/useSync/useMap';
 import useMapItems from '../../hooks/useSync/useMapItems';
+import useRooms from '../../hooks/partyHooks/useRooms';
 import { styled } from '@material-ui/core/styles';
 import { ExpandMore, ExpandLess } from '@material-ui/icons';
 import { useAppState } from '../../state';
@@ -103,7 +104,7 @@ export default function RoomGrid() {
   const { user } = useAppState();
   const [participants, setParticipants] = useState({} as Participants);
   const [open, setOpen] = useState(false);
-  const rooms = useMapItems('rooms');
+  const { rooms } = useRooms();
   const connectRoom = useConnectRoom();
 
   const onSelectRoom = useCallback(
