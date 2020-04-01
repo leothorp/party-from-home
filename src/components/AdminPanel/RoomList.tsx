@@ -1,8 +1,9 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { styled, TextField, Button, IconButton, List, ListItem, Switch, FormControlLabel } from '@material-ui/core';
 import DeleteIcon from '@material-ui/icons/Delete';
-import useMap from '../../hooks/useSync/useMap';
 import useApi from '../../hooks/useApi/useApi';
+import useRooms from '../../hooks/partyHooks/useRooms';
+import useRoom from '../../hooks/partyHooks/useRoom';
 
 const Container = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -23,68 +24,21 @@ const SettingsContainer = styled('div')({
 });
 
 export default function RoomList() {
-  const [rooms, setRooms] = useState<any[]>([]);
   const [name, setName] = useState('');
   const [selectedRoom, setSelectedRoom] = useState<any | undefined>(undefined);
-  const [description, setDescription] = useState('');
   const { callApi } = useApi();
-
-  const roomAdded = useCallback(
-    (args: any) => {
-      const room = args.item.value;
-
-      setRooms([...rooms, room]);
+  const { rooms, createRoom } = useRooms();
+  const { getRoom, updateRoom } = useRoom({
+    onReceive: r => {
+      setSelectedRoom(r);
     },
-    [rooms]
-  );
-
-  const roomRemoved = useCallback(
-    (item: any) => {
-      const room = item.value;
-
-      setRooms(rooms.filter(r => r.id !== room.id));
-    },
-    [rooms]
-  );
-
-  const roomUpdated = useCallback(
-    (args: any) => {
-      const room = args.item.value;
-
-      setRooms(
-        rooms.map(r => {
-          if (r.id === room.id) {
-            return room;
-          } else {
-            return r;
-          }
-        })
-      );
-    },
-    [rooms]
-  );
-
-  const { map } = useMap('rooms', {
-    onAdded: roomAdded,
-    onRemoved: roomRemoved,
-    onUpdated: roomUpdated,
   });
 
-  useEffect(() => {
-    map?.getItems().then((paginator: any) => {
-      setRooms(paginator.items.map((i: any) => i.value));
-    });
-  }, [map]);
-
   const onAdd = useCallback(() => {
-    callApi('create_room', {
-      name,
-      description,
-    });
+    createRoom(name);
 
     setName('');
-    setDescription('');
-  }, [callApi, name, description]);
+  }, [createRoom, name]);
 
   const onRemove = useCallback(
     (id: string) => {
@@ -109,16 +63,17 @@ export default function RoomList() {
 
   const onUpdate = useCallback(() => {
     if (selectedRoom) {
-      callApi('update_room', {
-        roomId: selectedRoom.id,
-        ...selectedRoom,
-      })
-        .then(() => {
-          setSelectedRoom(undefined);
-        })
-        .catch(e => console.log(e));
+      updateRoom({
+        name: selectedRoom.name,
+        description: selectedRoom.description,
+        adminScreenshare: selectedRoom.adminScreenshare,
+        disableWidgets: selectedRoom.disableWidgets,
+        adminStartGames: selectedRoom.adminStartGames,
+      });
+
+      setSelectedRoom(undefined);
     }
-  }, [callApi, selectedRoom]);
+  }, [selectedRoom, updateRoom]);
 
   return (
     <>
@@ -126,7 +81,7 @@ export default function RoomList() {
       <Container>
         <List component="nav">
           {rooms.map(room => (
-            <ListItem key={room.id} button onClick={() => setSelectedRoom(room)}>
+            <ListItem key={room.id} button onClick={() => getRoom(room.id)}>
               {room.name}
             </ListItem>
           ))}

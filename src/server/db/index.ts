@@ -11,6 +11,12 @@ export class PartyRoom {
   @Field(_type => String, { nullable: true })
   widgetId?: string | undefined;
   widgetStateId?: string | undefined;
+  @Field({ defaultValue: false })
+  adminScreenshare?: boolean = false;
+  @Field({ defaultValue: false })
+  disableWidgets?: boolean = false;
+  @Field({ defaultValue: false })
+  adminStartGames?: boolean = false;
 }
 
 export interface Admin {
@@ -27,6 +33,8 @@ export class PartyUser {
   photoURL?: string;
   @Field({ nullable: true })
   room?: string;
+  @Field({ nullable: true })
+  token?: string;
 }
 
 export interface SyncPermissions {
@@ -41,6 +49,8 @@ export interface PartyDB {
   addUser: (user: PartyUser) => Promise<PartyUser>;
   editUser: (identity: string, user: PartyUser) => Promise<PartyUser>;
   removeUser: (identity: string) => Promise<void>;
+  getRooms: () => Promise<PartyRoom[]>;
+  getRoom: (id: string) => Promise<PartyRoom>;
   addRoom: (name: string) => Promise<PartyRoom>;
   editRoom: (id: string, room: PartyRoom) => Promise<PartyRoom>;
   removeRoom: (id: string) => Promise<void>;

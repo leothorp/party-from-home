@@ -1,6 +1,7 @@
 import { buildTypeDefsAndResolvers, AuthChecker } from 'type-graphql';
 import TwilioResolver from './resolvers/twilio';
 import PartyUserResolver from './resolvers/users';
+import PartyRoomResolver from './resolvers/rooms';
 import { RequestContext } from './context';
 
 export const authChecker: AuthChecker<RequestContext> = ({ context }, roles) => {
@@ -12,7 +13,7 @@ export const authChecker: AuthChecker<RequestContext> = ({ context }, roles) => 
 
 export default async function schema() {
   return buildTypeDefsAndResolvers({
-    resolvers: [TwilioResolver, PartyUserResolver],
+    resolvers: [TwilioResolver, PartyUserResolver, PartyRoomResolver],
     authChecker,
   });
 }

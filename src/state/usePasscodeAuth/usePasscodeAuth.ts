@@ -10,6 +10,7 @@ const REGISTER = gql`
       identity
       displayName
       photoURL
+      token
     }
   }
 `;

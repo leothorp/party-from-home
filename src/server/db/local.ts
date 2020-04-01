@@ -37,6 +37,19 @@ export default class LocalPartyDB implements PartyDB {
         this.users.delete(identity);
     }
 
+    getRooms = async (): Promise<PartyRoom[]> => {
+        return Array.from(this.rooms.values());
+    }
+
+    getRoom = async (id: string): Promise<PartyRoom> => {
+        const room = this.rooms.get(id);
+
+        if (room)
+            return room;
+        else
+            throw new Error(`room ${id} not found`);
+    }
+
     addRoom = async (name: string): Promise<PartyRoom> => {
         const id = inflection.underscore(name.replace(' ', ''));
         const room = {
