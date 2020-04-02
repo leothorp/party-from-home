@@ -96,6 +96,51 @@ export default class PartyRoomResolver {
     return true;
   }
 
+  @Mutation(_returns => PartyRoom)
+  async setRoomWidget(
+    @Arg('id') id: string,
+    @Arg('widgetId') widgetId: string,
+    @Ctx() { identity, db }: RequestContext,
+    @PubSub() pubsub: PubSubEngine
+  ): Promise<PartyRoom> {
+    const newRoom = await db.addRoomWidget(id, widgetId, identity!);
+
+    await pubsub.publish('UPDATE_ROOM', { id: newRoom.id, room: newRoom });
+
+    return newRoom;
+  }
+
+  @Mutation(_returns => PartyRoom)
+  async removeRoomWidget(
+    @Arg('id') id: string,
+    @Ctx() { db }: RequestContext,
+    @PubSub() pubsub: PubSubEngine
+  ): Promise<PartyRoom> {
+    const newRoom = await db.removeRoomWidget(id);
+
+    await pubsub.publish('UPDATE_ROOM', { id: newRoom.id, room: newRoom });
+
+    return newRoom;
+  }
+
+  @Mutation(_returns => PartyRoom)
+  async setRoomWidgetState(
+    @Arg('id') id: string,
+    @Arg('state') state: string,
+    @Ctx() { db }: RequestContext,
+    @PubSub() pubsub: PubSubEngine
+  ): Promise<PartyRoom> {
+    const room = await db.getRoom(id);
+
+    if (!room) throw new Error(`room ${id} not found`);
+
+    const newRoom = await db.editRoom(room.id, { ...room, widgetState: state });
+
+    await pubsub.publish('UPDATE_ROOM', { id: newRoom.id, room: newRoom });
+
+    return newRoom;
+  }
+
   @Subscription({ topics: 'NEW_ROOM' })
   newRoom(@Root() payload: RoomNotification): RoomNotification {
     return payload;

@@ -104,14 +104,15 @@ export default function RoomGrid() {
   const [open, setOpen] = useState(false);
   const { rooms } = useRooms();
   const { users } = useUsers();
-  const connectRoom = useConnectRoom();
+  const { connectRoom, disconnectRoom } = useConnectRoom();
 
   const onSelectRoom = useCallback(
     (id: string) => {
       if (id !== undefined && id !== 'bathroom') connectRoom(id);
+      if (id === 'bathroom') disconnectRoom();
       setOpen(false);
     },
-    [connectRoom]
+    [connectRoom, disconnectRoom]
   );
 
   // todo(carlos): move this to app state

@@ -40,7 +40,7 @@ export default function Room() {
   return (
     <Container>
       <ParticipantGrid overlays={overlays}>
-        {room?.widgetId && <RoomWidget widgetId={room.widgetId} documentId={room.widgetStateId} />}
+        {room?.widgetId && <RoomWidget widgetId={room.widgetId} roomId={room.id} />}
       </ParticipantGrid>
     </Container>
   );

@@ -8,6 +8,7 @@ const QUERY = gql`
       identity
       displayName
       photoURL
+      room
     }
   }
 `;
@@ -19,6 +20,20 @@ const NEW_USER = gql`
         identity
         displayName
         photoURL
+        room
+      }
+    }
+  }
+`;
+
+const UPDATED_USER = gql`
+  subscription onUpdatedUser {
+    updatedUser {
+      user {
+        identity
+        displayName
+        photoURL
+        room
       }
     }
   }
@@ -49,6 +64,23 @@ export default function useUsers() {
           ...prev,
           users: [...prev.users, newUser],
         };
+      },
+    });
+
+    subscribeToMore({
+      document: UPDATED_USER,
+      updateQuery: (prev, { subscriptionData }) => {
+        if (!subscriptionData || !prev) return prev;
+
+        const newUser = subscriptionData.data.updatedUser.user;
+        const userIndex = prev.users.findIndex((u: any) => u.identity === newUser.identity);
+
+        if (userIndex >= 0) {
+          prev.users[userIndex] = newUser;
+          return prev;
+        } else {
+          return prev;
+        }
       },
     });
 

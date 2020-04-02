@@ -10,7 +10,10 @@ export class PartyRoom {
   description!: string;
   @Field(_type => String, { nullable: true })
   widgetId?: string | undefined;
-  widgetStateId?: string | undefined;
+  @Field(_type => String, { nullable: true })
+  widgetState?: string | undefined;
+  @Field(_type => String, { nullable: true })
+  widgetUser?: string | undefined;
   @Field({ defaultValue: false })
   adminScreenshare?: boolean = false;
   @Field({ defaultValue: false })
@@ -54,6 +57,7 @@ export interface PartyDB {
   addRoom: (name: string) => Promise<PartyRoom>;
   editRoom: (id: string, room: PartyRoom) => Promise<PartyRoom>;
   removeRoom: (id: string) => Promise<void>;
-  addRoomWidget: (roomId: string, widgetId: string) => Promise<void>;
-  removeRoomWidget: (roomId: string) => Promise<void>;
+  addRoomWidget: (roomId: string, widgetId: string, widgetUser: string) => Promise<PartyRoom>;
+  removeRoomWidget: (roomId: string) => Promise<PartyRoom>;
+  setRoomWidgetState: (roomId: string, state: string) => Promise<PartyRoom>;
 }

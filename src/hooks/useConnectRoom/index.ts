@@ -16,7 +16,7 @@ export default function useConnectRoom() {
   const onToken = useCallback(
     data => {
       if (roomState !== 'disconnected') room.disconnect();
-      connect(data.getToken);
+      connect(data.generateRoomToken);
     },
     [connect, room, roomState]
   );
@@ -34,5 +34,9 @@ export default function useConnectRoom() {
     [getToken]
   );
 
-  return connectRoom;
+  const disconnectRoom = useCallback(() => {
+    if (roomState !== 'disconnected') room.disconnect();
+  }, [room, roomState]);
+
+  return { connectRoom, disconnectRoom };
 }

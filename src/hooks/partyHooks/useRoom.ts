@@ -4,65 +4,73 @@ import { useLazyQuery, useMutation } from '@apollo/react-hooks';
 import useMountEffect from '../useMountEffect/useMountEffect';
 
 const QUERY = gql`
-    query Room($id: String!) {
-        room(id: $id) {
-            id
-            name
-            description
-            adminScreenshare
-            disableWidgets
-            adminStartGames
-        }
+  query Room($id: String!) {
+    room(id: $id) {
+      id
+      name
+      description
+      adminScreenshare
+      disableWidgets
+      adminStartGames
+      widgetId
+      widgetUser
     }
+  }
 `;
 
 const UPDATE = gql`
-    mutation UpdateRoom($id: String!, $input: RoomUpdateInput!) {
-        updateRoom(id: $id, input: $input) {
-            id
-            name
-            description
-            adminScreenshare
-            disableWidgets
-            adminStartGames
-        }
+  mutation UpdateRoom($id: String!, $input: RoomUpdateInput!) {
+    updateRoom(id: $id, input: $input) {
+      id
+      name
+      description
+      adminScreenshare
+      disableWidgets
+      adminStartGames
+      widgetId
+      widgetUser
     }
+  }
 `;
 
-export default function useRoom(options?: { roomId?: string, onReceive?: (data: any) => void }) {
-    const [get, { data }] = useLazyQuery(QUERY, {
-        onCompleted: d => {
-            if (options?.onReceive)
-                options.onReceive(d.room);
-        }
-    });
-    const [update] = useMutation(UPDATE);
+export default function useRoom(options?: { roomId?: string; onReceive?: (data: any) => void }) {
+  const [get, { data }] = useLazyQuery(QUERY, {
+    onCompleted: d => {
+      if (options?.onReceive) options.onReceive(d.room);
+    },
+  });
+  const [update] = useMutation(UPDATE);
 
-    const getRoom = useCallback((id: string) => {
-        if (data?.room.id === id && options?.onReceive)
-            options.onReceive(data.room);
-        else
-            get({
-                variables: {
-                    id,
-                }
-            });
-    }, [data, get, options]);
+  const getRoom = useCallback(
+    (id: string) => {
+      if (data?.room.id === id && options?.onReceive) options.onReceive(data.room);
+      else
+        get({
+          variables: {
+            id,
+          },
+        });
+    },
+    [data, get, options]
+  );
 
-    const updateRoom = useCallback((room: any) => {
-        update({
-            variables: {
-                id: data.room.id,
-                input: room,
-            }
-        })
-    }, [data, update]);
+  const updateRoom = useCallback(
+    (room: any) => {
+      update({
+        variables: {
+          id: data.room.id,
+          input: room,
+        },
+      });
+    },
+    [data, update]
+  );
 
-    useMountEffect(() => {
-        if (options?.roomId) {
-            getRoom(options.roomId);
-        }
-    });
+  useMountEffect(() => {
+    if (options?.roomId) {
+      getRoom(options.roomId);
+    }
+  });
 
-    return { room: data?.room, getRoom, updateRoom };
+  return { room: data?.room, getRoom, updateRoom };
 }
