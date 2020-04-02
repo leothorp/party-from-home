@@ -52,9 +52,6 @@ export default function BroadcastedMessageAlert() {
   });
 
   const handleClose = useCallback((_: React.SyntheticEvent | MouseEvent, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
     setOpen(false);
   }, []);
 
