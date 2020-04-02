@@ -13,6 +13,7 @@ import {
   Field,
   FieldResolver,
   ID,
+  Authorized,
 } from 'type-graphql';
 import { RequestContext } from '../context';
 
@@ -51,7 +52,8 @@ export default class PartyBroadcastResolver {
     }
 
     @Subscription(_returns => BroadcastNotification, { topics: 'BROADCAST' })
-    async broadcastSent(@Root() payload: PartyBroadcast, @Ctx() { db }: RequestContext): Promise<BroadcastNotification> {
+    @Authorized('USER')
+    async broadcastSent(@Root() payload: PartyBroadcast, @Ctx() { identity, db }: RequestContext): Promise<BroadcastNotification> {
         const user = await db.getUser(payload.identity);
 
         return {

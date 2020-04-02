@@ -523,6 +523,7 @@ graphRoot(pubsub)
       context: ({ req, connection }): RequestContext => {
         if (connection) {
           return {
+            ...connection.context,
             db: database,
           };
         } else {
@@ -541,6 +542,15 @@ graphRoot(pubsub)
       },
       subscriptions: {
         path: '/api/graphql',
+        onConnect: (connectionParams: any) => {
+          if (connectionParams.passcode === PASSCODE) {
+            return Promise.resolve({
+              identity: connectionParams.identity,
+            });
+          } else {
+            return Promise.resolve({});
+          }
+        },
       },
       plugins: [loggingPlugin as any],
     });

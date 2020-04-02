@@ -12,7 +12,17 @@ const httpLink = createHttpLink({
   uri: '/api/graphql',
 });
 
-const subscriptionClient = new SubscriptionClient('ws://localhost:8081/api/graphql', { reconnect: true });
+const subscriptionClient = new SubscriptionClient('ws://localhost:8081/api/graphql', {
+  reconnect: true,
+  connectionParams: () => {
+    const storedUser = JSON.parse(window.sessionStorage.getItem('user') || '{}');
+
+    return {
+      passcode: storedUser.passcode,
+      identity: storedUser.identity,
+    };
+  },
+});
 
 const wsLink = new WebSocketLink(subscriptionClient);
 
