@@ -1,7 +1,7 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback } from 'react';
 import { styled, TextField, Button } from '@material-ui/core';
-import useList from '../../hooks/useSync/useList';
-import { useAppState } from '../../state';
+import gql from 'graphql-tag';
+import { useQuery, useMutation } from '@apollo/react-hooks';
 
 const Container = styled('div')(({ theme }) => ({
   display: 'flex',
@@ -19,32 +19,40 @@ const List = styled('ul')({});
 
 const ListItem = styled('li')({});
 
+const GET_BROADCASTS = gql`
+  {
+    broadcasts {
+      id
+      user {
+        identity
+        displayName
+        photoURL
+      }
+      message
+    }
+  }
+`;
+
+const SEND_BROADCAST = gql`
+  mutation SendBroadcast($message: String!) {
+    broadcast(message: $message) {
+      id
+      message
+    }
+  }
+`;
+
 export default function RoomList() {
-  const [broadcastedMessages, setBroadcastedMessages] = useState<any[]>([]);
   const [messageText, setMessageText] = useState('');
-  const { user } = useAppState();
-
-  const messageAdded = useCallback(
-    (args: any) => {
-      const message = args.item.value;
-
-      setBroadcastedMessages([...broadcastedMessages, message]);
-    },
-    [broadcastedMessages]
-  );
-
-  const { list, addItem } = useList('broadcasts', {
-    onAdded: messageAdded,
-  });
+  const { data, loading } = useQuery(GET_BROADCASTS);
+  const [sendBroadcast] = useMutation(SEND_BROADCAST);
 
   const onSubmitMessage = useCallback(() => {
-    addItem({
-      message: messageText,
-      userName: user?.displayName,
-      id: `broadcasted-message-${broadcastedMessages.length + 1}`,
+    sendBroadcast({
+      variables: { message: messageText },
     });
     setMessageText('');
-  }, [addItem, broadcastedMessages.length, messageText, user]);
+  }, [messageText, sendBroadcast]);
 
   return (
     <>
@@ -54,11 +62,13 @@ export default function RoomList() {
           <TextField label="Your message" value={messageText} onChange={e => setMessageText(e.target.value)} />
           <Button onClick={onSubmitMessage}>Send broadcast</Button>
         </CommandContainer>
-        {broadcastedMessages.length > 0 && (
+        {!loading && data && (
           <List>
             <h3>Your previous messages</h3>
-            {broadcastedMessages.map(msg => (
-              <ListItem key={msg.id}>{msg.message}</ListItem>
+            {data.broadcasts.map((msg: any) => (
+              <ListItem key={msg.id}>
+                {msg.user.displayName}: {msg.message}
+              </ListItem>
             ))}
           </List>
         )}

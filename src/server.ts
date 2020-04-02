@@ -522,7 +522,9 @@ graphRoot(pubsub)
       typeDefs,
       context: ({ req, connection }): RequestContext => {
         if (connection) {
-          return connection.context;
+          return {
+            db: database,
+          };
         } else {
           const { passcode, identity } = req.headers;
           if (passcode === PASSCODE) {

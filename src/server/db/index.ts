@@ -1,4 +1,5 @@
-import { ObjectType, Field, ID } from 'type-graphql';
+import { ObjectType, Field, ID, Ctx } from 'type-graphql';
+import { RequestContext } from '../context';
 
 @ObjectType()
 export class PartyRoom {
@@ -40,6 +41,16 @@ export class PartyUser {
   token?: string;
 }
 
+@ObjectType()
+export class PartyBroadcast {
+  @Field(_type => ID)
+  id!: string;
+  @Field()
+  identity!: string;
+  @Field()
+  message!: string;
+}
+
 export interface SyncPermissions {
   read: boolean;
   write: boolean;
@@ -60,4 +71,6 @@ export interface PartyDB {
   addRoomWidget: (roomId: string, widgetId: string, widgetUser: string) => Promise<PartyRoom>;
   removeRoomWidget: (roomId: string) => Promise<PartyRoom>;
   setRoomWidgetState: (roomId: string, state: string) => Promise<PartyRoom>;
+  getBroadcasts: () => Promise<PartyBroadcast[]>;
+  addBroadcast: (identity: string, message: string) => Promise<PartyBroadcast>;
 }

@@ -2,6 +2,7 @@ import { buildTypeDefsAndResolvers, AuthChecker, PubSubEngine } from 'type-graph
 import TwilioResolver from './resolvers/twilio';
 import PartyUserResolver from './resolvers/users';
 import PartyRoomResolver from './resolvers/rooms';
+import PartyBroadcastResolver, { PartyBroadcastFieldResolver } from './resolvers/broadcasts';
 import { RequestContext } from './context';
 
 export const authChecker: AuthChecker<RequestContext> = ({ context }, roles) => {
@@ -12,7 +13,13 @@ export const authChecker: AuthChecker<RequestContext> = ({ context }, roles) => 
 
 export default async function schema(pubSub?: PubSubEngine) {
   return buildTypeDefsAndResolvers({
-    resolvers: [TwilioResolver, PartyUserResolver, PartyRoomResolver],
+    resolvers: [
+      TwilioResolver,
+      PartyUserResolver,
+      PartyRoomResolver,
+      PartyBroadcastResolver,
+      PartyBroadcastFieldResolver,
+    ],
     authChecker,
     pubSub,
   });

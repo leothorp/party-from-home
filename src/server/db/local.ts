@@ -1,13 +1,16 @@
 import inflection from 'inflection';
-import { PartyDB, PartyRoom, PartyUser } from './';
+import { v1 as uuid } from 'uuid';
+import { PartyDB, PartyRoom, PartyUser, PartyBroadcast } from './';
 
 export default class LocalPartyDB implements PartyDB {
   users: Map<string, PartyUser>;
   rooms: Map<string, PartyRoom>;
+  broadcasts: Map<string, PartyBroadcast>;
 
   constructor() {
     this.users = new Map();
     this.rooms = new Map();
+    this.broadcasts = new Map();
   }
 
   getUsers = async (): Promise<PartyUser[]> => {
@@ -101,5 +104,23 @@ export default class LocalPartyDB implements PartyDB {
     this.rooms.set(roomId, room);
 
     return room;
+  };
+
+  getBroadcasts = async (): Promise<PartyBroadcast[]> => {
+    return Array.from(this.broadcasts.values());
+  };
+
+  addBroadcast = async (identity: string, message: string): Promise<PartyBroadcast> => {
+    const id = uuid();
+
+    const broadcast = {
+      id,
+      identity,
+      message,
+    };
+
+    this.broadcasts.set(id, broadcast);
+
+    return broadcast;
   };
 }
