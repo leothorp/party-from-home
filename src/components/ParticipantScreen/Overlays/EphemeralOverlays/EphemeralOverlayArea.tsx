@@ -16,7 +16,7 @@ export interface Props {
   participant: LocalParticipant | RemoteParticipant;
 }
 
-export default function GameSpaceOverlayArea({ participant, overlays }: Props) {
+export default function EphemeralOverlayArea({ participant, overlays }: Props) {
   return (
     <Container>
       {overlays.map(overlay => (

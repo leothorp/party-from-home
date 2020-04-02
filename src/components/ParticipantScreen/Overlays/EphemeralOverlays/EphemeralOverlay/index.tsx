@@ -1,13 +1,13 @@
 import React from 'react';
-import { GameSpaceOverlayDefinition } from '../../../../../Overlay';
+import { EphemeralOverlayDefinition } from '../../../../../Overlay';
 import EphemeralOverlayProvider from './EphemeralOverlayProvider';
 
 interface Props {
-  overlayDefinition: GameSpaceOverlayDefinition;
+  overlayDefinition: EphemeralOverlayDefinition;
   participantId: string;
 }
 
-export default function GameSpaceOverlay(props: Props) {
+export default function EphemeralOverlay(props: Props) {
   const OverlayComponent = props.overlayDefinition.component;
 
   return (

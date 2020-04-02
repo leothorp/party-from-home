@@ -5,7 +5,7 @@ import UserInfoOverlay from './UserInfoOverlay';
 import { USER_INFO_OVERLAY_TYPES } from '../../../../constants/registryContants';
 import userInfoOverlayRegistry from '../../../../registries/userInfoOverlayRegistry';
 
-describe('the ParticipantInfo component', () => {
+describe('the UserInfoOverlayArea component', () => {
   const mockIdentity = { identity: 'mockIdentity' };
   const defaultProps = {
     participant: mockIdentity as any,
