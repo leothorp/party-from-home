@@ -1,9 +1,9 @@
 import React from 'react';
 import { shallow } from 'enzyme';
 import UserInfoOverlayArea from './UserInfoOverlayArea';
-import UserInfoOverlay from './UserInfoOverlays/UserInfoOverlay';
-import { USER_INFO_OVERLAY_TYPES } from '../../../constants/registryContants';
-import userInfoOverlayRegistry from '../../../registries/userInfoOverlayRegistry';
+import UserInfoOverlay from './UserInfoOverlay';
+import { USER_INFO_OVERLAY_TYPES } from '../../../../constants/registryContants';
+import userInfoOverlayRegistry from '../../../../registries/userInfoOverlayRegistry';
 
 describe('the ParticipantInfo component', () => {
   const mockIdentity = { identity: 'mockIdentity' };

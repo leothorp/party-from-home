@@ -3,7 +3,7 @@ import ParticipantScreen from './index';
 import { shallow } from 'enzyme';
 import usePublications from '../../hooks/usePublications/usePublications';
 import useIsTrackSwitchedOff from '../../hooks/useIsTrackSwitchedOff/useIsTrackSwitchedOff';
-import UserInfoOverlayArea from './Overlays/UserInfoOverlayArea';
+import UserInfoOverlayArea from './Overlays/UserInfoOverlays/UserInfoOverlayArea';
 
 jest.mock('../../hooks/usePublications/usePublications');
 jest.mock('../../hooks/useIsTrackSwitchedOff/useIsTrackSwitchedOff');
