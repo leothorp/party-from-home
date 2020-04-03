@@ -1,5 +1,4 @@
-import { ObjectType, Field, ID, Ctx } from 'type-graphql';
-import { RequestContext } from '../context';
+import { ObjectType, Field, ID } from 'type-graphql';
 
 @ObjectType()
 export class PartyRoom {
@@ -38,7 +37,9 @@ export class PartyUser {
   @Field({ nullable: true })
   room?: string;
   @Field({ nullable: true })
-  token?: string;
+  websocketToken?: string;
+  @Field({ defaultValue: false })
+  admin?: boolean = false;
 }
 
 @ObjectType()

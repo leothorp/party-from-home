@@ -9,6 +9,7 @@ export interface User {
   photoURL: string;
   passcode?: string;
   token?: string;
+  admin?: boolean;
 }
 
 export interface StateContextType {
@@ -22,6 +23,7 @@ export interface StateContextType {
   signOut?(): Promise<void>;
   isAuthReady?: boolean;
   syncClient: SyncClient | undefined;
+  authError?: Error | undefined;
 }
 
 export const StateContext = createContext<StateContextType>(null!);

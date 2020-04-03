@@ -9,6 +9,7 @@ export const PASSCODE = process.env.PASSCODE;
 export const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE;
 export const PORT = process.env.PORT || 8081;
 export const ROOM_TYPE = ENV === 'production' ? 'group' : 'group-small';
+export const SESSION_SECRET = process.env.SESSION_SECRET;
 export const twilioAccountSid = process.env.TWILIO_ACCOUNT_SID;
 export const twilioAuthToken = process.env.TWILIO_AUTH_TOKEN;
 export const twilioApiKeySID = process.env.TWILIO_API_KEY_SID;

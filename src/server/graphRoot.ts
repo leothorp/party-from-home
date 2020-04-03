@@ -6,7 +6,8 @@ import PartyBroadcastResolver, { PartyBroadcastFieldResolver } from './resolvers
 import { RequestContext } from './context';
 
 export const authChecker: AuthChecker<RequestContext> = ({ context }, roles) => {
-  if (roles.find(r => r === 'USER')) return context.identity !== undefined;
+  if (roles.find(r => r === 'USER')) return context.user !== undefined;
+  if (roles.find(r => r === 'ADMIN')) return context.user?.admin === true;
 
   return false;
 };

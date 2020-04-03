@@ -12,6 +12,7 @@ import {
   Root,
   PubSub,
   PubSubEngine,
+  Authorized,
 } from 'type-graphql';
 import { RequestContext } from '../context';
 
@@ -97,13 +98,14 @@ export default class PartyRoomResolver {
   }
 
   @Mutation(_returns => PartyRoom)
+  @Authorized('USER')
   async setRoomWidget(
     @Arg('id') id: string,
     @Arg('widgetId') widgetId: string,
-    @Ctx() { identity, db }: RequestContext,
+    @Ctx() { user, db }: RequestContext,
     @PubSub() pubsub: PubSubEngine
   ): Promise<PartyRoom> {
-    const newRoom = await db.addRoomWidget(id, widgetId, identity!);
+    const newRoom = await db.addRoomWidget(id, widgetId, user!.identity);
 
     await pubsub.publish('UPDATE_ROOM', { id: newRoom.id, room: newRoom });
 

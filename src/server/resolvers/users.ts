@@ -1,3 +1,4 @@
+import { v4 as uuid } from 'uuid';
 import { PartyUser } from '../db';
 import {
   Resolver,
@@ -42,25 +43,47 @@ export default class PartyUserResolver {
     return db.getUser(identity);
   }
 
+  @Mutation(_returns => String, { nullable: true })
+  async verifyPasscode(
+    @Arg('passcode') userPasscode: string,
+    @Ctx() { passcode }: RequestContext
+  ): Promise<string | undefined> {
+    if (userPasscode === passcode) return passcode;
+    else return undefined;
+  }
+
   @Mutation(_returns => PartyUser)
   async register(
-    @Ctx() { db }: RequestContext,
+    @Ctx() { db, passcode, user, session }: RequestContext,
     @PubSub() pubsub: PubSubEngine,
-    @Arg('identity') identity: string,
+    @Arg('passcode') userPasscode: string,
     @Arg('displayName') displayName: string,
     @Arg('photoURL', { nullable: true }) photoURL?: string
   ): Promise<PartyUser> {
-    const token = ENV === 'production' ? undefined : 'h9d7d9g';
-    const user = await db.addUser({
-      identity,
-      displayName,
-      photoURL,
-      token,
-    });
+    if (user) {
+      return user;
+    }
 
-    await pubsub.publish('CREATE_USER', { identity: user.identity, user });
+    if (userPasscode === passcode) {
+      const newIdentity = uuid();
+      const websocketToken = uuid();
 
-    return user;
+      const newUser = await db.addUser({
+        identity: newIdentity,
+        displayName,
+        photoURL,
+        websocketToken,
+        admin: ENV !== 'production',
+      });
+
+      if (session) session.identity = newUser.identity;
+
+      await pubsub.publish('CREATE_USER', { identity: newUser.identity, user });
+
+      return newUser;
+    } else {
+      throw new Error('invalid passcode');
+    }
   }
 
   @Subscription({ topics: 'CREATE_USER' })

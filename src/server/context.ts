@@ -1,6 +1,9 @@
-import { PartyDB } from './db';
+import { Express } from 'express';
+import { PartyDB, PartyUser } from './db';
 
 export interface RequestContext {
-  identity?: string;
+  passcode: string;
   db: PartyDB;
+  session?: Express.Session;
+  user?: PartyUser;
 }

@@ -10,14 +10,14 @@ const VideoGrant = AccessToken.VideoGrant;
 export default class TwilioResolver {
   @Mutation(_returns => String)
   @Authorized('USER')
-  async generateRoomToken(@Arg('roomId') roomId: string, @Ctx() { identity }: RequestContext): Promise<string> {
+  async generateRoomToken(@Arg('roomId') roomId: string, @Ctx() { user }: RequestContext): Promise<string> {
     const token = new AccessToken(twilioAccountSid!, twilioApiKeySID!, twilioApiKeySecret!, {
       ttl: MAX_ALLOWED_SESSION_DURATION,
-      identity,
+      identity: user!.identity,
     });
     const videoGrant = new VideoGrant({ room: roomId });
     token.addGrant(videoGrant);
-    console.log(`issued token for ${identity} in room ${roomId}`);
+    console.log(`issued token for ${user?.identity} in room ${roomId}`);
 
     return token.toJwt();
   }

@@ -1,6 +1,7 @@
 import 'reflect-metadata';
 import express from 'express';
 import { createServer } from 'http';
+import session from 'express-session';
 import path from 'path';
 import twilio, { jwt, Twilio } from 'twilio';
 import dotenv from 'dotenv';
@@ -14,6 +15,7 @@ import { PartyRoom, Admin } from './server/db';
 import ngrok from 'ngrok';
 import LocalDB from './server/db/local';
 import morgan from 'morgan';
+import { SESSION_SECRET } from './server/config';
 
 const AccessToken = jwt.AccessToken;
 const app = express();
@@ -44,47 +46,6 @@ var url = process.env.BASE_URL;
 var server: Server | undefined = undefined;
 var database = new LocalDB();
 const pubsub = new PubSub();
-
-service.syncMaps
-  .create({ uniqueName: 'users' })
-  .then(() => {
-    console.log(`Created user list`);
-  })
-  .catch(e => {
-    if (e.code !== 54301) console.error(e);
-  });
-service.syncMaps
-  .create({ uniqueName: 'rooms' })
-  .then(() => {
-    console.log(`Created user list`);
-  })
-  .catch(e => {
-    if (e.code !== 54301) console.error(e);
-  });
-service.syncMaps
-  .create({ uniqueName: 'admins' })
-  .then(() => {
-    console.log(`Created admin list`);
-  })
-  .catch(e => {
-    if (e.code !== 54301) console.error(e);
-  });
-service.syncLists
-  .create({ uniqueName: 'broadcasts' })
-  .then(() => {
-    console.log(`Created broadcast list`);
-  })
-  .catch(e => {
-    if (e.code !== 54301) console.error(e);
-  });
-service.syncStreams
-  .create({ uniqueName: 'reactions' })
-  .then(() => {
-    console.log(`Created reactions stream`);
-  })
-  .catch(e => {
-    if (e.code !== 54301) console.error(e);
-  });
 
 const updateRoomHooks = (hookUrl: string) => {
   client.video.rooms
@@ -128,8 +89,9 @@ const updateRoomHooks = (hookUrl: string) => {
 };
 
 if (ENV !== 'production') {
+  // todo(carlos): CHANGE BACK WHEN US BACK UP
   ngrok
-    .connect(PORT)
+    .connect({ region: 'us', addr: PORT })
     .then((u: string) => {
       url = u;
       console.log(`Ngrok started at ${u}`);
@@ -271,6 +233,15 @@ app.use(express.static(path.join(__dirname, 'build')));
 app.use(express.json());
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
+app.set('trust proxy', 1);
+app.use(
+  session({
+    secret: SESSION_SECRET!,
+    resave: false,
+    saveUninitialized: true,
+    cookie: { secure: ENV === 'production' },
+  })
+);
 // disable cache for API
 app.disable('etag');
 if (ENV === 'production') {
@@ -312,35 +283,31 @@ app.post('/api/token', (req, res) => {
 app.get('/api/sync_token', (req, res) => {
   const { identity, passcode } = req.query;
 
-  if (passcode === PASSCODE) {
-    const token = new AccessToken(twilioAccountSid, twilioApiKeySID, twilioApiKeySecret, {
-      ttl: MAX_ALLOWED_SESSION_DURATION,
-      identity,
+  const token = new AccessToken(twilioAccountSid, twilioApiKeySID, twilioApiKeySecret, {
+    ttl: MAX_ALLOWED_SESSION_DURATION,
+    identity,
+  });
+  const syncGrant = new SyncGrant({ serviceSid: twilioServiceSID });
+  token.addGrant(syncGrant);
+
+  service
+    .syncMaps('users')
+    .syncMapPermissions(identity)
+    .update({ read: true, write: false, manage: false })
+    .then(() => {
+      console.log(`Gave ${identity} permission for 'users'`);
+
+      service
+        .syncMaps('rooms')
+        .syncMapPermissions(identity)
+        .update({ read: true, write: false, manage: false })
+        .then(() => {
+          console.log(`Gave ${identity} permission for 'rooms'`);
+          res.send(token.toJwt());
+        });
     });
-    const syncGrant = new SyncGrant({ serviceSid: twilioServiceSID });
-    token.addGrant(syncGrant);
 
-    service
-      .syncMaps('users')
-      .syncMapPermissions(identity)
-      .update({ read: true, write: false, manage: false })
-      .then(() => {
-        console.log(`Gave ${identity} permission for 'users'`);
-
-        service
-          .syncMaps('rooms')
-          .syncMapPermissions(identity)
-          .update({ read: true, write: false, manage: false })
-          .then(() => {
-            console.log(`Gave ${identity} permission for 'rooms'`);
-            res.send(token.toJwt());
-          });
-      });
-
-    console.log(`issued sync token for ${identity}`);
-  } else {
-    res.sendStatus(401);
-  }
+  console.log(`issued sync token for ${identity}`);
 });
 
 app.post('/api/set_admin', (req, res) => {
@@ -520,33 +487,57 @@ graphRoot(pubsub)
     const graph = new ApolloServer({
       resolvers,
       typeDefs,
-      context: ({ req, connection }): RequestContext => {
+      context: async ({ req, connection }): Promise<RequestContext> => {
+        var user = undefined;
+
         if (connection) {
+          if (connection.context.identity) {
+            user = await database.getUser(connection.context.identity);
+          }
+
           return {
-            ...connection.context,
+            passcode: PASSCODE!,
             db: database,
+            user,
           };
         } else {
-          const { passcode, identity } = req.headers;
-          if (passcode === PASSCODE) {
-            return {
-              identity: identity as string | undefined,
-              db: database,
-            };
-          } else {
-            return {
-              db: database,
-            };
+          if (req.session?.identity) {
+            try {
+              user = await database.getUser(req.session.identity);
+
+              return {
+                passcode: PASSCODE!,
+                db: database,
+                session: req.session,
+                user,
+              };
+            } catch (_e) {}
           }
+
+          return {
+            passcode: PASSCODE!,
+            db: database,
+            session: req.session,
+          };
         }
       },
       subscriptions: {
         path: '/api/graphql',
-        onConnect: (connectionParams: any) => {
-          if (connectionParams.passcode === PASSCODE) {
-            return Promise.resolve({
-              identity: connectionParams.identity,
-            });
+        onConnect: async (connectionParams: any) => {
+          if (connectionParams.identity) {
+            try {
+              const user = await database.getUser(connectionParams.identity);
+
+              if (connectionParams.token === user.websocketToken) {
+                return {
+                  identity: user.identity,
+                };
+              } else {
+                throw new Error('invalid user');
+              }
+            } catch (_e) {
+              return Promise.reject('invalid user token');
+            }
           } else {
             return Promise.resolve({});
           }

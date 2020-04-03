@@ -43,8 +43,9 @@ export default class PartyBroadcastResolver {
     }
 
     @Mutation(_returns => PartyBroadcast)
-    async broadcast(@Arg('message') message: string, @Ctx() { identity, db }: RequestContext, @PubSub() pubsub: PubSubEngine): Promise<PartyBroadcast> {
-        const broadcast = db.addBroadcast(identity!, message);
+    @Authorized('ADMIN')
+    async broadcast(@Arg('message') message: string, @Ctx() { user, db }: RequestContext, @PubSub() pubsub: PubSubEngine): Promise<PartyBroadcast> {
+        const broadcast = db.addBroadcast(user!.identity, message);
 
         await pubsub.publish('BROADCAST', broadcast);
 
@@ -53,12 +54,10 @@ export default class PartyBroadcastResolver {
 
     @Subscription(_returns => BroadcastNotification, { topics: 'BROADCAST' })
     @Authorized('USER')
-    async broadcastSent(@Root() payload: PartyBroadcast, @Ctx() { identity, db }: RequestContext): Promise<BroadcastNotification> {
-        const user = await db.getUser(payload.identity);
-
+    async broadcastSent(@Root() payload: PartyBroadcast, @Ctx() { user, db }: RequestContext): Promise<BroadcastNotification> {
         return {
             id: payload.id,
-            user,
+            user: user!,
             message: payload.message,
         };
     }
