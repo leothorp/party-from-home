@@ -209,7 +209,7 @@ export default function Charades() {
 
 function getPlayAreaContent(gameState: any, user: any, userTeam: string) {
   const gameInProgress = gameState.currentTeam !== 'Nobody';
-  const isCurrentActor = user.uid === gameState.currentActor.identity;
+  const isCurrentActor = user.identity === gameState.currentActor.identity;
 
   if (!gameInProgress) return <CharadesCard cardText="Click new game to begin!" />;
   if (userTeam === 'none') return <CharadesCard cardText="Game in progress, wait for a new game to join!" />;
@@ -224,11 +224,11 @@ function getPlayAreaContent(gameState: any, user: any, userTeam: string) {
 
 function getUserTeam(user: any, teams: Teams) {
   for (const player of teams.red) {
-    if (user.uid === player.identity) return 'red';
+    if (user.identity === player.identity) return 'red';
   }
 
   for (const player of teams.blue) {
-    if (user.uid === player.identity) return 'blue';
+    if (user.identity === player.identity) return 'blue';
   }
 
   return 'none';

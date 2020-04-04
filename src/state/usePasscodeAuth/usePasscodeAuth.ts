@@ -1,6 +1,26 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { User } from '../../state';
+import gql from 'graphql-tag';
+import { useMutation } from '@apollo/react-hooks';
+
+const REGISTER = gql`
+  mutation Register($passcode: String!, $displayName: String!, $photoURL: String) {
+    register(passcode: $passcode, displayName: $displayName, photoURL: $photoURL) {
+      identity
+      displayName
+      photoURL
+      websocketToken
+      admin
+    }
+  }
+`;
+
+const VERIFY_PASSCODE = gql`
+  mutation VerifyPasscode($passcode: String!) {
+    verifyPasscode(passcode: $passcode)
+  }
+`;
 
 export function getStoredUser() {
   const match = window.location.search.match(/passcode=(.*)&?/);
@@ -19,39 +39,6 @@ export function fetchToken(name: string, room: string, passcode: string) {
   });
 }
 
-export function verifyPasscode(passcode: string) {
-  return fetchToken('temp-name', 'temp-room', passcode).then(async res => {
-    const jsonResponse = await res.json();
-    if (res.status === 401) {
-      return { isValid: false, error: jsonResponse.error?.message };
-    }
-
-    if (res.ok && jsonResponse.token) {
-      return { isValid: true };
-    }
-  });
-}
-
-const registerUser = (newUser?: any): Promise<string | null> => {
-  return new Promise((resolve, reject) => {
-    if (newUser && newUser.uid) {
-      fetch('/api/register', {
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-        },
-        body: JSON.stringify(newUser),
-      })
-        .then(res => {
-          console.log('registered user with server');
-          return res.json();
-        })
-        .then(data => resolve(data.token))
-        .catch(reject);
-    }
-  });
-};
-
 export function getErrorMessage(message: string) {
   switch (message) {
     case 'passcode incorrect':
@@ -68,6 +55,34 @@ export default function usePasscodeAuth() {
 
   const [user, setUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
+  const [authError, setAuthError] = useState<Error | undefined>(undefined);
+  const onRegistered = useCallback(data => {
+    const newUser = {
+      ...user,
+      ...data.register,
+    };
+    setUser(newUser);
+    window.sessionStorage.setItem('user', JSON.stringify(newUser));
+    setIsAuthReady(true);
+  }, [user]);
+  const onVerified = useCallback((data: any) => {
+    if (data.verifyPasscode) {
+        setUser({ passcode: data.verifyPasscode } as any);
+        window.sessionStorage.setItem('user', JSON.stringify({ passcode: data.verifyPasscode }));
+    } else {
+      setAuthError(Error(getErrorMessage('Passode invalid')));
+    }
+  }, []);
+  const onInvalidPasscode = useCallback(() => {
+      setAuthError(Error(getErrorMessage('Passode invalid')));
+  }, []);
+  const [register] = useMutation(REGISTER, {
+    onCompleted: onRegistered,
+  });
+  const [verifyPasscode] = useMutation(VERIFY_PASSCODE, {
+    onCompleted: onVerified,
+    onError: onInvalidPasscode,
+  });
 
   const getToken = useCallback(
     (name: string, room: string) => {
@@ -82,40 +97,23 @@ export default function usePasscodeAuth() {
     const storedUser = getStoredUser();
 
     if (storedUser.passcode) {
-      verifyPasscode(storedUser.passcode)
-        .then(verification => {
-          if (verification?.isValid) {
-            setUser(storedUser);
-            window.sessionStorage.setItem('user', JSON.stringify(storedUser));
-            history.replace(window.location.pathname);
-            registerUser(storedUser)
-              .then(token => {
-                if (token) {
-                  storedUser.token = token;
-                }
-
-                setUser(storedUser);
-                window.sessionStorage.setItem('user', JSON.stringify(storedUser));
-              })
-              .catch(e => console.error(e));
-          }
-        })
-        .then(() => setIsAuthReady(true));
+      register({
+        variables: {
+          displayName: storedUser.displayName,
+          photoURL: storedUser.photoURL,
+          passcode: storedUser.passcode,
+        },
+      });
     } else {
       setIsAuthReady(true);
     }
-  }, [history]);
+  }, [history, register]);
 
   const signIn = useCallback((passcode: string) => {
-    return verifyPasscode(passcode).then(verification => {
-      if (verification?.isValid) {
-        setUser({ passcode } as any);
-        window.sessionStorage.setItem('user', JSON.stringify({ passcode }));
-      } else {
-        throw new Error(getErrorMessage(verification?.error));
-      }
-    });
-  }, []);
+    verifyPasscode({ variables: { passcode }});
+
+    return Promise.resolve();
+  }, [verifyPasscode]);
 
   const signOut = useCallback(() => {
     setUser(null);
@@ -125,13 +123,15 @@ export default function usePasscodeAuth() {
 
   const setUserNameAvatar = (displayName: string, photoURL?: string) => {
     console.log('setting');
-    const uid = user?.uid ? user.uid : new Date().getTime().toString();
-    const newUser = { ...user, uid, displayName, photoURL };
+    const identity = user?.identity ? user.identity : new Date().getTime().toString();
+    const newUser = { ...user, identity, displayName, photoURL };
     setUser(newUser as any);
     window.sessionStorage.setItem('user', JSON.stringify(newUser));
-    registerUser(newUser);
+    register({
+      variables: newUser,
+    });
     return Promise.resolve();
   };
 
-  return { user, setUser: setUserNameAvatar, isAuthReady, getToken, signIn, signOut };
+  return { user, setUser: setUserNameAvatar, isAuthReady, getToken, signIn, signOut, authError };
 }

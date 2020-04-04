@@ -4,6 +4,8 @@ import { Casino, CasinoOutlined } from '@material-ui/icons';
 import useApi from '../../hooks/useApi/useApi';
 import useCurrentRoom from '../../hooks/useCurrentRoom/useCurrentRoom';
 import registry, { WidgetRegistration } from '../../registries/widgetRegistry';
+import gql from 'graphql-tag';
+import { useMutation } from '@apollo/react-hooks';
 
 const SelectorContainer = styled('div')(({ theme }) => ({
   position: 'fixed',
@@ -43,6 +45,26 @@ const WidgetInfoTitle = styled('p')(({ theme }) => ({
 
 const WidgetInfoDescription = styled('p')(({ theme }) => ({}));
 
+const SET_WIDGET = gql`
+  mutation SetRoomWidget($roomId: String!, $widgetId: String!) {
+    setRoomWidget(id: $roomId, widgetId: $widgetId) {
+      id
+      widgetId
+      widgetState
+    }
+  }
+`;
+
+const REMOVE_WIDGET = gql`
+  mutation RemoveRoomWidget($roomId: String!) {
+    removeRoomWidget(id: $roomId) {
+      id
+      widgetId
+      widgetState
+    }
+  }
+`;
+
 interface WidgetInfoProps {
   id: string;
   widget: WidgetRegistration;
@@ -67,31 +89,31 @@ export interface Props {
 }
 
 export default function WidgetButton(props: Props) {
-  const { callApi } = useApi();
   const room = useCurrentRoom();
   const [open, setOpen] = useState(false);
+  const [setRoomWidget] = useMutation(SET_WIDGET);
+  const [removeRoomWidget] = useMutation(REMOVE_WIDGET);
 
   const select = useCallback(
     (widgetId: string) => {
       if (room && !room.widgetId) {
-        callApi('create_widget_state', {
-          roomId: room.id,
-          widgetId,
-        }).catch(e => console.error(e));
+        setRoomWidget({
+          variables: { roomId: room.id, widgetId },
+        });
       }
 
       setOpen(false);
     },
-    [callApi, room]
+    [room, setRoomWidget]
   );
 
   const remove = useCallback(() => {
     if (room) {
-      callApi('delete_widget_state', {
-        roomId: room.id,
-      }).catch(e => console.error(e));
+      removeRoomWidget({
+        variables: { roomId: room.id },
+      });
     }
-  }, [callApi, room]);
+  }, [removeRoomWidget, room]);
 
   const openSelector = useCallback(() => {
     setOpen(true);

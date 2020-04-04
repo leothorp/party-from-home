@@ -1,5 +1,6 @@
 import React, { ChangeEvent, useState, FormEvent, useCallback } from 'react';
 import { useAppState } from '../../state';
+import { subscriptionClient } from '../../graph';
 
 import Button from '@material-ui/core/Button';
 import ErrorOutlineIcon from '@material-ui/icons/ErrorOutline';
@@ -105,6 +106,7 @@ export default function LoginPage() {
     } else {
       if (setUser) {
         setUser(name).then(() => {
+          subscriptionClient.close(true, false);
           history.replace({ pathname: '/' });
         });
       }
@@ -120,7 +122,10 @@ export default function LoginPage() {
   const onFBLogin = useCallback(
     (info: ReactFacebookLoginInfo) => {
       if (setUser) {
-        setUser(info.name || '', info?.picture?.data?.url || '').then(() => history.replace({ pathname: '/' }));
+        setUser(info.name || '', info?.picture?.data?.url || '').then(() => {
+          subscriptionClient.close(true, false);
+          history.replace({ pathname: '/' });
+        });
       }
     },
     [history, setUser]

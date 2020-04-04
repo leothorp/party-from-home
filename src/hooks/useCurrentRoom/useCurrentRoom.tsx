@@ -1,21 +1,19 @@
-import { useEffect, useState } from 'react';
-import useMapItems from '../useSync/useMapItems';
+import { useEffect } from 'react';
 import { useAppState } from '../../state';
+import useUser from '../partyHooks/useUser';
+import useRoom from '../partyHooks/useRoom';
 
 // Returns the object of the party room the current user is in
 export default function useCurrentRoom() {
-  const users = useMapItems('users');
-  const rooms = useMapItems('rooms');
   const { user } = useAppState();
-  const [currentRoom, setCurrentRoom] = useState<any | null>(null);
+  const { user: currentUser } = useUser({ userId: user?.identity });
+  const { getRoom, room: currentRoom } = useRoom();
 
   useEffect(() => {
-    if (user && users && rooms) {
-      const userRoomId = users[user.uid]?.room;
-      const newCurrentRoom = rooms[userRoomId];
-      setCurrentRoom(newCurrentRoom);
+    if (currentUser && currentUser.room) {
+      getRoom(currentUser.room);
     }
-  }, [rooms, user, users]);
+  }, [currentUser, getRoom]);
 
-  return currentRoom;
+  return currentUser?.room && currentRoom;
 }

@@ -16,6 +16,8 @@ import './types';
 import { VideoProvider } from './components/VideoProvider';
 import UserSetup from './components/UserSetup/UserSetup';
 import useMocks from './dev/useMocks';
+import { ApolloProvider } from '@apollo/react-hooks';
+import apolloClient from './graph';
 
 // See: https://media.twiliocdn.com/sdk/js/video/releases/2.0.0/docs/global.html#ConnectOptions
 // for available connection options.
@@ -52,25 +54,27 @@ const VideoApp = () => {
 ReactDOM.render(
   <MuiThemeProvider theme={theme}>
     <CssBaseline />
-    <Router>
-      <AppStateProvider>
-        <Switch>
-          <PrivateRoute exact path="/">
-            <VideoApp />
-          </PrivateRoute>
-          <PrivateRoute path="/room/:URLRoomName">
-            <VideoApp />
-          </PrivateRoute>
-          <Route path="/login">
-            <LoginPage />
-          </Route>
-          <Route path="/user_setup">
-            <UserSetup />
-          </Route>
-          <Redirect to="/" />
-        </Switch>
-      </AppStateProvider>
-    </Router>
+    <ApolloProvider client={apolloClient}>
+      <Router>
+        <AppStateProvider>
+          <Switch>
+            <PrivateRoute exact path="/">
+              <VideoApp />
+            </PrivateRoute>
+            <PrivateRoute path="/room/:URLRoomName">
+              <VideoApp />
+            </PrivateRoute>
+            <Route path="/login">
+              <LoginPage />
+            </Route>
+            <Route path="/user_setup">
+              <UserSetup />
+            </Route>
+            <Redirect to="/" />
+          </Switch>
+        </AppStateProvider>
+      </Router>
+    </ApolloProvider>
   </MuiThemeProvider>,
   document.getElementById('root')
 );

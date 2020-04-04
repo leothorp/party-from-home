@@ -4,7 +4,7 @@ import RoomWidgetProvider from './RoomWidgetProvider';
 
 interface Props {
   widgetId: string;
-  documentId: string;
+  roomId: string;
 }
 
 export default function RoomWidget(props: Props) {
@@ -12,7 +12,7 @@ export default function RoomWidget(props: Props) {
   const Widget = widgetInfo.component;
 
   return (
-    <RoomWidgetProvider documentId={props.documentId}>
+    <RoomWidgetProvider roomId={props.roomId}>
       <Widget />
     </RoomWidgetProvider>
   );

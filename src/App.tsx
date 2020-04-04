@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { styled } from '@material-ui/core/styles';
+import gql from 'graphql-tag';
+import { useMutation } from '@apollo/react-hooks';
 
 import LocalVideoPreview from './components/LocalVideoPreview/LocalVideoPreview';
 import MenuBar from './components/MenuBar/MenuBar';
@@ -12,6 +14,7 @@ import UserEntryBanner from './components/UserEntryBanner/UserEntryBanner';
 import GameBanner from './components/GameBanner/GameBanner';
 
 import useRoomState from './hooks/useRoomState/useRoomState';
+import useMountEffect from './hooks/useMountEffect/useMountEffect';
 
 const Container = styled('div')({
   display: 'flex',
@@ -24,9 +27,29 @@ const Main = styled('main')({
   position: 'relative',
 });
 
+const HEARTBEAT = gql`
+  mutation Heartbeat {
+    heartbeat
+  }
+`;
+
 export default function App() {
   const roomState = useRoomState();
   const [escalateOpen, setEscalateOpen] = useState(false);
+  const [heartbeat] = useMutation(HEARTBEAT);
+  const [heartbeatTimer, setHeartbeatTimer] = useState<any>(undefined);
+
+  useMountEffect(() => {
+    const timer = setInterval(() => {
+      heartbeat();
+    }, 30000);
+
+    setHeartbeatTimer(timer);
+
+    return () => {
+      clearInterval(heartbeatTimer);
+    };
+  });
 
   const openEscalate = useCallback(
     (e: any) => {

@@ -234,7 +234,7 @@ export default function KingsCup() {
     var drawn = [''];
     var topCardImg = '/images/cards/empty.png';
     var players = participants;
-    if (players.length < 1) players = [{ uid: '', displayName: '' }];
+    if (players.length < 1) players = [{ identity: '', displayName: '' }];
     var turn = gs.turn;
     if (turn >= players.length) turn = 0;
     var lastPlayer = gs.lastPlayer;

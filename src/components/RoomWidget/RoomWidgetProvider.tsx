@@ -1,19 +1,19 @@
 import React, { createContext, ReactChild } from 'react';
 
 export interface RoomWidgetProps {
-  documentId: string;
+  roomId: string;
 }
 
 export const RoomWidgetContext = createContext({} as RoomWidgetProps);
 
 interface ProviderProps {
-  documentId: string;
+  roomId: string;
   children: ReactChild | ReactChild[];
 }
 
 export default function RoomWidgetProvider(props: ProviderProps) {
   const widgetContext = {
-    documentId: props.documentId,
+    roomId: props.roomId,
   };
 
   return <RoomWidgetContext.Provider value={widgetContext}>{props.children}</RoomWidgetContext.Provider>;

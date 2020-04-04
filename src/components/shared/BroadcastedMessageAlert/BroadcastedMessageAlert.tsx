@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import CloseIcon from '@material-ui/icons/Close';
 import { Snackbar, IconButton, styled } from '@material-ui/core';
-import useListItems from '../../../hooks/useSync/useListItems';
+import gql from 'graphql-tag';
+import { useSubscription } from '@apollo/react-hooks';
 
 const useStyles = makeStyles(theme => ({
   close: {
@@ -29,20 +30,30 @@ const IconContainer = styled('div')({
   color: '#FFFFFF',
 });
 
+const BROADCAST_SUBSCRIPTION = gql`
+  subscription onBroadcast {
+    broadcastSent {
+      id
+      user {
+        identity
+        displayName
+        photoURL
+      }
+      message
+    }
+  }
+`;
+
 export default function BroadcastedMessageAlert() {
   const classes = useStyles();
-  const [lastMessageClosedId, setLastMessageClosedId] = useState(null);
-  const broadcastedMessages = useListItems('broadcasts');
-  const lastBroadcastedMessage = broadcastedMessages[broadcastedMessages.length - 1] || null;
+  const [open, setOpen] = useState(false);
+  const { data } = useSubscription(BROADCAST_SUBSCRIPTION, {
+    onSubscriptionData: () => setOpen(true),
+  });
 
-  const handleClose = (_: React.SyntheticEvent | MouseEvent, reason?: string) => {
-    if (reason === 'clickaway') {
-      return;
-    }
-    setLastMessageClosedId(lastBroadcastedMessage.id);
-  };
-
-  const showBroadcastedMessage = !!lastBroadcastedMessage && lastMessageClosedId !== lastBroadcastedMessage.id;
+  const handleClose = useCallback((_: React.SyntheticEvent | MouseEvent, reason?: string) => {
+    setOpen(false);
+  }, []);
 
   return (
     <div>
@@ -52,14 +63,14 @@ export default function BroadcastedMessageAlert() {
           vertical: 'top',
           horizontal: 'right',
         }}
-        open={showBroadcastedMessage}
+        open={open}
         autoHideDuration={15000}
         onClose={handleClose}
         className={classes.snackbarOverride}
         message={
           <>
-            <MessageText>{lastBroadcastedMessage?.message || null}</MessageText>
-            <MessageAuthor>{lastBroadcastedMessage?.userName || null}</MessageAuthor>
+            <MessageText>{data?.broadcastSent.message || null}</MessageText>
+            <MessageAuthor>{data?.broadcastSent.user.displayName || null}</MessageAuthor>
           </>
         }
         action={

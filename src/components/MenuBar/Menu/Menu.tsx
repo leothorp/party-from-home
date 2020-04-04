@@ -40,7 +40,7 @@ export default function Menu() {
           <DevPanel open={devOpen} onClose={() => setDevOpen(false)} />
         </>
       )}
-      {user?.token ? (
+      {user?.admin ? (
         <>
           <IconButton color="inherit" onClick={() => setAdminOpen(state => !state)}>
             <Settings />
