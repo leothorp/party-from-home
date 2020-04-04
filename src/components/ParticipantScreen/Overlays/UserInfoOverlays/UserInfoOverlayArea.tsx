@@ -1,11 +1,11 @@
 import React from 'react';
-import { UserInfoOverlayDefinition } from '../../../Overlay';
+import { UserInfoOverlayDefinition } from '../../../../Overlay';
 import { styled, makeStyles, createStyles, Theme } from '@material-ui/core';
 import { LocalParticipant, RemoteParticipant } from 'twilio-video';
-import UserInfoOverlay from './UserInfoOverlays/UserInfoOverlay';
+import UserInfoOverlay from './UserInfoOverlay';
 
 const Container = styled('div')({
-  height: '7.5%',
+  height: '100%',
 });
 
 export interface Props {

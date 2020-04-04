@@ -6,14 +6,17 @@ export interface UserInfoOverlayDefinition {
 }
 
 export interface EphemeralOverlayDefinition {
+  id: string;
   component: FunctionComponent;
 }
 
 export interface GameSpaceOverlayDefinition {
+  id: string;
   component: FunctionComponent;
 }
 
 export interface BorderOverlayDefinition {
+  id: string;
   color: string;
   text?: string;
 }

@@ -3,7 +3,9 @@ import clsx from 'clsx';
 import { createStyles, makeStyles, Theme } from '@material-ui/core/styles';
 import { LocalParticipant, RemoteParticipant, RemoteVideoTrack, LocalVideoTrack } from 'twilio-video';
 import { Overlays } from '../../Overlay';
-import UserInfoOverlayArea from './Overlays/UserInfoOverlayArea';
+import UserInfoOverlayArea from './Overlays/UserInfoOverlays/UserInfoOverlayArea';
+import GameSpaceOverlayArea from './Overlays/GameSpaceOverlays/GameSpaceOverlayArea';
+import EphemeralOverlayArea from './Overlays/EphemeralOverlays/EphemeralOverlayArea';
 
 import BandwidthWarning from '../BandwidthWarning/BandwidthWarning';
 
@@ -38,14 +40,33 @@ const useStyles = makeStyles((theme: Theme) =>
       zIndex: 1,
       display: 'flex',
       flexDirection: 'column',
-      justifyContent: 'space-between',
+      justifyContent: 'top',
+      // justifyContent: 'space-between',
       height: '100%',
-      padding: '0.4em',
       width: '100%',
       background: 'transparent',
+      paddingTop: '0.4em',
     },
     hideVideo: {
       background: 'black',
+    },
+    upperOverlayContainer: {
+      height: '24px',
+      paddingLeft: '0.4em',
+      paddingRight: '0.4em',
+    },
+    lowerOverlayContainer: {
+      flexGrow: 1,
+    },
+    lowerLeftOverlayContainer: {
+      width: '75%',
+      height: '100%',
+      display: 'inline-block',
+    },
+    lowerRightOverlayContainer: {
+      width: '25%',
+      height: '100%',
+      display: 'inline-block',
     },
   })
 );
@@ -88,7 +109,17 @@ export default function ParticipantScreen({
       style={{ width: maxWidth || 'inherit' }}
     >
       <div className={clsx(classes.infoContainer, { [classes.hideVideo]: !isVideoEnabled })}>
-        <UserInfoOverlayArea participant={participant} overlays={overlays?.userInfoOverlays || []} />
+        <div className={clsx(classes.upperOverlayContainer)}>
+          <UserInfoOverlayArea participant={participant} overlays={overlays?.userInfoOverlays || []} />
+        </div>
+        <div className={clsx(classes.lowerOverlayContainer)}>
+          <div className={clsx(classes.lowerLeftOverlayContainer)}>
+            <GameSpaceOverlayArea participant={participant} overlay={overlays?.gameSpaceOverlay} />
+          </div>
+          <div className={clsx(classes.lowerRightOverlayContainer)}>
+            <EphemeralOverlayArea participant={participant} overlays={overlays?.ephemeralOverlays || []} />
+          </div>
+        </div>
       </div>
       {/* TODO(gail.wilson) -- Make Bandwidth warning a "screen takeover" overlay of some sort */}
       {isVideoSwitchedOff && <BandwidthWarning />}
