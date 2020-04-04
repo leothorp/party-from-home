@@ -76,6 +76,7 @@ export default class PartyUserResolver {
         photoURL,
         websocketToken,
         admin: ENV !== 'production',
+        lastHeartbeat: new Date(),
       });
 
       if (session) session.identity = newUser.identity;
@@ -86,6 +87,17 @@ export default class PartyUserResolver {
     } else {
       throw new Error('invalid passcode');
     }
+  }
+
+  @Mutation(_returns => Boolean)
+  @Authorized('USER')
+  async heartbeat(@Ctx() { db, user }: RequestContext): Promise<boolean> {
+    await db.editUser(user!.identity, {
+      ...user!,
+      lastHeartbeat: new Date(),
+    });
+
+    return true;
   }
 
   @Subscription({ topics: 'CREATE_USER' })

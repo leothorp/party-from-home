@@ -352,19 +352,6 @@ app.post('/api/set_admin', (req, res) => {
   }
 });
 
-app.get('/api/heartbeat', (req, res) => {
-  service
-    .syncMaps('users')
-    .syncMapItems(req.query.identity)
-    .update({ itemTtl: ITEM_TTL })
-    .then(() => {
-      console.log(`Updated TTL for ${req.query.identity}`);
-    })
-    .catch(e => console.log(e));
-
-  res.send('');
-});
-
 app.post('/api/hooks/room_status', async (req, res) => {
   console.log(`Received ${req.body.StatusCallbackEvent}`);
 

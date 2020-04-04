@@ -4,7 +4,6 @@ import useRooms from '../../hooks/partyHooks/useRooms';
 import useUsers from '../../hooks/partyHooks/useUsers';
 import { styled } from '@material-ui/core/styles';
 import { ExpandMore, ExpandLess } from '@material-ui/icons';
-import { useAppState } from '../../state';
 import useConnectRoom from '../../hooks/useConnectRoom';
 import RoomGridItem from './RoomGridItem';
 
@@ -73,18 +72,6 @@ interface Participants {
   [key: string]: Participant[];
 }
 
-const HEARTBEAT_INTERVAL = 100000;
-
-// todo(carlos): probably should be somewhere else, higher level,
-// after we implement the auth flow
-const heartbeat = (identity: string) => {
-  return () => {
-    fetch(`/api/heartbeat?identity=${identity}`).then(() => {
-      console.log('Sent heartbeat');
-    });
-  };
-};
-
 interface HeaderProps {
   onClick: () => void;
   open: boolean;
@@ -100,7 +87,6 @@ const Header = (props: HeaderProps) => {
 };
 
 export default function RoomGrid() {
-  const { user } = useAppState();
   const [open, setOpen] = useState(false);
   const { rooms } = useRooms();
   const { users } = useUsers();
@@ -114,11 +100,6 @@ export default function RoomGrid() {
     },
     [connectRoom, disconnectRoom]
   );
-
-  // todo(carlos): move this to app state
-  useMountEffect(() => {
-    setInterval(heartbeat(user?.identity || ''), HEARTBEAT_INTERVAL);
-  });
 
   const participants: Record<string, any[]> = {};
 

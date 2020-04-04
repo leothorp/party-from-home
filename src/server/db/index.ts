@@ -40,6 +40,7 @@ export class PartyUser {
   websocketToken?: string;
   @Field({ defaultValue: false })
   admin?: boolean = false;
+  lastHeartbeat!: Date;
 }
 
 @ObjectType()
