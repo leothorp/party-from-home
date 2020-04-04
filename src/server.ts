@@ -26,7 +26,7 @@ dotenv.config();
 const ENV = process.env.ENVIRONMENT;
 const MAX_ALLOWED_SESSION_DURATION =
   parseInt(process.env.MAX_SESSION_DURATION || '0') || (ENV === 'production' ? 18000 : 600);
-const ITEM_TTL = 120;
+const ITEM_TTL = 120000;
 const PASSCODE = process.env.PASSCODE;
 const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE;
 const PORT = process.env.PORT ? parseInt(process.env.PORT) : 8081;
@@ -125,6 +125,22 @@ if (ENV !== 'production') {
     })
     .catch(e => console.log(e));
 }
+
+const cullDeadUsers = async () => {
+  const users = await database.getUsers();
+  const now = new Date().getTime();
+
+  for (const user of users) {
+    const timeSinceHeartbeat = now - user.lastHeartbeat.getTime();
+    if (timeSinceHeartbeat > ITEM_TTL) {
+      await database.removeUser(user.identity);
+      pubsub.publish('DELETED_USER', { identity: user.identity });
+      console.log(`culled dead user ${user.displayName}(${user.identity})`);
+    }
+  }
+};
+
+const cullTimer = setInterval(cullDeadUsers, 1000);
 
 const setAdmin = (identity: string, shouldBeAdmin: boolean) => {
   const token = (new Date().getTime() * Math.random()).toString();
@@ -558,6 +574,7 @@ if (module.hot) {
   module.hot.accept();
   // @ts-ignore
   module.hot.dispose(() => {
+    clearInterval(cullTimer);
     server?.close();
     ngrok.disconnect(url);
   });

@@ -93,7 +93,7 @@ export default function useUsers() {
 
         return {
           ...prev,
-          users: prev.users.filter((u: any) => u.identity === userId),
+          users: prev.users.filter((u: any) => u.identity !== userId),
         };
       },
     });

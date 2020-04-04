@@ -81,7 +81,7 @@ export default class PartyUserResolver {
 
       if (session) session.identity = newUser.identity;
 
-      await pubsub.publish('CREATE_USER', { identity: newUser.identity, user });
+      await pubsub.publish('CREATE_USER', { identity: newUser.identity, user: newUser });
 
       return newUser;
     } else {
