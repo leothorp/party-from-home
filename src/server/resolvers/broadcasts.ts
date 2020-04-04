@@ -38,6 +38,7 @@ export class PartyBroadcastFieldResolver {
 @Resolver(PartyBroadcast)
 export default class PartyBroadcastResolver {
     @Query(_returns => [PartyBroadcast])
+    @Authorized('USER')
     async broadcasts(@Ctx() { db }: RequestContext): Promise<PartyBroadcast[]> {
         return db.getBroadcasts();
     }

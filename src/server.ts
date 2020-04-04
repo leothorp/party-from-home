@@ -528,7 +528,7 @@ graphRoot(pubsub)
             try {
               const user = await database.getUser(connectionParams.identity);
 
-              if (connectionParams.token === user.websocketToken) {
+              if (connectionParams.websocketToken === user.websocketToken) {
                 return {
                   identity: user.identity,
                 };

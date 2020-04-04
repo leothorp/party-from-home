@@ -17,6 +17,7 @@ export const subscriptionClient = new SubscriptionClient('ws://localhost:8081/ap
     const storedUser = JSON.parse(window.sessionStorage.getItem('user') || '{}');
 
     return {
+      identity: storedUser.identity,
       websocketToken: storedUser.websocketToken,
     };
   },

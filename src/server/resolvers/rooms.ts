@@ -47,16 +47,19 @@ class RoomDeleteNotification {
 @Resolver(PartyRoom)
 export default class PartyRoomResolver {
   @Query(_returns => [PartyRoom])
+  @Authorized('USER')
   async rooms(@Ctx() { db }: RequestContext): Promise<PartyRoom[]> {
     return db.getRooms();
   }
 
   @Query(_returns => PartyRoom)
+  @Authorized('USER')
   async room(@Arg('id') id: string, @Ctx() { db }: RequestContext): Promise<PartyRoom> {
     return db.getRoom(id);
   }
 
   @Mutation(_returns => PartyRoom)
+  @Authorized('ADMIN')
   async createRoom(
     @Arg('name') name: string,
     @Ctx() { db }: RequestContext,
@@ -69,6 +72,7 @@ export default class PartyRoomResolver {
   }
 
   @Mutation(_returns => PartyRoom)
+  @Authorized('ADMIN')
   async updateRoom(
     @Arg('id') id: string,
     @Arg('input') input: RoomUpdateInput,
@@ -87,6 +91,7 @@ export default class PartyRoomResolver {
   }
 
   @Mutation(_returns => Boolean)
+  @Authorized('ADMIN')
   async deleteRoom(
     @Arg('id') id: string,
     @Ctx() { db }: RequestContext,
@@ -113,6 +118,7 @@ export default class PartyRoomResolver {
   }
 
   @Mutation(_returns => PartyRoom)
+  @Authorized('ADMIN')
   async removeRoomWidget(
     @Arg('id') id: string,
     @Ctx() { db }: RequestContext,
@@ -126,6 +132,7 @@ export default class PartyRoomResolver {
   }
 
   @Mutation(_returns => PartyRoom)
+  @Authorized('USER')
   async setRoomWidgetState(
     @Arg('id') id: string,
     @Arg('state') state: string,
@@ -144,16 +151,19 @@ export default class PartyRoomResolver {
   }
 
   @Subscription({ topics: 'NEW_ROOM' })
+  @Authorized('USER')
   newRoom(@Root() payload: RoomNotification): RoomNotification {
     return payload;
   }
 
   @Subscription({ topics: 'UPDATE_ROOM' })
+  @Authorized('USER')
   updatedRoom(@Root() payload: RoomNotification): RoomNotification {
     return payload;
   }
 
   @Subscription({ topics: 'DELETED_ROOM' })
+  @Authorized('USER')
   deletedRoom(@Root() payload: RoomNotification): RoomDeleteNotification {
     return payload;
   }

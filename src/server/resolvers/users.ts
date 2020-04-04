@@ -34,11 +34,13 @@ class UserDeleteNotification {
 @Resolver(PartyUser)
 export default class PartyUserResolver {
   @Query(_returns => [PartyUser])
+  @Authorized('USER')
   async users(@Ctx() { db }: RequestContext): Promise<PartyUser[]> {
     return db.getUsers();
   }
 
   @Query(_returns => PartyUser)
+  @Authorized('USER')
   async user(@Arg('identity') identity: string, @Ctx() { db }: RequestContext) {
     return db.getUser(identity);
   }
@@ -87,16 +89,19 @@ export default class PartyUserResolver {
   }
 
   @Subscription({ topics: 'CREATE_USER' })
+  @Authorized('USER')
   newUser(@Root() payload: UserNotification): UserNotification {
     return payload;
   }
 
   @Subscription({ topics: 'UPDATE_USER' })
+  @Authorized('USER')
   updatedUser(@Root() payload: UserNotification): UserNotification {
     return payload;
   }
 
   @Subscription({ topics: 'DELETED_USER' })
+  @Authorized('USER')
   deletedUser(@Root() payload: UserDeleteNotification): UserDeleteNotification {
     return payload;
   }
