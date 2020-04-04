@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import { Modal, styled, TextField, Button } from '@material-ui/core';
-import useApi from '../../hooks/useApi/useApi';
-import { useAppState } from '../../state';
+import gql from 'graphql-tag';
+import { useMutation } from '@apollo/react-hooks';
 
 const Container = styled('div')(({ theme }) => ({
   position: 'fixed',
@@ -18,6 +18,15 @@ const Container = styled('div')(({ theme }) => ({
   padding: '16px',
 }));
 
+const ESCALATE = gql`
+  mutation Escalate($adminPasscode: String!) {
+    escalateUser(adminPasscode: $adminPasscode) {
+      identity
+      admin
+    }
+  }
+`;
+
 export interface Props {
   open: boolean;
   onClose: () => void;
@@ -25,9 +34,7 @@ export interface Props {
 
 export default function AdminEscalation(props: Props) {
   const [passcode, setPasscode] = useState('');
-  const [error, setError] = useState<string | null>(null);
-  const { callApi } = useApi();
-  const { user } = useAppState();
+  const [escalate, { error }] = useMutation(ESCALATE);
 
   const changePasscode = useCallback(
     (e: any) => {
@@ -37,18 +44,10 @@ export default function AdminEscalation(props: Props) {
   );
 
   const submitPasscode = useCallback(() => {
-    callApi('set_admin', {
-      adminPasscode: passcode,
-      newAdminIdentity: user?.identity,
-      admin: true,
-    })
-      .then(() => {
-        window.location.reload();
-      })
-      .catch(e => {
-        setError(e);
-      });
-  }, [callApi, passcode, user]);
+    escalate({
+      variables: { adminPasscode: passcode },
+    });
+  }, [escalate, passcode]);
 
   return (
     <Modal open={props.open} onClose={props.onClose}>

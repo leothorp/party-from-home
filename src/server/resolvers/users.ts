@@ -15,7 +15,7 @@ import {
   Field,
 } from 'type-graphql';
 import { RequestContext } from '../context';
-import { ENV } from '../config';
+import { ENV, ADMIN_PASSCODE } from '../config';
 
 @ObjectType()
 class UserNotification {
@@ -23,12 +23,6 @@ class UserNotification {
   identity!: string;
   @Field()
   user!: PartyUser;
-}
-
-@ObjectType()
-class UserDeleteNotification {
-  @Field()
-  identity!: string;
 }
 
 @Resolver(PartyUser)
@@ -100,6 +94,23 @@ export default class PartyUserResolver {
     return true;
   }
 
+  @Mutation(_returns => PartyUser)
+  @Authorized('USER')
+  async escalateUser(@Arg('adminPasscode') adminPasscode: string, @Ctx() { db, user }: RequestContext, @PubSub() pubsub: PubSubEngine): Promise<PartyUser> {
+    if (adminPasscode === ADMIN_PASSCODE) {
+      const newUser = await db.editUser(user!.identity, {
+        ...user!,
+        admin: true,
+      });
+
+      await pubsub.publish('UPDATE_USER', { identity: newUser.identity, user: newUser });
+
+      return newUser;
+    } else {
+      throw new Error('admin passcode invalid');
+    }
+  }
+
   @Subscription({ topics: 'CREATE_USER' })
   @Authorized('USER')
   newUser(@Root() payload: UserNotification): UserNotification {
@@ -114,7 +125,7 @@ export default class PartyUserResolver {
 
   @Subscription({ topics: 'DELETED_USER' })
   @Authorized('USER')
-  deletedUser(@Root() payload: UserDeleteNotification): UserDeleteNotification {
+  deletedUser(@Root() payload: UserNotification): UserNotification {
     return payload;
   }
 }

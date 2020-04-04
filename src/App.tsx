@@ -42,7 +42,7 @@ export default function App() {
   useMountEffect(() => {
     const timer = setInterval(() => {
       heartbeat();
-    }, 60000);
+    }, 30000);
 
     setHeartbeatTimer(timer);
 
