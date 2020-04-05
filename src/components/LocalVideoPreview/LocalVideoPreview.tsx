@@ -10,7 +10,6 @@ const Container = styled('div')({
   margin: 'auto',
   display: 'flex',
   alignItems: 'center',
-  justifyContent: 'center',
   flexDirection: 'column',
 });
 
@@ -24,10 +23,10 @@ export default function LocalVideoPreview() {
 
   const videoTrack = localTracks.find(track => track.name === 'camera') as LocalVideoTrack;
 
-  return videoTrack ? (
+  return (
     <Container>
-      <VideoTrack track={videoTrack} isLocal />
-      <CallToAction>Welcome! Join a party room using the drawer below!</CallToAction>
+      {videoTrack && <VideoTrack track={videoTrack} isLocal />}
+      <CallToAction>Welcome! Click to join a party room using the drawer below!</CallToAction>
     </Container>
-  ) : null;
+  );
 }
