@@ -56,25 +56,28 @@ export default function usePasscodeAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [authError, setAuthError] = useState<Error | undefined>(undefined);
-  const onRegistered = useCallback(data => {
-    const newUser = {
-      ...user,
-      ...data.register,
-    };
-    setUser(newUser);
-    window.sessionStorage.setItem('user', JSON.stringify(newUser));
-    setIsAuthReady(true);
-  }, [user]);
+  const onRegistered = useCallback(
+    data => {
+      const newUser = {
+        ...user,
+        ...data.register,
+      };
+      setUser(newUser);
+      window.sessionStorage.setItem('user', JSON.stringify(newUser));
+      setIsAuthReady(true);
+    },
+    [user]
+  );
   const onVerified = useCallback((data: any) => {
     if (data.verifyPasscode) {
-        setUser({ passcode: data.verifyPasscode } as any);
-        window.sessionStorage.setItem('user', JSON.stringify({ passcode: data.verifyPasscode }));
+      setUser({ passcode: data.verifyPasscode } as any);
+      window.sessionStorage.setItem('passcode', data.verifyPasscode);
     } else {
       setAuthError(Error(getErrorMessage('Passode invalid')));
     }
   }, []);
   const onInvalidPasscode = useCallback(() => {
-      setAuthError(Error(getErrorMessage('Passode invalid')));
+    setAuthError(Error(getErrorMessage('Passode invalid')));
   }, []);
   const [register] = useMutation(REGISTER, {
     onCompleted: onRegistered,
@@ -95,13 +98,14 @@ export default function usePasscodeAuth() {
 
   useEffect(() => {
     const storedUser = getStoredUser();
+    const passcode = window.sessionStorage.getItem('passcode');
 
-    if (storedUser.passcode) {
+    if (passcode) {
       register({
         variables: {
           displayName: storedUser.displayName,
           photoURL: storedUser.photoURL,
-          passcode: storedUser.passcode,
+          passcode,
         },
       });
     } else {
@@ -109,15 +113,19 @@ export default function usePasscodeAuth() {
     }
   }, [history, register]);
 
-  const signIn = useCallback((passcode: string) => {
-    verifyPasscode({ variables: { passcode }});
+  const signIn = useCallback(
+    (passcode: string) => {
+      verifyPasscode({ variables: { passcode } });
 
-    return Promise.resolve();
-  }, [verifyPasscode]);
+      return Promise.resolve();
+    },
+    [verifyPasscode]
+  );
 
   const signOut = useCallback(() => {
     setUser(null);
     window.sessionStorage.removeItem('user');
+    window.sessionStorage.removeItem('passcode');
     return Promise.resolve();
   }, []);
 

@@ -52,9 +52,9 @@ export default class PartyUserResolver {
   async register(
     @Ctx() { db, passcode, user, session }: RequestContext,
     @PubSub() pubsub: PubSubEngine,
-    @Arg('passcode') userPasscode: string,
     @Arg('displayName') displayName: string,
-    @Arg('photoURL', { nullable: true }) photoURL?: string
+    @Arg('photoURL', { nullable: true }) photoURL?: string,
+    @Arg('passcode', { nullable: true }) userPasscode?: string
   ): Promise<PartyUser> {
     if (user) {
       return user;
@@ -96,7 +96,11 @@ export default class PartyUserResolver {
 
   @Mutation(_returns => PartyUser)
   @Authorized('USER')
-  async escalateUser(@Arg('adminPasscode') adminPasscode: string, @Ctx() { db, user }: RequestContext, @PubSub() pubsub: PubSubEngine): Promise<PartyUser> {
+  async escalateUser(
+    @Arg('adminPasscode') adminPasscode: string,
+    @Ctx() { db, user }: RequestContext,
+    @PubSub() pubsub: PubSubEngine
+  ): Promise<PartyUser> {
     if (adminPasscode === ADMIN_PASSCODE) {
       const newUser = await db.editUser(user!.identity, {
         ...user!,

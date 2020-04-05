@@ -51,12 +51,11 @@ export default function MenuBar() {
   const roomState = useRoomState();
   const usersCurrentRoom = useCurrentRoom();
 
-  const roomName =
-    usersCurrentRoom?.name == null ? (
-      <CircularProgress color="secondary" size={18} />
-    ) : (
-      <span className={classes.roomName}>{usersCurrentRoom?.name}</span>
-    );
+  const roomName = usersCurrentRoom?.name ? (
+    <span className={classes.roomName}>{usersCurrentRoom?.name}</span>
+  ) : (
+    <CircularProgress color="secondary" size={18} />
+  );
 
   return (
     <AppBar className={classes.container} position="static">

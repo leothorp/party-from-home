@@ -1,19 +1,28 @@
 import { useEffect } from 'react';
 import { useAppState } from '../../state';
-import useUser from '../partyHooks/useUser';
 import useRoom from '../partyHooks/useRoom';
+import gql from 'graphql-tag';
+import { useQuery } from '@apollo/react-hooks';
+
+const GET_USER = gql`
+  query User($identity: String!) {
+    user(identity: $identity) {
+      room
+    }
+  }
+`;
 
 // Returns the object of the party room the current user is in
 export default function useCurrentRoom() {
   const { user } = useAppState();
-  const { user: currentUser } = useUser({ userId: user?.identity });
   const { getRoom, room: currentRoom } = useRoom();
+  const { data } = useQuery(GET_USER, { variables: { identity: user?.identity } });
 
   useEffect(() => {
-    if (currentUser && currentUser.room) {
-      getRoom(currentUser.room);
+    if (data && data.user.room) {
+      getRoom(data.user.room);
     }
-  }, [currentUser, getRoom]);
+  }, [data, getRoom]);
 
-  return currentUser?.room && currentRoom;
+  return data?.user.room && currentRoom;
 }

@@ -46,6 +46,8 @@ var url = process.env.BASE_URL;
 var server: Server | undefined = undefined;
 var database = new LocalDB();
 const pubsub = new PubSub();
+//@ts-ignore
+pubsub.ee.setMaxListeners(100);
 
 const updateRoomHooks = (hookUrl: string) => {
   client.video.rooms
@@ -134,7 +136,7 @@ const cullDeadUsers = async () => {
     const timeSinceHeartbeat = now - user.lastHeartbeat.getTime();
     if (timeSinceHeartbeat > ITEM_TTL) {
       await database.removeUser(user.identity);
-      pubsub.publish('DELETED_USER', { identity: user.identity, user, });
+      pubsub.publish('DELETED_USER', { identity: user.identity, user });
       console.log(`culled dead user ${user.displayName}(${user.identity})`);
     }
   }
