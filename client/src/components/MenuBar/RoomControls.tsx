@@ -1,5 +1,18 @@
-import React, { useCallback, useState } from 'react';
-import { Drawer, IconButton, Tooltip, styled, makeStyles, createStyles } from '@material-ui/core';
+import React, { useCallback, useEffect, useState } from 'react';
+import Video from 'twilio-video';
+import {
+  Drawer,
+  IconButton,
+  Popover,
+  List,
+  ListItem,
+  ListItemText,
+  Tooltip,
+  styled,
+  makeStyles,
+  createStyles,
+} from '@material-ui/core';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { Mic, MicOff, Videocam, VideocamOff, ScreenShare, StopScreenShare } from '@material-ui/icons';
 import useRoomState from '../../hooks/useRoomState/useRoomState';
 import useLocalAudioToggle from '../../hooks/useLocalAudioToggle/useLocalAudioToggle';
@@ -7,7 +20,6 @@ import useLocalVideoToggle from '../../hooks/useLocalVideoToggle/useLocalVideoTo
 import useScreenShareToggle from '../../hooks/useScreenShareToggle/useScreenShareToggle';
 import useScreenShareParticipant from '../../hooks/useScreenShareParticipant/useScreenShareParticipant';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
-import useMountEffect from '../../hooks/useMountEffect/useMountEffect';
 import { useAppState } from '../../state';
 import useCurrentRoom from '../../hooks/useCurrentRoom/useCurrentRoom';
 import WidgetButton from './WidgetButton';
@@ -32,6 +44,16 @@ const Link = styled('a')({
   color: 'yellow',
 });
 
+export interface AudioInput {
+  deviceId: string;
+  name: string;
+}
+
+export interface VideoInput {
+  deviceId: string;
+  name: string;
+}
+
 export default function RoomControls() {
   const classes = useStyles();
   const roomState = useRoomState();
@@ -41,11 +63,15 @@ export default function RoomControls() {
   const [isVideoEnabled, toggleVideoEnabled] = useLocalVideoToggle();
   const [isScreenShared, toggleScreenShare] = useScreenShareToggle();
   const screenShareParticipant = useScreenShareParticipant();
-  const { room } = useVideoContext();
+  const { room, localTracks, setLocalVideoTrack, setCameraId, setLocalAudioTrack, setMicId } = useVideoContext();
   const { user } = useAppState();
   const currentRoom = useCurrentRoom();
   const disableScreenShareButton = screenShareParticipant && screenShareParticipant !== room.localParticipant;
   const tooltipMessage = isScreenShared ? 'Stop Sharing Screen' : 'Share Screen';
+  const [micList, setMicList] = useState<AudioInput[]>([]);
+  const [cameraList, setCameraList] = useState<VideoInput[]>([]);
+  const [micAnchorEl, setMicAnchorEl] = useState<HTMLButtonElement | null>(null);
+  const [camAnchorEl, setCamAnchorEl] = useState<HTMLButtonElement | null>(null);
 
   const allowedToShareScreen = !currentRoom?.adminScreenshare || user?.token !== undefined;
   const allowedToStartGame =
@@ -60,15 +86,168 @@ export default function RoomControls() {
     setIsPartyRulesOpen(false);
   }, []);
 
+  useEffect(() => {
+    const localMicList: AudioInput[] = [];
+    const localCameraList: VideoInput[] = [];
+
+    let micCount = 1;
+    let cameraCount = 1;
+    navigator.mediaDevices.enumerateDevices().then(mediaDevices => {
+      mediaDevices.forEach(mediaDevice => {
+        switch (mediaDevice.kind) {
+          case 'audioinput':
+            if (mediaDevice.deviceId === 'default') {
+              break;
+            }
+            localMicList.push({
+              deviceId: mediaDevice.deviceId,
+              name: mediaDevice.label || `Mic ${micCount++}`,
+            });
+            break;
+          case 'videoinput':
+            if (mediaDevice.deviceId === 'default') {
+              break;
+            }
+            localCameraList.push({
+              deviceId: mediaDevice.deviceId,
+              name: mediaDevice.label || `Camera ${cameraCount++}`,
+            });
+            break;
+        }
+      });
+      setMicList(localMicList);
+      setCameraList(localCameraList);
+    });
+  }, [setMicList, setCameraList]);
+
+  const handleMicDropdownClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setMicAnchorEl(event.currentTarget);
+  };
+  const handleMicDropdownClose = () => {
+    setMicAnchorEl(null);
+  };
+
+  const openMicDropdown = Boolean(micAnchorEl);
+
+  const handleMicChange = useCallback(
+    (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      const newMicId = event.currentTarget.dataset.id as string;
+
+      if (!newMicId) {
+        console.error('no mic id found');
+        return;
+      }
+
+      const localParticipant = room.localParticipant;
+      const currentAudioTrack = localTracks.find(track => track.kind === 'audio') as Video.LocalAudioTrack;
+      if (localParticipant) {
+        const localTrackPublication = localParticipant.unpublishTrack(currentAudioTrack);
+        localParticipant.emit('trackUnpublished', localTrackPublication);
+      }
+      setMicId(newMicId);
+      setLocalAudioTrack().then((track: Video.LocalAudioTrack) => {
+        if (localParticipant) {
+          localParticipant.publishTrack(track);
+        }
+        handleMicDropdownClose();
+      });
+    },
+    [room, localTracks, setLocalAudioTrack, setMicId]
+  );
+
+  const handleCamDropdownClick = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setCamAnchorEl(event.currentTarget);
+  };
+  const handleCamDropdownClose = () => {
+    setCamAnchorEl(null);
+  };
+
+  const openCamDropdown = Boolean(camAnchorEl);
+
+  const handleCameraChange = useCallback(
+    (event: React.MouseEvent<HTMLDivElement, MouseEvent>) => {
+      const newCameraId = event.currentTarget.dataset.id as string;
+
+      if (!newCameraId) {
+        console.error('no camera id found');
+        return;
+      }
+
+      const localParticipant = room.localParticipant;
+      const currentVideoTrack = localTracks.find(track => track.name === 'camera') as Video.LocalVideoTrack;
+      if (localParticipant) {
+        const localTrackPublication = localParticipant.unpublishTrack(currentVideoTrack);
+        localParticipant.emit('trackUnpublished', localTrackPublication);
+      }
+      currentVideoTrack.stop();
+      setCameraId(newCameraId);
+      setLocalVideoTrack().then((track: Video.LocalVideoTrack) => {
+        if (localParticipant) {
+          localParticipant.publishTrack(track);
+        }
+        handleCamDropdownClose();
+      });
+    },
+    [room, localTracks, setLocalVideoTrack, setCameraId]
+  );
+
   return (
     <Container>
       {roomState !== 'disconnected' && <WidgetButton disabled={isReconnecting || !allowedToStartGame} />}
       <IconButton onClick={toggleAudioEnabled} disabled={isReconnecting}>
         {isAudioEnabled ? <Mic /> : <MicOff />}
       </IconButton>
+      <IconButton onClick={handleMicDropdownClick}>
+        <ArrowDropDownIcon />
+      </IconButton>
+      <Popover
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+        open={openMicDropdown}
+        onClose={handleMicDropdownClose}
+        anchorEl={micAnchorEl}
+      >
+        <List>
+          {micList.map((mic: AudioInput) => (
+            <ListItem button key={mic.deviceId} onClick={handleMicChange} data-id={mic.deviceId}>
+              <ListItemText primary={mic.name} />
+            </ListItem>
+          ))}
+        </List>
+      </Popover>
       <IconButton onClick={toggleVideoEnabled} disabled={isReconnecting}>
         {isVideoEnabled ? <Videocam /> : <VideocamOff />}
       </IconButton>
+      <IconButton onClick={handleCamDropdownClick}>
+        <ArrowDropDownIcon />
+      </IconButton>
+      <Popover
+        anchorOrigin={{
+          vertical: 'bottom',
+          horizontal: 'center',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'center',
+        }}
+        open={openCamDropdown}
+        onClose={handleCamDropdownClose}
+        anchorEl={camAnchorEl}
+      >
+        <List>
+          {cameraList.map((camera: VideoInput) => (
+            <ListItem button key={camera.deviceId} onClick={handleCameraChange} data-id={camera.deviceId}>
+              <ListItemText primary={camera.name} />
+            </ListItem>
+          ))}
+        </List>
+      </Popover>
       {roomState !== 'disconnected' && (
         <>
           {navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia && (

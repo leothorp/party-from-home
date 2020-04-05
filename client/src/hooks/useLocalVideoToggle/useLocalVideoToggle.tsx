@@ -6,7 +6,7 @@ export default function useLocalVideoToggle() {
   const {
     room: { localParticipant },
     localTracks,
-    getLocalVideoTrack,
+    setLocalVideoTrack,
   } = useVideoContext();
   const videoTrack = localTracks.find(track => track.name === 'camera') as LocalVideoTrack;
 
@@ -19,13 +19,15 @@ export default function useLocalVideoToggle() {
       }
       videoTrack.stop();
     } else {
-      getLocalVideoTrack().then((track: LocalVideoTrack) => {
+      setLocalVideoTrack().then((track: LocalVideoTrack) => {
+        console.log(track);
+        console.log(typeof track);
         if (localParticipant) {
           localParticipant.publishTrack(track);
         }
       });
     }
-  }, [videoTrack, localParticipant, getLocalVideoTrack]);
+  }, [videoTrack, localParticipant, setLocalVideoTrack]);
 
   return [!!videoTrack, toggleVideoEnabled] as const;
 }
