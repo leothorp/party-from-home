@@ -87,7 +87,7 @@ const Header = (props: HeaderProps) => {
 };
 
 export default function RoomGrid() {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(true);
   const { rooms } = useRooms();
   const { users } = useUsers();
   const { connectRoom, disconnectRoom } = useConnectRoom();

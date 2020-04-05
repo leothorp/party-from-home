@@ -23,14 +23,18 @@ const RoomRulesContent = styled('div')({
 export default function RoomInfoButtonAndPopOver() {
   const currentRoom = useCurrentRoom();
   const roomTitle = currentRoom?.name ? `Rules for the ${currentRoom.name}` : 'Room rules';
-  const roomDescription = currentRoom?.description || 'No description was provided...this is a mystery room.';
+  const roomDescription = currentRoom?.description;
 
   return (
-    <IconContainer>
-      <PopOverWithButton buttonType={BUTTON_TYPE_INFO} popOverId="room-info-popover">
-        <RoomRulesTitle>{roomTitle}</RoomRulesTitle>
-        <RoomRulesContent>{roomDescription}</RoomRulesContent>
-      </PopOverWithButton>
-    </IconContainer>
+    <>
+      {roomDescription && (
+        <IconContainer>
+          <PopOverWithButton buttonType={BUTTON_TYPE_INFO} popOverId="room-info-popover">
+            <RoomRulesTitle>{roomTitle}</RoomRulesTitle>
+            <RoomRulesContent>{roomDescription}</RoomRulesContent>
+          </PopOverWithButton>
+        </IconContainer>
+      )}
+    </>
   );
 }
