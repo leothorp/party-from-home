@@ -9,13 +9,13 @@ module.exports = {
   output: {
     path: paths.appBuild,
     filename: 'server.js',
-    libraryTarget: 'commonjs2'
+    libraryTarget: 'commonjs2',
   },
 
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: ['.ts', '.tsx', '.js'],
-    modules: ['node_modules']
+    extensions: ['.js', '.json', '.ts', '.tsx'],
+    modules: ['node_modules'],
   },
 
   module: {
@@ -27,19 +27,17 @@ module.exports = {
           {
             loader: 'ts-loader',
             options: {
-                configFile: 'tsconfig.server.json'
-            }
-          }
-        ]
+              configFile: 'tsconfig.server.json',
+            },
+          },
+        ],
       },
       {
         type: 'javascript/auto',
         test: /\.mjs$/,
-        use: []
+        use: [],
       },
-    ]
+    ],
   },
-  plugins: [
-    new webpack.IgnorePlugin(/^pg-native|aws-sdk$/),
-  ],
+  plugins: [new webpack.IgnorePlugin(/^pg-native|aws-sdk|.*test.ts(x?)$/)],
 };
