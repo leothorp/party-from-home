@@ -36,7 +36,6 @@ export default function useUser(options?: { userId?: string; onReceive?: (data: 
         document: UPDATED_USER,
         updateQuery: (prev, { subscriptionData }) => {
           if (!subscriptionData || !prev) return prev;
-
           const newUser = subscriptionData.data.updatedUser.user;
 
           if (newUser.identity === prev.user.identity) {
