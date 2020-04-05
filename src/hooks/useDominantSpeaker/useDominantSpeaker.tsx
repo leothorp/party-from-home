@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
 import useVideoContext from '../useVideoContext/useVideoContext';
 import { RemoteParticipant } from 'twilio-video';
+import useMocks from '../../dev/useMocks';
 
-export default function useDominantSpeaker() {
+var useDominantSpeaker = () => {
   const { room } = useVideoContext();
   const [dominantSpeaker, setDominantSpeaker] = useState(room.dominantSpeaker);
 
@@ -34,4 +35,14 @@ export default function useDominantSpeaker() {
   }, [room]);
 
   return dominantSpeaker;
+};
+
+if (process.env.REACT_APP_USE_MOCKS) {
+  useDominantSpeaker = () => {
+    const { dominantSpeaker } = useMocks();
+
+    return dominantSpeaker;
+  };
 }
+
+export default useDominantSpeaker;

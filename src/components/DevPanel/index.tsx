@@ -1,5 +1,5 @@
 import React, { useCallback } from 'react';
-import { Modal, styled, Typography, Slider } from '@material-ui/core';
+import { Modal, styled, Typography, Slider, Select, MenuItem } from '@material-ui/core';
 import useMocks from '../../dev/useMocks';
 
 const Container = styled('div')(({ theme }) => ({
@@ -23,13 +23,20 @@ interface Props {
   onClose?: () => void;
 }
 
-export default function AdminPanel(props: Props) {
-  const { participantCount, setParticipantCount } = useMocks();
+export default function DevPanel(props: Props) {
+  const { participantCount, setParticipantCount, dominantSpeaker, setDominantSpeaker, participants } = useMocks();
   const onClose = useCallback(() => {
     if (props.onClose) {
       props.onClose();
     }
   }, [props]);
+
+  const onChangeDominant = useCallback(
+    (e: any) => {
+      setDominantSpeaker(participants.find((p: any) => p.identity === e.target.value));
+    },
+    [participants, setDominantSpeaker]
+  );
 
   return (
     <Modal open={props.open} onClose={onClose}>
@@ -44,6 +51,13 @@ export default function AdminPanel(props: Props) {
           onChangeCommitted={(_e, value) => setParticipantCount(value)}
           valueLabelDisplay="on"
         />
+        <Select value={dominantSpeaker?.identity} onChange={onChangeDominant}>
+          {participants.map((p: any) => (
+            <MenuItem key={p.identity} value={p.identity}>
+              {p.identity}
+            </MenuItem>
+          ))}
+        </Select>
       </Container>
     </Modal>
   );
