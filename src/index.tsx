@@ -36,7 +36,7 @@ const connectionOptions: ConnectOptions = {
   dominantSpeaker: true,
   maxAudioBitrate: 12000,
   networkQuality: { local: 1, remote: 1 },
-  preferredVideoCodecs: ['H264'],
+  preferredVideoCodecs: [{ codec: 'VP8', simulcast: true }],
 };
 
 const VideoApp = () => {
