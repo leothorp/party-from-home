@@ -51,6 +51,23 @@ const VideoApp = () => {
   );
 };
 
+// note(carlos): scrollbars on Windows suck and always show up, so this is a hack to hide them
+if (navigator.appVersion.indexOf('Win') !== -1) {
+  const style = document.createElement('style');
+  style.type = 'text/css';
+  style.innerHTML = `
+      div::-webkit-scrollbar {
+        display: none;
+      }
+
+      /* Hide scrollbar for IE and Edge */
+      div {
+        -ms-overflow-style: none;
+      }
+  `;
+  document.getElementsByTagName('head')[0].appendChild(style);
+}
+
 ReactDOM.render(
   <MuiThemeProvider theme={theme}>
     <CssBaseline />
