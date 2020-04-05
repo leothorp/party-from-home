@@ -21,6 +21,7 @@ const getRoomLayout = (participants: any[], primarySpeaker: number) => {
   var sWidth = 1;
   var sHeight = 1;
   var rowHeight = 680;
+  var remap = undefined;
 
   if (total <= 2) {
     columns = 2;
@@ -70,12 +71,10 @@ const getRoomLayout = (participants: any[], primarySpeaker: number) => {
 
   // Edge correction assumes w < cols and h < height
   if (px > columns - Math.ceil(w)) {
+    // dominant is too far to right
     console.log(`Speaker ${primarySpeaker} too far right`);
     const newPrimarySpeaker = primarySpeaker + (columns - (px + Math.ceil(w)));
-    // dominant is too far to right
-    const otherParticipant = participants[newPrimarySpeaker];
-    participants[newPrimarySpeaker] = participants[primarySpeaker];
-    participants[primarySpeaker] = otherParticipant;
+    if (!remap) remap = primarySpeaker;
 
     primarySpeaker = newPrimarySpeaker;
     px = newPrimarySpeaker % columns;
@@ -87,9 +86,7 @@ const getRoomLayout = (participants: any[], primarySpeaker: number) => {
     // dominant is too far down
     const newY = py + (rows - (py + Math.ceil(h)) + 1);
     const newPrimarySpeaker = newY * columns + px;
-    const otherParticipant = participants[newPrimarySpeaker];
-    participants[newPrimarySpeaker] = participants[primarySpeaker];
-    participants[primarySpeaker] = otherParticipant;
+    if (!remap) remap = primarySpeaker;
 
     primarySpeaker = newPrimarySpeaker;
     py = newY;
@@ -124,6 +121,14 @@ const getRoomLayout = (participants: any[], primarySpeaker: number) => {
         x = 0;
       }
     }
+  }
+
+  if (remap) {
+    // switch the layout so the primary speaker has the correct coordinates
+    const speaker = layout[primarySpeaker];
+    const nonSpeaker = layout[remap];
+    layout[remap] = { ...speaker, i: nonSpeaker.i };
+    layout[primarySpeaker] = { ...nonSpeaker, i: speaker.i };
   }
 
   return { layout, layoutParticipants: participants, columns, rowHeight };
