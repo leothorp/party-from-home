@@ -1,7 +1,8 @@
 import React from 'react';
 import { styled } from '@material-ui/core';
 import useCurrentRoom from '../../../hooks/useCurrentRoom/useCurrentRoom';
-import PopOverWithButton, { BUTTON_TYPE_INFO } from '../../shared/PopOverWithButton/PopOverWithButton';
+import InfoIcon from '@material-ui/icons/Info';
+import PopOverWithButton from '../../shared/PopOverWithButton/PopOverWithButton';
 
 const IconContainer = styled('div')(({ theme }) => ({
   marginLeft: theme.spacing(1.5),
@@ -29,7 +30,7 @@ export default function RoomInfoButtonAndPopOver() {
     <>
       {roomDescription && (
         <IconContainer>
-          <PopOverWithButton buttonType={BUTTON_TYPE_INFO} popOverId="room-info-popover">
+          <PopOverWithButton buttonIconComponent={<InfoIcon />} popOverId="room-info-popover">
             <RoomRulesTitle>{roomTitle}</RoomRulesTitle>
             <RoomRulesContent>{roomDescription}</RoomRulesContent>
           </PopOverWithButton>

@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { makeStyles } from '@material-ui/core/styles';
 import Popover from '@material-ui/core/Popover';
 import Button from '@material-ui/core/Button';
-import InfoIcon from '@material-ui/icons/Info';
 import { styled, IconButton } from '@material-ui/core';
 
 const useStyles = makeStyles(theme => ({
@@ -51,10 +50,12 @@ const PopOverSubtext = styled('div')({
 
 export const BUTTON_TYPE_BUTTON = 'button';
 export const BUTTON_TYPE_INFO = 'info';
+export const BUTTON_TYPE_PARTY_EMOJI = 'party';
 
-const BUTTON_TYPES = [BUTTON_TYPE_BUTTON, BUTTON_TYPE_INFO];
+const BUTTON_TYPES = [BUTTON_TYPE_BUTTON, BUTTON_TYPE_INFO, BUTTON_TYPE_PARTY_EMOJI];
 
 interface PopOverProps {
+  buttonIconComponent?: React.ReactNode;
   buttonType?: typeof BUTTON_TYPES[number];
   buttonCta?: string;
   title?: string;
@@ -64,6 +65,7 @@ interface PopOverProps {
 }
 
 export default function PopOverWithButton({
+  buttonIconComponent,
   buttonType,
   buttonCta,
   title,
@@ -85,20 +87,13 @@ export default function PopOverWithButton({
   const open = Boolean(anchorEl);
   const id = open ? popOverId : undefined;
 
-  let buttonComponent;
-  if (buttonType === BUTTON_TYPE_INFO) {
-    buttonComponent = (
-      <IconButton onClick={handleOpen}>
-        <InfoIcon />
-      </IconButton>
-    );
-  } else {
-    buttonComponent = (
-      <Button aria-describedby={id} variant="contained" color="primary" onClick={handleOpen}>
-        {buttonCta || 'Click me!'}
-      </Button>
-    );
-  }
+  let buttonComponent = buttonIconComponent ? (
+    <IconButton onClick={handleOpen}>{buttonIconComponent}</IconButton>
+  ) : (
+    <Button aria-describedby={id} variant="contained" color="primary" onClick={handleOpen}>
+      {buttonCta || 'Click me!'}
+    </Button>
+  );
 
   return (
     <div>

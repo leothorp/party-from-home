@@ -5,3 +5,8 @@ export enum USER_INFO_OVERLAY_TYPES {
   PIN_ICON = 'PIN_ICON',
   NETWORK_QUALITY_LEVEL = 'NETWORK_QUALITY_LEVEL',
 }
+
+// EphemeralOverlayRegistry Constants
+export enum EPHEMERAL_OVERLAY_TYPES {
+  REACTIONS = 'REACTIONS',
+}

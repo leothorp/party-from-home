@@ -7,10 +7,10 @@ import useLocalVideoToggle from '../../hooks/useLocalVideoToggle/useLocalVideoTo
 import useScreenShareToggle from '../../hooks/useScreenShareToggle/useScreenShareToggle';
 import useScreenShareParticipant from '../../hooks/useScreenShareParticipant/useScreenShareParticipant';
 import useVideoContext from '../../hooks/useVideoContext/useVideoContext';
-import useMountEffect from '../../hooks/useMountEffect/useMountEffect';
 import { useAppState } from '../../state';
 import useCurrentRoom from '../../hooks/useCurrentRoom/useCurrentRoom';
 import WidgetButton from './WidgetButton';
+import SendReactionButton from './SendReactionButton';
 
 const useStyles = makeStyles(theme =>
   createStyles({
@@ -69,6 +69,7 @@ export default function RoomControls() {
       <IconButton onClick={toggleVideoEnabled} disabled={isReconnecting}>
         {isVideoEnabled ? <Videocam /> : <VideocamOff />}
       </IconButton>
+      <SendReactionButton />
       {roomState !== 'disconnected' && (
         <>
           {navigator.mediaDevices && navigator.mediaDevices.getDisplayMedia && (
