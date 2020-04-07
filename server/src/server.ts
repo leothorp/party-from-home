@@ -9,19 +9,19 @@ import bodyParser from 'body-parser';
 import textToSpeech from '@google-cloud/text-to-speech';
 import { Server } from 'http';
 import { ApolloServer, PubSub } from 'apollo-server-express';
-import graphRoot from './server/graphRoot';
-import { RequestContext } from './server/context';
-import { PartyRoom, Admin } from './server/db';
+import graphRoot from './graphRoot';
+import { RequestContext } from './context';
+import { PartyRoom, Admin } from './db';
 import ngrok from 'ngrok';
-import LocalDB from './server/db/local';
+import LocalDB from './db/local'
 import morgan from 'morgan';
-import { SESSION_SECRET } from './server/config';
+import { SESSION_SECRET } from './config';
 
 const AccessToken = jwt.AccessToken;
 const app = express();
 const VideoGrant = AccessToken.VideoGrant;
 const SyncGrant = AccessToken.SyncGrant;
-dotenv.config();
+dotenv.config({ path: '../.env'});
 
 const ENV = process.env.ENVIRONMENT;
 const MAX_ALLOWED_SESSION_DURATION =

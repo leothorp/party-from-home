@@ -20,7 +20,7 @@ module.exports = {
 
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
-    extensions: ['.js', '.ts', '.tsx'],
+    extensions: ['.js', '.json', '.ts', '.tsx'],
     modules: ['node_modules'],
   },
 
@@ -32,9 +32,6 @@ module.exports = {
         use: [
           {
             loader: 'ts-loader',
-            options: {
-              configFile: 'tsconfig.server.json',
-            },
           },
         ],
       },
