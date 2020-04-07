@@ -1,6 +1,6 @@
 import inflection from 'inflection';
 import { v1 as uuid } from 'uuid';
-import { PartyDB, PartyRoom, PartyUser, PartyBroadcast } from './';
+import { PartyDB, PartyRoom, PartyUser, PartyBroadcast } from '.';
 
 export default class LocalPartyDB implements PartyDB {
   users: Map<string, PartyUser>;

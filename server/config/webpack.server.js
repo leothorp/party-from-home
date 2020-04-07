@@ -1,6 +1,8 @@
 const path = require('path');
 const webpack = require('webpack');
 const paths = require('./paths');
+const { UnusedFilesWebpackPlugin } = require('unused-files-webpack-plugin');
+const nodeExternals = require('webpack-node-externals');
 
 module.exports = {
   mode: 'production',
@@ -12,10 +14,17 @@ module.exports = {
     libraryTarget: 'commonjs2',
   },
 
+  // Enable sourcemaps for debugging webpack's output.
+  devtool: 'source-map',
+
   resolve: {
     // Add '.ts' and '.tsx' as resolvable extensions.
     extensions: ['.js', '.json', '.ts', '.tsx'],
     modules: ['node_modules'],
+  },
+
+  optimization: {
+    minimize: false,
   },
 
   module: {
@@ -26,9 +35,6 @@ module.exports = {
         use: [
           {
             loader: 'ts-loader',
-            options: {
-              configFile: 'tsconfig.server.json',
-            },
           },
         ],
       },
@@ -37,7 +43,14 @@ module.exports = {
         test: /\.mjs$/,
         use: [],
       },
+      // All output '.js' files will have any sourcemaps re-processed by 'source-map-loader'.
+      {
+        enforce: 'pre',
+        test: /\.js$/,
+        loader: 'source-map-loader',
+      },
     ],
   },
-  plugins: [new webpack.IgnorePlugin(/^pg-native|aws-sdk|.*test.ts(x?)$/)],
+  externals: [nodeExternals()],
+  plugins: [new UnusedFilesWebpackPlugin({})],
 };

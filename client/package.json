@@ -1,0 +1,240 @@
+{
+  "name": "pfh-client",
+  "version": "0.1.0",
+  "private": true,
+  "license": "Apache-2.0",
+  "dependencies": {
+    "@apollo/react-hooks": "^3.1.3",
+    "@babel/core": "7.8.4",
+    "@google-cloud/text-to-speech": "^2.3.0",
+    "@material-ui/core": "^4.9.1",
+    "@material-ui/icons": "^4.9.1",
+    "@primer/octicons-react": "^9.4.0",
+    "@svgr/webpack": "4.3.3",
+    "@types/fscreen": "^1.0.1",
+    "@types/jest": "^24.9.1",
+    "@types/lodash.throttle": "^4.1.6",
+    "@types/node": "^12.12.26",
+    "@types/react": "^16.9.19",
+    "@types/react-dom": "^16.9.5",
+    "@types/react-router-dom": "^5.1.3",
+    "@types/twilio-video": "^2.0.10",
+    "@typescript-eslint/eslint-plugin": "^2.10.0",
+    "@typescript-eslint/parser": "^2.10.0",
+    "apollo-boost": "^0.4.7",
+    "apollo-cache-inmemory": "^1.6.5",
+    "apollo-client": "^2.6.8",
+    "apollo-link-context": "^1.0.19",
+    "apollo-link-http": "^1.5.16",
+    "apollo-link-ws": "^1.0.19",
+    "apollo-server-express": "^2.11.0",
+    "babel-eslint": "10.0.3",
+    "babel-jest": "^24.9.0",
+    "babel-loader": "8.0.6",
+    "babel-plugin-named-asset-import": "^0.3.6",
+    "babel-preset-react-app": "^9.1.1",
+    "body-parser": "^1.19.0",
+    "camelcase": "^5.3.1",
+    "case-sensitive-paths-webpack-plugin": "2.3.0",
+    "catenary-curve": "^1.0.1",
+    "css-loader": "3.4.2",
+    "dotenv": "8.2.0",
+    "dotenv-expand": "5.1.0",
+    "eslint": "^6.6.0",
+    "eslint-config-react-app": "^5.2.0",
+    "eslint-loader": "3.0.3",
+    "eslint-plugin-flowtype": "4.6.0",
+    "eslint-plugin-import": "2.20.0",
+    "eslint-plugin-jsx-a11y": "6.2.3",
+    "eslint-plugin-react": "7.18.0",
+    "eslint-plugin-react-hooks": "^1.6.1",
+    "file-loader": "4.3.0",
+    "firebase": "^7.8.0",
+    "fs-extra": "^8.1.0",
+    "fscreen": "^1.0.2",
+    "graphql": "^14.6.0",
+    "html-webpack-plugin": "4.0.0-beta.11",
+    "husky": "^3.1.0",
+    "identity-obj-proxy": "3.0.0",
+    "inflection": "^1.12.0",
+    "jest": "24.9.0",
+    "jest-environment-jsdom-fourteen": "1.0.1",
+    "jest-resolve": "24.9.0",
+    "jest-watch-typeahead": "0.4.2",
+    "lazy-brush": "^1.0.1",
+    "lint-staged": "^9.5.0",
+    "lodash.throttle": "^4.1.1",
+    "mini-css-extract-plugin": "0.9.0",
+    "optimize-css-assets-webpack-plugin": "5.0.3",
+    "pnp-webpack-plugin": "1.6.0",
+    "postcss-flexbugs-fixes": "4.1.0",
+    "postcss-loader": "3.0.0",
+    "postcss-normalize": "8.0.1",
+    "postcss-preset-env": "6.7.0",
+    "postcss-safe-parser": "4.0.1",
+    "prettier": "^1.19.1",
+    "react": "^16.12.0",
+    "react-app-polyfill": "^1.0.6",
+    "react-dev-utils": "^10.1.0",
+    "react-dom": "^16.12.0",
+    "react-facebook-login": "^4.1.1",
+    "react-grid-layout": "^0.18.3",
+    "react-player": "^1.15.2",
+    "react-router-dom": "^5.1.2",
+    "react-sound": "^1.2.0",
+    "reflect-metadata": "^0.1.13",
+    "resize-observer-polyfill": "^1.5.1",
+    "resolve": "1.15.0",
+    "resolve-url-loader": "3.1.1",
+    "sass-loader": "8.0.2",
+    "semver": "6.3.0",
+    "style-loader": "1.1.3",
+    "subscriptions-transport-ws": "^0.9.16",
+    "terser-webpack-plugin": "2.3.4",
+    "ts-pnp": "1.1.5",
+    "twilio": "^3.39.3",
+    "twilio-sync": "^0.12.0",
+    "twilio-video": "^2.2.0",
+    "typescript": "^3.7.5",
+    "url-loader": "2.3.0",
+    "uuid": "^7.0.3",
+    "webpack": "4.41.5",
+    "webpack-dev-server": "3.10.1",
+    "webpack-manifest-plugin": "2.2.0",
+    "workbox-webpack-plugin": "4.3.1"
+  },
+  "devDependencies": {
+    "@testing-library/jest-dom": "^4.2.4",
+    "@testing-library/react": "^9.4.0",
+    "@testing-library/react-hooks": "^3.2.1",
+    "@types/enzyme": "^3.10.4",
+    "@types/enzyme-adapter-react-16": "^1.0.5",
+    "@types/inflection": "^1.5.28",
+    "@types/morgan": "^1.9.0",
+    "@types/react-facebook-login": "^4.1.1",
+    "@types/react-grid-layout": "^0.17.1",
+    "@types/react-sound": "^1.2.2",
+    "@types/uuid": "^7.0.2",
+    "clean-webpack-plugin": "^3.0.0",
+    "cypress": "^3.8.3",
+    "cypress-multi-reporters": "^1.2.3",
+    "enzyme": "^3.11.0",
+    "enzyme-adapter-react-16": "^1.15.2",
+    "enzyme-to-json": "^3.4.4",
+    "events": "^3.1.0",
+    "hookleton": "^0.4.9",
+    "isomorphic-fetch": "^2.2.1",
+    "jest-junit": "^9.0.0",
+    "mocha": "^6.2.2",
+    "mocha-junit-reporter": "^1.23.3",
+    "pixelmatch": "^5.1.0",
+    "puppeteer": "^2.1.1",
+    "react-test-renderer": "^16.12.0",
+    "source-map-loader": "^0.2.4",
+    "start-server-and-test": "^1.10.8",
+    "ts-jest": "^24.3.0",
+    "ts-loader": "^6.2.2",
+    "unused-files-webpack-plugin": "^3.4.0",
+    "webpack-node-externals": "^1.7.2",
+    "webpack-shell-plugin": "^0.5.0"
+  },
+  "lint-staged": {
+    "src/**/*.{js,jsx,ts,tsx,json,css,scss,md}": [
+      "prettier --write",
+      "git add"
+    ]
+  },
+  "scripts": {
+    "start": "node scripts/start.js",
+    "build": "node scripts/build.js",
+    "test": "jest",
+    "lint": "eslint src/**/*.{ts,tsx}",
+    "test:ci": "jest --ci --runInBand --reporters=default --reporters=jest-junit --coverage",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run --browser chrome",
+    "cypress:ci": "CYPRESS_baseUrl=http://localhost:8081 start-server-and-test server http://localhost:8081 cypress:run",
+    "deploy:twilio-cli": "REACT_APP_SET_AUTH=passcode npm run build && twilio rtc:apps:video:deploy --authentication=passcode --app-directory ./build"
+  },
+  "eslintConfig": {
+    "extends": "react-app",
+    "rules": {
+      "no-shadow": "warn"
+    }
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "lint-staged"
+    }
+  },
+  "proxy": "http://localhost:8081/",
+  "jest": {
+    "roots": [
+      "<rootDir>/src"
+    ],
+    "collectCoverageFrom": [
+      "src/**/*.{js,jsx,ts,tsx}",
+      "!src/**/*.d.ts"
+    ],
+    "setupFiles": [
+      "react-app-polyfill/jsdom"
+    ],
+    "setupFilesAfterEnv": [
+      "<rootDir>/src/setupTests.ts"
+    ],
+    "testMatch": [
+      "<rootDir>/src/**/__tests__/**/*.{js,jsx,ts,tsx}",
+      "<rootDir>/src/**/*.{spec,test}.{js,jsx,ts,tsx}"
+    ],
+    "testEnvironment": "jest-environment-jsdom-fourteen",
+    "transform": {
+      "^.+\\.(js|jsx|ts|tsx)$": "<rootDir>/node_modules/babel-jest",
+      "^.+\\.css$": "<rootDir>/config/jest/cssTransform.js",
+      "^(?!.*\\.(js|jsx|ts|tsx|css|json)$)": "<rootDir>/config/jest/fileTransform.js"
+    },
+    "transformIgnorePatterns": [
+      "[/\\\\]node_modules[/\\\\].+\\.(js|jsx|ts|tsx)$",
+      "^.+\\.module\\.(css|sass|scss)$"
+    ],
+    "modulePaths": [],
+    "moduleNameMapper": {
+      "^react-native$": "react-native-web",
+      "^.+\\.module\\.(css|sass|scss)$": "identity-obj-proxy"
+    },
+    "moduleFileExtensions": [
+      "web.js",
+      "js",
+      "web.ts",
+      "ts",
+      "web.tsx",
+      "tsx",
+      "json",
+      "web.jsx",
+      "jsx",
+      "node"
+    ],
+    "watchPlugins": [
+      "jest-watch-typeahead/filename",
+      "jest-watch-typeahead/testname"
+    ],
+    "snapshotSerializers": [
+      "enzyme-to-json/serializer"
+    ]
+  },
+  "babel": {
+    "presets": [
+      "react-app"
+    ]
+  }
+}
