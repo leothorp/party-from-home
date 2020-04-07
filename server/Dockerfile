@@ -8,6 +8,6 @@ WORKDIR /root/package
 COPY package.json package-lock.json ./
 RUN npm install
 COPY . /root/package/
-RUN npm run build:server
+RUN npm run build
 
 CMD ["node", "build/server.js"]
