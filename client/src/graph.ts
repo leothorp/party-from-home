@@ -13,8 +13,9 @@ const httpLink = createHttpLink({
 
 const hostname = window.location.hostname;
 const port = process.env.NODE_ENV === 'production' ? '' : ':8081';
+const protocol = process.env.NODE_ENV === 'production' ? 'wss' : 'ws';
 
-export const subscriptionClient = new SubscriptionClient(`ws://${hostname}${port}/api/graphql`, {
+export const subscriptionClient = new SubscriptionClient(`${protocol}://${hostname}${port}/api/graphql`, {
   reconnect: true,
   connectionParams: () => {
     const storedUser = JSON.parse(window.sessionStorage.getItem('user') || '{}');
