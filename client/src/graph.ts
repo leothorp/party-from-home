@@ -11,7 +11,10 @@ const httpLink = createHttpLink({
   uri: '/api/graphql',
 });
 
-export const subscriptionClient = new SubscriptionClient('ws://localhost:8081/api/graphql', {
+const hostname = window.location.hostname;
+const port = process.env.NODE_ENV === 'production' ? '' : ':8081';
+
+export const subscriptionClient = new SubscriptionClient(`ws://${hostname}${port}/api/graphql`, {
   reconnect: true,
   connectionParams: () => {
     const storedUser = JSON.parse(window.sessionStorage.getItem('user') || '{}');
@@ -32,7 +35,7 @@ const client = new ApolloClient({
       return definition.kind === 'OperationDefinition' && definition.operation === 'subscription';
     },
     wsLink,
-    httpLink,
+    httpLink
   ),
   cache,
 });
