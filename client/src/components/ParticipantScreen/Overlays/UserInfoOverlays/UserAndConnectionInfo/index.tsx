@@ -21,9 +21,9 @@ const useStyles = makeStyles({
 export default function UserAndConnectionInfo() {
   const {
     participant,
-  }: { participant: LocalParticipant | RemoteParticipant | undefined } = useUserInfoOverlayContext();
+  }: { participant?: LocalParticipant | RemoteParticipant | undefined } = useUserInfoOverlayContext();
   const classes = useStyles();
-  const { user } = useUser({ userId: participant.identity });
+  const { user } = useUser({ userId: participant?.identity });
 
   const displayedName = (participant && user?.displayName) || participant?.identity;
 
