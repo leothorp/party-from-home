@@ -1,10 +1,10 @@
 import dotenv from 'dotenv';
-dotenv.config({ path: '../.env'});
+dotenv.config({ path: '../.env' });
 
 export const ENV = process.env.ENVIRONMENT;
 export const MAX_ALLOWED_SESSION_DURATION =
   parseInt(process.env.MAX_SESSION_DURATION || '0') || (ENV === 'production' ? 18000 : 600);
-export const ITEM_TTL = 120;
+export const ITEM_TTL = 60000;
 export const PASSCODE = process.env.PASSCODE;
 export const ADMIN_PASSCODE = process.env.ADMIN_PASSCODE;
 export const PORT = process.env.PORT || 8081;
