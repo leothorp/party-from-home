@@ -63,7 +63,7 @@ export default function RoomControls() {
   const [isVideoEnabled, toggleVideoEnabled] = useLocalVideoToggle();
   const [isScreenShared, toggleScreenShare] = useScreenShareToggle();
   const screenShareParticipant = useScreenShareParticipant();
-  const { room, localTracks, setLocalVideoTrack, setCameraId, setLocalAudioTrack, setMicId } = useVideoContext();
+  const { room, localTracks, setLocalVideoTrack, setLocalAudioTrack } = useVideoContext();
   const { user } = useAppState();
   const currentRoom = useCurrentRoom();
   const disableScreenShareButton = screenShareParticipant && screenShareParticipant !== room.localParticipant;
@@ -144,13 +144,12 @@ export default function RoomControls() {
         room.localParticipant.emit('trackUnpublished', localTrackPublication);
       }
 
-      setMicId(newMicId);
       setLocalAudioTrack(newMicId).then(track => {
         if (room.localParticipant) room.localParticipant.publishTrack(track);
       });
       handleMicDropdownClose();
     },
-    [room, setLocalAudioTrack, localTracks, setMicId]
+    [room, setLocalAudioTrack, localTracks]
   );
 
   const handleCamDropdownClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -178,13 +177,12 @@ export default function RoomControls() {
       }
       currentVideoTrack.stop();
 
-      setCameraId(newCameraId);
       setLocalVideoTrack(newCameraId).then(track => {
         if (room.localParticipant) room.localParticipant.publishTrack(track);
       });
       handleCamDropdownClose();
     },
-    [room, setLocalVideoTrack, localTracks, setCameraId]
+    [room, setLocalVideoTrack, localTracks]
   );
 
   return (

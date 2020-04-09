@@ -19,7 +19,9 @@ export default function useLocalVideoToggle() {
       }
       videoTrack.stop();
     } else {
-      setLocalVideoTrack();
+      setLocalVideoTrack().then(track => {
+        localParticipant.publishTrack(track);
+      });
     }
   }, [videoTrack, localParticipant, setLocalVideoTrack]);
 
