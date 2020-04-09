@@ -106,7 +106,7 @@ export default function LoginPage() {
     } else {
       if (setUser) {
         setUser(name).then(() => {
-          subscriptionClient.close(true, false);
+          // subscriptionClient.close(true);
           history.replace({ pathname: '/' });
         });
       }
@@ -123,7 +123,7 @@ export default function LoginPage() {
     (info: ReactFacebookLoginInfo) => {
       if (setUser) {
         setUser(info.name || '', info?.picture?.data?.url || '').then(() => {
-          subscriptionClient.close(true, false);
+          // subscriptionClient.close(true);
           history.replace({ pathname: '/' });
         });
       }
