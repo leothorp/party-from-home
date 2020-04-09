@@ -76,8 +76,9 @@ export default function useUsers() {
         const userIndex = prev.users.findIndex((u: any) => u.identity === newUser.identity);
 
         if (userIndex >= 0) {
-          prev.users[userIndex] = newUser;
-          return prev;
+          return {
+            users: prev.users.map((u: any, i: number) => (u.identity === newUser.identity ? newUser : u)),
+          };
         } else {
           return prev;
         }
