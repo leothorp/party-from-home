@@ -112,12 +112,12 @@ export default function useRooms() {
         if (!subscriptionData) return prev;
 
         const newRoom = subscriptionData.data.updatedRoom.room;
-        const newRoot = { ...prev };
-        const roomIndex = newRoot.rooms.findIndex((r: any) => r.id === newRoom.id);
+        const roomIndex = prev.rooms.findIndex((r: any) => r.id === newRoom.id);
 
         if (roomIndex >= 0) {
-          newRoot.rooms[roomIndex] = newRoom;
-          return newRoot;
+          return {
+            rooms: prev.rooms.map((r: any, i: number) => (r.id === newRoom.id ? newRoom : r)),
+          };
         } else {
           return prev;
         }
