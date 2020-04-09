@@ -45,23 +45,7 @@ const client = new ApolloClient({
 
 //@ts-ignore
 client.restartWebsocketConnection = () => {
-  if (wsLink) {
-    //@ts-ignore
-    const wsClient = wsLink.subscriptionClient;
-    //@ts-ignore
-    wsLink.subscriptionClient.connectionParams = wsAuth;
-    //@ts-ignore
-    wsLink.subscriptionClient.tryReconnect();
-    const operations: Operations = Object.assign({}, wsClient.operations);
-    // Close connection
-    wsClient.close(true);
-    // Open a new one
-    wsClient.connect();
-    // Push all current operations to the new connection
-    Object.keys(operations).forEach(id => {
-      wsClient.sendMessage(id, 'start', operations[id].options);
-    });
-  }
+  subscriptionClient.close(false, false);
 };
 
 export default client;
