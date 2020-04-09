@@ -1,22 +1,23 @@
 import { useCallback, useEffect, useState } from 'react';
 import Video, { LocalVideoTrack, LocalAudioTrack } from 'twilio-video';
+import useMountEffect from '../../../hooks/useMountEffect/useMountEffect';
 
 export function useLocalAudioTrack() {
   const [track, setTrack] = useState<LocalAudioTrack>();
   const [deviceId, setDeviceId] = useState('');
 
-  const setLocalAudioTrack = useCallback(() => {
-    let audioTrackOptions: any = {};
-    if (deviceId) {
-      audioTrackOptions['deviceId'] = { exact: deviceId };
-    }
-    return new Promise<LocalAudioTrack>(resolve => {
-      Video.createLocalAudioTrack(audioTrackOptions).then(newTrack => {
-        setTrack(newTrack);
-        resolve(newTrack);
+  const setLocalAudioTrack = useCallback(
+    (newDeviceId?: string) => {
+      return new Promise<LocalAudioTrack>((resolve, reject) => {
+        const deviceId = newDeviceId ? { exact: newDeviceId } : undefined;
+        Video.createLocalAudioTrack({ deviceId }).then(newTrack => {
+          setTrack(newTrack);
+          resolve(newTrack);
+        });
       });
-    });
-  }, [setTrack, deviceId]);
+    },
+    [setTrack, deviceId]
+  );
 
   const setMicId = useCallback(
     (newDeviceId: string) => {
@@ -25,9 +26,9 @@ export function useLocalAudioTrack() {
     [setDeviceId]
   );
 
-  useEffect(() => {
+  useMountEffect(() => {
     setLocalAudioTrack();
-  }, [setLocalAudioTrack]);
+  });
 
   useEffect(() => {
     const handleStopped = () => setTrack(undefined);
@@ -46,23 +47,24 @@ export function useLocalVideoTrack() {
   const [track, setTrack] = useState<LocalVideoTrack>();
   const [deviceId, setDeviceId] = useState('');
 
-  const setLocalVideoTrack = useCallback(() => {
-    let videoTrackOptions: any = {
-      frameRate: 24,
-      height: 720,
-      width: 1280,
-      name: 'camera',
-    };
-    if (deviceId) {
-      videoTrackOptions['deviceId'] = { exact: deviceId };
-    }
-    return new Promise<LocalVideoTrack>(resolve => {
-      Video.createLocalVideoTrack(videoTrackOptions).then(newTrack => {
-        setTrack(newTrack);
-        resolve(newTrack);
+  const setLocalVideoTrack = useCallback(
+    (newDeviceId?: string) => {
+      return new Promise<LocalVideoTrack>((resolve, reject) => {
+        let deviceId = newDeviceId ? { exact: newDeviceId } : undefined;
+        Video.createLocalVideoTrack({
+          frameRate: 24,
+          height: 720,
+          width: 1280,
+          name: 'camera',
+          deviceId,
+        }).then(newTrack => {
+          setTrack(newTrack);
+          resolve(newTrack);
+        });
       });
-    });
-  }, [setTrack, deviceId]);
+    },
+    [setTrack, deviceId]
+  );
 
   const setCameraId = useCallback(
     (newDeviceId: string) => {
@@ -71,10 +73,9 @@ export function useLocalVideoTrack() {
     [setDeviceId]
   );
 
-  useEffect(() => {
-    // We get a new local video track when the app loads.
+  useMountEffect(() => {
     setLocalVideoTrack();
-  }, [setLocalVideoTrack]);
+  });
 
   useEffect(() => {
     const handleStopped = () => setTrack(undefined);

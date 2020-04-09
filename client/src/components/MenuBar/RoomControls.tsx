@@ -138,21 +138,19 @@ export default function RoomControls() {
         return;
       }
 
-      const localParticipant = room.localParticipant;
-      const currentAudioTrack = localTracks.find(track => track.kind === 'audio') as Video.LocalAudioTrack;
-      if (localParticipant) {
-        const localTrackPublication = localParticipant.unpublishTrack(currentAudioTrack);
-        localParticipant.emit('trackUnpublished', localTrackPublication);
+      if (room.localParticipant) {
+        const currentAudioTrack = localTracks.find(track => track.kind === 'audio') as Video.LocalAudioTrack;
+        const localTrackPublication = room.localParticipant.unpublishTrack(currentAudioTrack);
+        room.localParticipant.emit('trackUnpublished', localTrackPublication);
       }
+
       setMicId(newMicId);
-      setLocalAudioTrack().then((track: Video.LocalAudioTrack) => {
-        if (localParticipant) {
-          localParticipant.publishTrack(track);
-        }
-        handleMicDropdownClose();
+      setLocalAudioTrack(newMicId).then(track => {
+        if (room.localParticipant) room.localParticipant.publishTrack(track);
       });
+      handleMicDropdownClose();
     },
-    [room, localTracks, setLocalAudioTrack, setMicId]
+    [room, setLocalAudioTrack, localTracks, setMicId]
   );
 
   const handleCamDropdownClick = (event: React.MouseEvent<HTMLButtonElement>) => {
@@ -173,22 +171,20 @@ export default function RoomControls() {
         return;
       }
 
-      const localParticipant = room.localParticipant;
       const currentVideoTrack = localTracks.find(track => track.name === 'camera') as Video.LocalVideoTrack;
-      if (localParticipant) {
-        const localTrackPublication = localParticipant.unpublishTrack(currentVideoTrack);
-        localParticipant.emit('trackUnpublished', localTrackPublication);
+      if (room.localParticipant) {
+        const localTrackPublication = room.localParticipant.unpublishTrack(currentVideoTrack);
+        room.localParticipant.emit('trackUnpublished', localTrackPublication);
       }
       currentVideoTrack.stop();
+
       setCameraId(newCameraId);
-      setLocalVideoTrack().then((track: Video.LocalVideoTrack) => {
-        if (localParticipant) {
-          localParticipant.publishTrack(track);
-        }
-        handleCamDropdownClose();
+      setLocalVideoTrack(newCameraId).then(track => {
+        if (room.localParticipant) room.localParticipant.publishTrack(track);
       });
+      handleCamDropdownClose();
     },
-    [room, localTracks, setLocalVideoTrack, setCameraId]
+    [room, setLocalVideoTrack, localTracks, setCameraId]
   );
 
   return (

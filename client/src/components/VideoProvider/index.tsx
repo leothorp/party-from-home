@@ -23,9 +23,9 @@ export interface IVideoContext {
   connect: (token: string) => Promise<void>;
   onError: ErrorCallback;
   onDisconnect: Callback;
-  setLocalVideoTrack: () => Promise<LocalVideoTrack>;
+  setLocalVideoTrack: (deviceId?: string) => Promise<LocalVideoTrack>;
   setCameraId: (deviceId: string) => void;
-  setLocalAudioTrack: () => Promise<LocalAudioTrack>;
+  setLocalAudioTrack: (deviceId?: string) => Promise<LocalAudioTrack>;
   setMicId: (deviceId: string) => void;
 }
 
