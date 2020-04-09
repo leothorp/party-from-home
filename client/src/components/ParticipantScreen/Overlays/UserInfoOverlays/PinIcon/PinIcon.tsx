@@ -14,9 +14,9 @@ const ImageContainer = styled('div')({
 export default function PinIcon() {
   const {
     participant,
-  }: { participant: LocalParticipant | RemoteParticipant | undefined } = useUserInfoOverlayContext();
+  }: { participant?: LocalParticipant | RemoteParticipant | undefined } = useUserInfoOverlayContext();
   const [selectedParticipant] = useSelectedParticipant();
-  const isSelected = selectedParticipant === participant;
+  const isSelected = selectedParticipant?.identity === participant?.identity;
 
   if (!isSelected) {
     return null;

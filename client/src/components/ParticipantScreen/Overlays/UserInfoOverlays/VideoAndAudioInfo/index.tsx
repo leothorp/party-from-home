@@ -11,7 +11,7 @@ const ImageContainer = styled('div')({
 });
 
 export default function VideoAndAudioInfo() {
-  const { participant }: { participant: LocalParticipant | RemoteParticipant } = useUserInfoOverlayContext();
+  const { participant }: { participant?: LocalParticipant | RemoteParticipant } = useUserInfoOverlayContext();
 
   const publications = usePublications(participant);
   const audioPublication = publications.find((p: any) => p.kind === 'audio');

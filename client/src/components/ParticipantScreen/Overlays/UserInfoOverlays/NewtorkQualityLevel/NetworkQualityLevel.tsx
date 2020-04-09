@@ -28,10 +28,10 @@ const STEP = 3;
 export default function NetworkQualityLevel() {
   const {
     participant,
-  }: { participant: LocalParticipant | RemoteParticipant | undefined } = useUserInfoOverlayContext();
+  }: { participant?: LocalParticipant | RemoteParticipant | undefined } = useUserInfoOverlayContext();
   const qualityLevel = useParticipantNetworkQualityLevel(participant);
 
-  if (qualityLevel === null) return null;
+  if (qualityLevel === null || qualityLevel === undefined) return null;
   return (
     <ImageContainer>
       <Container>
