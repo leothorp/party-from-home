@@ -2,7 +2,7 @@ import { useCallback, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
 import { User } from '../../state';
 import gql from 'graphql-tag';
-import { useMutation } from '@apollo/react-hooks';
+import { useMutation, useApolloClient } from '@apollo/react-hooks';
 
 const REGISTER = gql`
   mutation Register($passcode: String!, $displayName: String!, $photoURL: String) {
@@ -56,6 +56,8 @@ export default function usePasscodeAuth() {
   const [user, setUser] = useState<User | null>(null);
   const [isAuthReady, setIsAuthReady] = useState(false);
   const [authError, setAuthError] = useState<Error | undefined>(undefined);
+  const graphClient = useApolloClient();
+
   const onRegistered = useCallback(
     data => {
       const newUser = {
@@ -65,6 +67,8 @@ export default function usePasscodeAuth() {
       setUser(newUser);
       window.sessionStorage.setItem('user', JSON.stringify(newUser));
       setIsAuthReady(true);
+      //@ts-ignore
+      graphClient.restartWebsocketConnection();
     },
     [user]
   );
