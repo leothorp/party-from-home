@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { RemoteParticipant } from 'twilio-video';
 import useDominantSpeaker from '../useDominantSpeaker/useDominantSpeaker';
 import useVideoContext from '../useVideoContext/useVideoContext';
@@ -21,18 +21,24 @@ var useParticipants = () => {
     }
   }, [dominantSpeaker]);
 
+  const participantConnected = useCallback(
+    (participant: RemoteParticipant) => setParticipants(prevParticipants => [...prevParticipants, participant]),
+    [setParticipants]
+  );
+  const participantDisconnected = useCallback(
+    (participant: RemoteParticipant) =>
+      setParticipants(prevParticipants => prevParticipants.filter(p => p.identity !== participant.identity)),
+    []
+  );
+
   useEffect(() => {
-    const participantConnected = (participant: RemoteParticipant) =>
-      setParticipants(prevParticipants => [...prevParticipants, participant]);
-    const participantDisconnected = (participant: RemoteParticipant) =>
-      setParticipants(prevParticipants => prevParticipants.filter(p => p.identity !== participant.identity));
     room.on('participantConnected', participantConnected);
     room.on('participantDisconnected', participantDisconnected);
     return () => {
       room.off('participantConnected', participantConnected);
       room.off('participantDisconnected', participantDisconnected);
     };
-  }, [room]);
+  }, [room, participantConnected, participantDisconnected]);
 
   return participants;
 };

@@ -9,14 +9,14 @@ export function useLocalAudioTrack() {
   const setLocalAudioTrack = useCallback(
     (newDeviceId?: string) => {
       return new Promise<LocalAudioTrack>((resolve, reject) => {
-        const deviceId = newDeviceId ? { exact: newDeviceId } : undefined;
-        Video.createLocalAudioTrack({ deviceId }).then(newTrack => {
+        const config = newDeviceId ? { deviceId: { exact: newDeviceId } } : {};
+        Video.createLocalAudioTrack(config).then(newTrack => {
           setTrack(newTrack);
           resolve(newTrack);
         });
       });
     },
-    [setTrack, deviceId]
+    [setTrack]
   );
 
   const setMicId = useCallback(
@@ -50,20 +50,20 @@ export function useLocalVideoTrack() {
   const setLocalVideoTrack = useCallback(
     (newDeviceId?: string) => {
       return new Promise<LocalVideoTrack>((resolve, reject) => {
-        let deviceId = newDeviceId ? { exact: newDeviceId } : undefined;
-        Video.createLocalVideoTrack({
+        let config: Video.CreateLocalTrackOptions = {
           frameRate: 24,
           height: 720,
           width: 1280,
           name: 'camera',
-          deviceId,
-        }).then(newTrack => {
+        };
+        if (newDeviceId) config.deviceId = { exact: newDeviceId };
+        Video.createLocalVideoTrack(config).then(newTrack => {
           setTrack(newTrack);
           resolve(newTrack);
         });
       });
     },
-    [setTrack, deviceId]
+    [setTrack]
   );
 
   const setCameraId = useCallback(
