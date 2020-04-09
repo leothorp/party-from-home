@@ -25,7 +25,7 @@ var useParticipants = () => {
     const participantConnected = (participant: RemoteParticipant) =>
       setParticipants(prevParticipants => [...prevParticipants, participant]);
     const participantDisconnected = (participant: RemoteParticipant) =>
-      setParticipants(prevParticipants => prevParticipants.filter(p => p !== participant));
+      setParticipants(prevParticipants => prevParticipants.filter(p => p.identity !== participant.identity));
     room.on('participantConnected', participantConnected);
     room.on('participantDisconnected', participantDisconnected);
     return () => {
