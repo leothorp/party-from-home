@@ -24,9 +24,7 @@ export interface IVideoContext {
   onError: ErrorCallback;
   onDisconnect: Callback;
   setLocalVideoTrack: (deviceId?: string) => Promise<LocalVideoTrack>;
-  setCameraId: (deviceId: string) => void;
   setLocalAudioTrack: (deviceId?: string) => Promise<LocalAudioTrack>;
-  setMicId: (deviceId: string) => void;
 }
 
 export const VideoContext = createContext<IVideoContext>(null!);
@@ -44,7 +42,7 @@ export function VideoProvider({ options, children, onError = () => {}, onDisconn
     onError(error);
   };
 
-  const { localTracks, setLocalVideoTrack, setCameraId, setLocalAudioTrack, setMicId } = useLocalTracks();
+  const { localTracks, setLocalVideoTrack, setLocalAudioTrack } = useLocalTracks();
   const { room, isConnecting, connect } = useRoom(localTracks, onErrorCallback, options);
 
   // Register onError and onDisconnect callback functions.
@@ -61,9 +59,7 @@ export function VideoProvider({ options, children, onError = () => {}, onDisconn
         onError: onErrorCallback,
         onDisconnect,
         setLocalVideoTrack,
-        setCameraId,
         setLocalAudioTrack,
-        setMicId,
         connect,
       }}
     >

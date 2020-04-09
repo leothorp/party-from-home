@@ -9,21 +9,16 @@ export function useLocalAudioTrack() {
   const setLocalAudioTrack = useCallback(
     (newDeviceId?: string) => {
       return new Promise<LocalAudioTrack>((resolve, reject) => {
-        const config = newDeviceId ? { deviceId: { exact: newDeviceId } } : {};
+        const audioDeviceId = newDeviceId || deviceId;
+        const config = audioDeviceId ? { deviceId: { exact: audioDeviceId } } : {};
         Video.createLocalAudioTrack(config).then(newTrack => {
           setTrack(newTrack);
+          if (newDeviceId) setDeviceId(newDeviceId);
           resolve(newTrack);
         });
       });
     },
-    [setTrack]
-  );
-
-  const setMicId = useCallback(
-    (newDeviceId: string) => {
-      setDeviceId(newDeviceId);
-    },
-    [setDeviceId]
+    [setTrack, setDeviceId, deviceId]
   );
 
   useMountEffect(() => {
@@ -40,7 +35,7 @@ export function useLocalAudioTrack() {
     }
   }, [track]);
 
-  return [track, setLocalAudioTrack, setMicId] as const;
+  return [track, setLocalAudioTrack] as const;
 }
 
 export function useLocalVideoTrack() {
@@ -56,21 +51,16 @@ export function useLocalVideoTrack() {
           width: 1280,
           name: 'camera',
         };
-        if (newDeviceId) config.deviceId = { exact: newDeviceId };
+        const videoDeviceId = newDeviceId || deviceId;
+        if (videoDeviceId) config.deviceId = { exact: videoDeviceId };
         Video.createLocalVideoTrack(config).then(newTrack => {
           setTrack(newTrack);
+          if (newDeviceId) setDeviceId(newDeviceId);
           resolve(newTrack);
         });
       });
     },
-    [setTrack]
-  );
-
-  const setCameraId = useCallback(
-    (newDeviceId: string) => {
-      setDeviceId(newDeviceId);
-    },
-    [setDeviceId]
+    [setTrack, deviceId, setDeviceId]
   );
 
   useMountEffect(() => {
@@ -87,17 +77,17 @@ export function useLocalVideoTrack() {
     }
   }, [track]);
 
-  return [track, setLocalVideoTrack, setCameraId] as const;
+  return [track, setLocalVideoTrack] as const;
 }
 
 export default function useLocalTracks() {
-  const [audioTrack, setLocalAudioTrack, setMicId] = useLocalAudioTrack();
-  const [videoTrack, setLocalVideoTrack, setCameraId] = useLocalVideoTrack();
+  const [audioTrack, setLocalAudioTrack] = useLocalAudioTrack();
+  const [videoTrack, setLocalVideoTrack] = useLocalVideoTrack();
 
   const localTracks = [audioTrack, videoTrack].filter(track => track !== undefined) as (
     | LocalAudioTrack
     | LocalVideoTrack
   )[];
 
-  return { localTracks, setLocalVideoTrack, setCameraId, setLocalAudioTrack, setMicId };
+  return { localTracks, setLocalVideoTrack, setLocalAudioTrack };
 }
