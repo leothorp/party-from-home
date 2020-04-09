@@ -15,7 +15,7 @@ const QUERY = gql`
 `;
 
 const UPDATED_USER = gql`
-  subscription onUpdatedUser {
+  subscription onUpdatedSingleUser {
     updatedUser {
       user {
         identity

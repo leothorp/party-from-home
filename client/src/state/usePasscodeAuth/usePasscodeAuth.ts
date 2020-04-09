@@ -23,10 +23,8 @@ const VERIFY_PASSCODE = gql`
 `;
 
 export function getStoredUser() {
-  const match = window.location.search.match(/passcode=(.*)&?/);
   const storedUser = JSON.parse(window.sessionStorage.getItem('user') || '{}');
-  const passcode = match ? { passcode: match[1] } : storedUser;
-  return passcode;
+  return storedUser;
 }
 
 export function fetchToken(name: string, room: string, passcode: string) {
@@ -79,6 +77,7 @@ export default function usePasscodeAuth() {
     } else {
       setAuthError(Error(getErrorMessage('Passode invalid')));
     }
+    setIsAuthReady(true);
   }, []);
   const onInvalidPasscode = useCallback(() => {
     setAuthError(Error(getErrorMessage('Passode invalid')));
@@ -102,16 +101,22 @@ export default function usePasscodeAuth() {
 
   useEffect(() => {
     const storedUser = getStoredUser();
-    const passcode = window.sessionStorage.getItem('passcode');
+    const match = window.location.search.match(/passcode=(.*)&?/);
+    const storedPasscode = window.sessionStorage.getItem('passcode');
+    const passcode = storedPasscode ? storedPasscode : match && match[1];
 
     if (passcode) {
-      register({
-        variables: {
-          displayName: storedUser.displayName,
-          photoURL: storedUser.photoURL,
-          passcode,
-        },
-      });
+      if (storedUser?.displayName) {
+        register({
+          variables: {
+            displayName: storedUser.displayName,
+            photoURL: storedUser.photoURL,
+            passcode,
+          },
+        });
+      } else {
+        verifyPasscode({ variables: { passcode } });
+      }
     } else {
       setIsAuthReady(true);
     }
