@@ -1,5 +1,4 @@
 import React, { useState, useCallback } from 'react';
-import useMountEffect from '../../hooks/useMountEffect/useMountEffect';
 import useRooms from '../../hooks/partyHooks/useRooms';
 import useUsers from '../../hooks/partyHooks/useUsers';
 import { styled } from '@material-ui/core/styles';

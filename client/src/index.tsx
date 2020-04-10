@@ -18,6 +18,7 @@ import UserSetup from './components/UserSetup/UserSetup';
 import useMocks from './dev/useMocks';
 import { ApolloProvider } from '@apollo/react-hooks';
 import apolloClient from './graph';
+import { ErrorBoundary } from './components/ErrorBoundary/ErrorBoundary';
 
 // See: https://media.twiliocdn.com/sdk/js/video/releases/2.0.0/docs/global.html#ConnectOptions
 // for available connection options.
@@ -44,10 +45,12 @@ const VideoApp = () => {
   useMocks.use();
 
   return (
-    <VideoProvider options={connectionOptions} onError={setError}>
-      <ErrorDialog dismissError={() => setError(null)} error={error} />
-      <App />
-    </VideoProvider>
+    <ErrorBoundary>
+      <VideoProvider options={connectionOptions} onError={setError}>
+        <ErrorDialog dismissError={() => setError(null)} error={error} />
+        <App />
+      </VideoProvider>
+    </ErrorBoundary>
   );
 };
 
