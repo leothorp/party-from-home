@@ -37,7 +37,7 @@ The link and passcode will expire after one week. To deploy a new instance of th
 
 ### Running the local token server
 
-This application requires an access token to connect to a Room. The included local token [server](server.js) provides the application with access tokens. Perform the following steps to setup the local token server:
+This application requires an access token to connect to a Room. The included local token [server](server/src/server.ts) provides the application with access tokens. Perform the following steps to setup the local token server:
 
 - Create an account in the [Twilio Console](https://www.twilio.com/console).
 - Click on 'Settings' and take note of your Account SID.
@@ -54,7 +54,7 @@ TWILIO_API_KEY_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_SERVICE_SID=ISxxxxxxxxxxxxxxxxxxxxxxxxxx # Sync Service SID
 ```
 
-Now the local token server (see [server.js](server.js)) can dispense Access Tokens to connect to a Room.
+Now the local token server (see [server/src/server.ts](server/src/server.ts)) can dispense Access Tokens to connect to a Room.
 
 Add the following lines to the .env file to add a passcode to your party (required):
 ```
