@@ -54,7 +54,7 @@ TWILIO_API_KEY_SECRET=xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
 TWILIO_SERVICE_SID=ISxxxxxxxxxxxxxxxxxxxxxxxxxx # Sync Service SID
 ```
 
-Now the local token server (see [server.js](server.js)) can dispense Access Tokens to connect to a Room.
+Now the local token server (see [server.ts](server.ts)) can dispense Access Tokens to connect to a Room.
 
 Add the following lines to the .env file to add a passcode to your party (required):
 ```
